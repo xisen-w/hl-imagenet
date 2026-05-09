@@ -100,13 +100,10 @@ class BirdLike:
         if sym_val.confidence < 0.8:
             return FeatureValue.absent("insufficient symmetry for bird")
 
-        # Must NOT match other concepts
         vehicle_feat = registry.get_feature("vehicle_like")
         if vehicle_feat.evaluate(graph).confidence > 0.2:
             return FeatureValue.absent("looks more like vehicle")
 
-        # Must NOT have dominant yellow/orange (buses), smooth texture (teapots),
-        # or organic texture (mushrooms)
         yellow_feat = registry.get_feature("yellow_dominant")
         if yellow_feat.evaluate(graph).confidence > 0.3:
             return FeatureValue.absent("too yellow for bird")

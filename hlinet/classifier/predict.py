@@ -10,6 +10,7 @@ import numpy as np
 
 from hlinet.classifier.hierarchy import ClassNode, build_phase1_hierarchy
 from hlinet.classifier.scorer import score_gate, score_node
+from hlinet.classifier.tiebreaker import resolve_tie
 from hlinet.scene.builder import SceneGraphBuilder
 from hlinet.types import FeatureValue, Prediction, SceneGraph
 
@@ -41,6 +42,19 @@ def predict(image: np.ndarray) -> Prediction:
         )
 
     candidates.sort(key=lambda x: x[1], reverse=True)
+
+    # Pairwise tiebreaker: check top-3 pairs for misranking
+    if len(candidates) >= 2:
+        for i in range(min(3, len(candidates))):
+            for j in range(i + 1, min(4, len(candidates))):
+                label_i, score_i, _ = candidates[i]
+                label_j, score_j, _ = candidates[j]
+                margin = score_i - score_j
+                if margin < 0.25 and score_j > 0.1:
+                    tie_result = resolve_tie(label_i, label_j, graph)
+                    if tie_result is not None and tie_result < 0.35:
+                        candidates[i], candidates[j] = candidates[j], candidates[i]
+
     best_label, best_score, best_route = candidates[0]
     alternatives = [(label, score) for label, score, _ in candidates[1:5]]
 

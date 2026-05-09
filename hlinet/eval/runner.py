@@ -22,8 +22,10 @@ def run_evaluation(
     classes: list[str] | None = None,
     max_per_class: int | None = None,
     verbose: bool = True,
+    auto_save: bool = True,
+    tag: str = "phase1",
 ) -> EvalResult:
-    """Run full evaluation on the dataset."""
+    """Run full evaluation on the dataset. Always saves a log unless auto_save=False."""
     classes = classes or PHASE1_CLASSES
     samples = load_dataset(data_dir=data_dir, classes=classes, max_per_class=max_per_class)
 
@@ -47,6 +49,9 @@ def run_evaluation(
         if verbose and (i + 1) % 10 == 0:
             print(f"  [{i+1}/{len(samples)}] acc={result.top1_accuracy:.3f} "
                   f"latency={result.mean_latency_ms:.0f}ms")
+
+    if auto_save:
+        save_report(result, tag=tag)
 
     return result
 
