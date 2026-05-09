@@ -54,7 +54,7 @@ def run_evaluation(
 def save_report(result: EvalResult, tag: str = "phase1") -> Path:
     """Save evaluation report to logs directory."""
     LOGS_DIR.mkdir(parents=True, exist_ok=True)
-    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M")
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     report_path = LOGS_DIR / f"eval_{tag}_{timestamp}.json"
 
     report = result.to_dict()
@@ -63,6 +63,31 @@ def save_report(result: EvalResult, tag: str = "phase1") -> Path:
 
     with open(report_path, "w") as f:
         json.dump(report, f, indent=2)
+
+    # Also save a human-readable markdown log
+    md_path = LOGS_DIR / f"eval_{tag}_{timestamp}.md"
+    with open(md_path, "w") as f:
+        f.write(f"# Eval Run: {timestamp}\n\n")
+        f.write(f"**Tag:** {tag}\n")
+        f.write(f"**Samples:** {result.n_samples}\n")
+        f.write(f"**Top-1 Accuracy:** {result.top1_accuracy:.3f}\n")
+        f.write(f"**Top-3 Accuracy:** {result.top3_accuracy:.3f}\n")
+        f.write(f"**Mean Latency:** {result.mean_latency_ms:.0f} ms\n\n")
+        f.write("## Per-Class Accuracy\n\n")
+        f.write("| Class | Accuracy | Correct/Total |\n")
+        f.write("|-------|----------|---------------|\n")
+        for cls, acc in sorted(result.per_class_accuracy.items()):
+            f.write(f"| {cls} | {acc:.3f} | {result.per_class_correct[cls]}/{result.per_class_total[cls]} |\n")
+        f.write("\n## Top Confusions\n\n")
+        sorted_confusion = sorted(
+            [(k, v) for k, v in result.confusion.items() if k[0] != k[1]],
+            key=lambda x: -x[1],
+        )
+        for (true, pred), count in sorted_confusion[:10]:
+            f.write(f"- {true} → {pred}: {count}\n")
+        f.write("\n## Feature Reuse\n\n")
+        for fname, count in sorted(result.feature_reuse.items(), key=lambda x: -x[1])[:10]:
+            f.write(f"- {fname}: used by {count} classes\n")
 
     return report_path
 

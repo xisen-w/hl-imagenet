@@ -26,7 +26,6 @@ class CircularComponents:
             return FeatureValue.detected(
                 confidence=min(count * 0.3, 1.0),
                 evidence=[f"found {count} circular components"],
-                raw={"count": count},
             )
         return FeatureValue.absent("no circular components")
 

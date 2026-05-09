@@ -75,6 +75,7 @@ class SceneGraph:
     graph: nx.DiGraph
     image_shape: tuple[int, int, int]
     atoms: list[Atom] = field(default_factory=list)
+    raw_image: np.ndarray | None = field(default=None, repr=False)
 
     @property
     def nodes(self) -> list[dict]:

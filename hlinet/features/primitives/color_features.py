@@ -8,20 +8,20 @@ from hlinet.registry import register_feature
 from hlinet.types import FeatureValue, Region, SceneGraph
 
 
-@register_feature(name="yellow_dominant", tags=["color", "primitive"], description="Image has dominant yellow coloring")
+@register_feature(name="yellow_dominant", tags=["color", "primitive"], description="Image has dominant yellow/orange coloring")
 class YellowDominant:
     def evaluate(self, graph: SceneGraph, region: Region | None = None) -> FeatureValue:
         yellow_coverage = 0.0
         for atom in graph.atoms:
-            if atom.kind == "color_region" and atom.metadata.get("color") == "yellow":
+            if atom.kind == "color_region" and atom.metadata.get("color") in ("yellow", "orange"):
                 yellow_coverage += atom.region.area_fraction
 
         if yellow_coverage > 0.1:
             return FeatureValue.detected(
                 confidence=min(yellow_coverage * 3, 1.0),
-                evidence=[f"yellow coverage: {yellow_coverage:.2f}"],
+                evidence=[f"yellow/orange coverage: {yellow_coverage:.2f}"],
             )
-        return FeatureValue.absent("no significant yellow")
+        return FeatureValue.absent("no significant yellow/orange")
 
 
 @register_feature(name="black_white_dominant", tags=["color", "primitive"], description="Image is primarily black and white")

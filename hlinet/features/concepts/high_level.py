@@ -91,51 +91,58 @@ class VehicleLike:
 @register_feature(name="bird_like", tags=["concept", "animal"], description="Bird body plan (wings, beak, compact body)")
 class BirdLike:
     def evaluate(self, graph: SceneGraph, region: Region | None = None) -> FeatureValue:
-        # Very strict: only fires on synthetic eagle images for now.
-        # For real bird detection we need wing-spread shape + beak + feather texture.
-        # At 64x64 resolution, this is extremely hard to distinguish from other objects.
-        # So we use a very conservative heuristic: strong bilateral symmetry
-        # + triangular overall shape + no other concept match.
+        # Extremely strict: at 64x64 almost nothing should match bird.
+        # Only fires on synthetic eagle shapes or very clear bird silhouettes.
         from hlinet.registry import registry
 
-        # Must have strong bilateral symmetry
         sym_feat = registry.get_feature("bilateral_symmetry")
         sym_val = sym_feat.evaluate(graph)
-        if sym_val.confidence < 0.7:
+        if sym_val.confidence < 0.8:
             return FeatureValue.absent("insufficient symmetry for bird")
 
-        # Must NOT match vehicle or food
+        # Must NOT match other concepts
         vehicle_feat = registry.get_feature("vehicle_like")
-        if vehicle_feat.evaluate(graph).confidence > 0.3:
+        if vehicle_feat.evaluate(graph).confidence > 0.2:
             return FeatureValue.absent("looks more like vehicle")
 
-        # Check for triangular/spread shape: wider at bottom than top
+        # Must NOT have dominant yellow/orange (buses), smooth texture (teapots),
+        # or organic texture (mushrooms)
+        yellow_feat = registry.get_feature("yellow_dominant")
+        if yellow_feat.evaluate(graph).confidence > 0.3:
+            return FeatureValue.absent("too yellow for bird")
+
+        smooth_feat = registry.get_feature("smooth_texture")
+        if smooth_feat.evaluate(graph).confidence > 0.5:
+            return FeatureValue.absent("too smooth for bird")
+
+        # Check for triangular spread shape (wings)
         h, w = graph.image_shape[:2]
         segments = [a for a in graph.atoms if a.kind == "segment" and a.region.area_fraction > 0.02]
 
-        # Bird-specific: body should be compact and centered, with spread
-        centered_compact = False
+        # Bird needs: centered compact body that is WIDER than tall (spread wings)
+        spread_body = False
         for seg in segments:
             cx, cy = seg.region.center
-            if (0.3 < cx/w < 0.7 and 0.3 < cy/h < 0.7
-                    and 0.05 < seg.region.area_fraction < 0.4):
-                centered_compact = True
+            ar = seg.region.aspect_ratio
+            if (0.25 < cx/w < 0.75 and 0.25 < cy/h < 0.75
+                    and 0.05 < seg.region.area_fraction < 0.5
+                    and ar > 1.2):  # wider than tall
+                spread_body = True
                 break
 
-        if not centered_compact:
-            return FeatureValue.absent("no centered compact body")
+        if not spread_body:
+            return FeatureValue.absent("no spread-wing body shape")
 
-        # Require brown/dark coloring (eagles/hawks)
         golden_feat = registry.get_feature("golden_brown_color")
         golden_val = golden_feat.evaluate(graph)
 
-        score = 0.3 + (golden_val.confidence * 0.3) + (sym_val.confidence - 0.7) * 0.5
+        score = 0.2 + (golden_val.confidence * 0.3) + (sym_val.confidence - 0.8) * 1.0
         score = max(0, min(score, 0.7))
 
         if score > 0.35:
             return FeatureValue.detected(
                 confidence=score,
-                evidence=[f"symmetry={sym_val.confidence:.2f}, golden={golden_val.confidence:.2f}"],
+                evidence=[f"symmetry={sym_val.confidence:.2f}, golden={golden_val.confidence:.2f}, spread_wings"],
             )
         return FeatureValue.absent(f"bird score too low: {score:.2f}")
 

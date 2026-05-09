@@ -18,7 +18,7 @@ class SceneGraphBuilder:
     def build(self, image: np.ndarray) -> SceneGraph:
         all_atoms = self._extract_atoms(image)
         graph = self._build_graph(all_atoms, image.shape)
-        return SceneGraph(graph=graph, image_shape=image.shape, atoms=all_atoms)
+        return SceneGraph(graph=graph, image_shape=image.shape, atoms=all_atoms, raw_image=image)
 
     def _extract_atoms(self, image: np.ndarray) -> list[Atom]:
         all_atoms = []

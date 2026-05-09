@@ -61,3 +61,31 @@ def _eval_feature_list(feature_names: list[str], graph: SceneGraph, cache: dict[
         scores.append(val.confidence)
 
     return sum(scores) / len(scores) if scores else 0.0
+
+
+def _eval_excluding_list(feature_names: list[str], graph: SceneGraph, cache: dict[str, FeatureValue]) -> float:
+    """For excluding features, use top-K average — strong exclusions penalize more than weak ones."""
+    if not feature_names:
+        return 0.0
+
+    scores = []
+    for fname in feature_names:
+        if fname in cache:
+            val = cache[fname]
+        else:
+            try:
+                feat = registry.get_feature(fname)
+                val = feat.evaluate(graph)
+                cache[fname] = val
+            except (KeyError, Exception):
+                val = FeatureValue.absent(f"feature {fname} unavailable")
+                cache[fname] = val
+        if val.present:
+            scores.append(val.confidence)
+
+    if not scores:
+        return 0.0
+    # Average of top-2 firing exclusions (or just the one if only one fires)
+    scores.sort(reverse=True)
+    top_k = scores[:2]
+    return sum(top_k) / len(top_k)

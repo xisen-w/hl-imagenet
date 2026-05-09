@@ -15,20 +15,16 @@ class StripedTexture:
         if not texture_atoms:
             return FeatureValue.absent("no texture atoms")
 
-        # Stripes require: strong orientation consistency across multiple patches
-        # AND alternating light/dark pattern (not just generic texture)
         gabor_atoms = [a for a in texture_atoms if "dominant_orientation" in a.metadata]
         if len(gabor_atoms) < 4:
             return FeatureValue.absent("too few texture patches for stripe detection")
 
-        # Check orientation consistency: stripes have ONE dominant orientation
         orientations = [a.metadata["dominant_orientation"] for a in gabor_atoms]
         from collections import Counter
         orient_counts = Counter(orientations)
         most_common_orient, most_common_count = orient_counts.most_common(1)[0]
         consistency = most_common_count / len(orientations)
 
-        # Also need high contrast / energy in that orientation
         high_energy_patches = [
             a for a in gabor_atoms
             if a.metadata.get("energy", 0) > 0.3
@@ -36,14 +32,20 @@ class StripedTexture:
         ]
         energy_ratio = len(high_energy_patches) / max(len(gabor_atoms), 1)
 
-        # Strong stripes: >70% patches share orientation AND have high energy
-        score = consistency * 0.6 + energy_ratio * 0.4
+        # Real stripes need black+white color regions (alternating dark/light bands)
+        bw_coverage = 0.0
+        for atom in graph.atoms:
+            if atom.kind == "color_region" and atom.metadata.get("color") in ("black", "white"):
+                bw_coverage += atom.region.area_fraction
+
+        bw_bonus = min(bw_coverage * 2, 1.0) * 0.2
+        score = consistency * 0.5 + energy_ratio * 0.3 + bw_bonus
         if score > 0.55 and consistency > 0.6:
             return FeatureValue.detected(
                 confidence=min(score, 1.0),
-                evidence=[f"stripe: orient_consistency={consistency:.2f}, energy_ratio={energy_ratio:.2f}"],
+                evidence=[f"stripe: consistency={consistency:.2f}, energy={energy_ratio:.2f}, bw={bw_coverage:.2f}"],
             )
-        return FeatureValue.absent(f"weak stripe signal: consistency={consistency:.2f}")
+        return FeatureValue.absent(f"weak stripe: consistency={consistency:.2f}")
 
 
 @register_feature(name="fur_texture", tags=["texture", "animal"], description="Fine-grained, high-entropy texture suggesting fur/hair")
@@ -77,17 +79,19 @@ class SmoothTexture:
         if not texture_atoms:
             return FeatureValue.absent("no texture atoms")
 
-        smooth_count = 0
-        for atom in texture_atoms:
-            entropy = atom.metadata.get("entropy", 5)
-            uniformity = atom.metadata.get("uniformity", 0)
-            if entropy < 2.0 or uniformity > 0.5:
-                smooth_count += 1
+        # At 64x64, use relative thresholds based on the patch distribution
+        entropies = [a.metadata.get("entropy", 5) for a in texture_atoms]
+        uniformities = [a.metadata.get("uniformity", 0) for a in texture_atoms]
+
+        # Smooth: patches with below-median entropy or above-median uniformity
+        med_entropy = np.median(entropies) if entropies else 3.0
+        smooth_count = sum(1 for e, u in zip(entropies, uniformities)
+                          if e < med_entropy * 0.85 or u > 0.25)
 
         ratio = smooth_count / len(texture_atoms)
-        if ratio > 0.4:
+        if ratio > 0.3:
             return FeatureValue.detected(
-                confidence=min(ratio, 1.0),
+                confidence=min(ratio * 1.2, 1.0),
                 evidence=[f"smooth texture in {smooth_count}/{len(texture_atoms)} patches"],
             )
         return FeatureValue.absent("texture too complex for smooth")

@@ -29,7 +29,8 @@ def predict(image: np.ndarray) -> Prediction:
     """
     graph = _builder.build(image)
     cache: dict[str, FeatureValue] = {}
-    candidates = _score_hierarchy(_hierarchy, graph, cache)
+    # Flat scoring: evaluate ALL leaf classes directly (no gate filtering)
+    candidates = _score_all_classes_flat(_hierarchy, graph, cache)
 
     if not candidates:
         return Prediction(
@@ -55,30 +56,26 @@ def predict(image: np.ndarray) -> Prediction:
     )
 
 
-def _score_hierarchy(
-    node: ClassNode, graph: SceneGraph, cache: dict[str, FeatureValue], route: list[str] | None = None
+def _score_all_classes_flat(
+    root: ClassNode, graph: SceneGraph, cache: dict[str, FeatureValue]
 ) -> list[tuple[str, float, list[str]]]:
-    """Recursively score the hierarchy, returning (label, score, route) for all leaves."""
-    if route is None:
-        route = []
+    """Score ALL leaf classes directly, ignoring gate thresholds."""
+    results = []
+    _collect_leaves(root, graph, cache, [], results)
+    return results
 
+
+def _collect_leaves(
+    node: ClassNode, graph: SceneGraph, cache: dict[str, FeatureValue],
+    route: list[str], results: list[tuple[str, float, list[str]]]
+) -> None:
     current_route = route + [node.name]
-
     if node.is_leaf:
         score = score_node(node, graph, cache)
-        return [(node.name, score, current_route)]
-
-    # Score gate
-    gate = score_gate(node, graph, cache)
-    if gate < 0.25 and node.name != "root":
-        return []
-
-    results = []
-    for child in node.children:
-        child_results = _score_hierarchy(child, graph, cache, current_route)
-        results.extend(child_results)
-
-    return results
+        results.append((node.name, score, current_route))
+    else:
+        for child in node.children:
+            _collect_leaves(child, graph, cache, current_route, results)
 
 
 def _generate_proof(label: str, route: list[str], cache: dict[str, FeatureValue]) -> list[str]:
