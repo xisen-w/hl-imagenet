@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.env
+.venv/
+venv/
+.claude/
+data/
+*.JPEG
+*.jpg.large
+.DS_Store
+settings.local.json

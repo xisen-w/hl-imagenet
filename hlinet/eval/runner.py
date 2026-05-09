@@ -1,0 +1,98 @@
+"""Evaluation runner: orchestrates full evaluation and produces reports."""
+
+from __future__ import annotations
+
+import json
+import sys
+import time
+from datetime import datetime
+from pathlib import Path
+
+import cv2
+
+from hlinet.classifier.predict import predict
+from hlinet.eval.dataset import load_dataset, PHASE1_CLASSES
+from hlinet.eval.metrics import EvalResult
+
+LOGS_DIR = Path(__file__).parent.parent.parent / "logs"
+
+
+def run_evaluation(
+    data_dir: Path | None = None,
+    classes: list[str] | None = None,
+    max_per_class: int | None = None,
+    verbose: bool = True,
+) -> EvalResult:
+    """Run full evaluation on the dataset."""
+    classes = classes or PHASE1_CLASSES
+    samples = load_dataset(data_dir=data_dir, classes=classes, max_per_class=max_per_class)
+
+    if not samples:
+        print("No samples found. Ensure data is in data/imagenet_10/<class_name>/")
+        return EvalResult()
+
+    result = EvalResult()
+
+    for i, sample in enumerate(samples):
+        image = cv2.imread(str(sample.path))
+        if image is None:
+            continue
+
+        start = time.time()
+        prediction = predict(image)
+        latency = (time.time() - start) * 1000
+
+        result.record(sample.label, prediction, latency)
+
+        if verbose and (i + 1) % 10 == 0:
+            print(f"  [{i+1}/{len(samples)}] acc={result.top1_accuracy:.3f} "
+                  f"latency={result.mean_latency_ms:.0f}ms")
+
+    return result
+
+
+def save_report(result: EvalResult, tag: str = "phase1") -> Path:
+    """Save evaluation report to logs directory."""
+    LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M")
+    report_path = LOGS_DIR / f"eval_{tag}_{timestamp}.json"
+
+    report = result.to_dict()
+    report["tag"] = tag
+    report["timestamp"] = timestamp
+
+    with open(report_path, "w") as f:
+        json.dump(report, f, indent=2)
+
+    return report_path
+
+
+def main():
+    """CLI entry point for evaluation."""
+    import argparse
+    parser = argparse.ArgumentParser(description="Run HL-Image-Net evaluation")
+    parser.add_argument("--data-dir", type=Path, default=None)
+    parser.add_argument("--max-per-class", type=int, default=None)
+    parser.add_argument("--tag", default="phase1")
+    parser.add_argument("--quiet", action="store_true")
+    args = parser.parse_args()
+
+    print("Running HL-Image-Net evaluation...")
+    print(f"Classes: {PHASE1_CLASSES}")
+    print()
+
+    result = run_evaluation(
+        data_dir=args.data_dir,
+        max_per_class=args.max_per_class,
+        verbose=not args.quiet,
+    )
+
+    print()
+    print(result.summary())
+
+    report_path = save_report(result, tag=args.tag)
+    print(f"\nReport saved to: {report_path}")
+
+
+if __name__ == "__main__":
+    main()
