@@ -11,7 +11,12 @@ def score_node(node: ClassNode, graph: SceneGraph, cache: dict[str, FeatureValue
     """Score a leaf class node against a scene graph."""
     required_score = _eval_required(node.required_features, graph, cache)
     if required_score < 0.1:
-        return 0.0
+        # Fallback: still give a small score based on supporting only
+        # This allows classes to compete even without required features firing
+        supporting_score = _eval_feature_list(node.supporting_features, graph, cache)
+        excluding_score = _eval_feature_list(node.excluding_features, graph, cache)
+        fallback = supporting_score * 0.15 - excluding_score * 0.1
+        return max(0.0, min(fallback, 0.3))
 
     supporting_score = _eval_feature_list(node.supporting_features, graph, cache)
     excluding_score = _eval_feature_list(node.excluding_features, graph, cache)

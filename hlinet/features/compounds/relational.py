@@ -225,6 +225,27 @@ class SpoutHandleShape:
         return FeatureValue.absent(f"no spout-handle: aspect={aspect:.2f}, solidity={solidity:.2f}")
 
 
+@register_feature(name="warm_color_dominated", tags=["compound", "color"], description="Image dominated by warm tones (R>B) — dogs, not teapots/mushrooms")
+class WarmColorDominated:
+    def evaluate(self, graph: SceneGraph, region: Region | None = None) -> FeatureValue:
+        if graph.raw_image is None:
+            return FeatureValue.absent("no raw image")
+
+        b, g, r = cv2.split(graph.raw_image)
+        h, w = r.shape
+
+        # Fraction of pixels where red channel > blue by significant margin
+        warm_pixels = float((r.astype(int) - b.astype(int) > 30).sum()) / (h * w)
+
+        if warm_pixels > 0.45:
+            score = min((warm_pixels - 0.3) * 2, 1.0)
+            return FeatureValue.detected(
+                confidence=score,
+                evidence=[f"warm_dominated: {warm_pixels:.2f} warm pixels"],
+            )
+        return FeatureValue.absent(f"not warm dominated: {warm_pixels:.2f}")
+
+
 @register_feature(name="outdoor_animal_scene", tags=["compound", "animal"], description="Animal-like mass in outdoor/green setting (not bus, not indoor)")
 class OutdoorAnimalScene:
     def evaluate(self, graph: SceneGraph, region: Region | None = None) -> FeatureValue:

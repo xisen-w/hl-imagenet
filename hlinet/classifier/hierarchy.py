@@ -142,7 +142,7 @@ def build_phase1_hierarchy() -> ClassNode:
                         is_leaf=True,
                         required_features=["organic_texture"],
                         supporting_features=["handle_spout", "circular_components", "uniform_background", "spout_handle_shape", "round_object_on_surface"],
-                        excluding_features=["wheel_like", "fur_texture", "keyboard_pattern", "yellow_dominant", "striped_texture", "sky_above_object", "yellow_center_mass", "golden_fur_in_nature", "outdoor_animal_scene"],
+                        excluding_features=["wheel_like", "fur_texture", "keyboard_pattern", "yellow_dominant", "striped_texture", "sky_above_object", "yellow_center_mass", "golden_fur_in_nature", "outdoor_animal_scene", "warm_color_dominated"],
                     ),
                 ],
             ),

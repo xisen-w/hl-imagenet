@@ -34,7 +34,7 @@ class HorizontalWindowPattern:
         # Also check amplitude of variation
         amplitude = float(mid_rows.max() - mid_rows.min())
 
-        if crossings >= 4 and amplitude > 40:
+        if crossings >= 3 and amplitude > 40:
             score = min(crossings / 10 * amplitude / 80, 1.0)
             return FeatureValue.detected(
                 confidence=score,
