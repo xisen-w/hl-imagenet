@@ -106,6 +106,14 @@ def register_feature(
     return decorator
 
 
+def get_feature(name: str):
+    """Get a registered feature instance by name, or None if not found."""
+    try:
+        return registry.get_feature(name)
+    except KeyError:
+        return None
+
+
 def register_sensor(name: str, output_kinds: list[str] | None = None):
     """Decorator to register a sensor class with the global registry."""
     def decorator(cls: type) -> type:

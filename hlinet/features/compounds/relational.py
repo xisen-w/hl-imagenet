@@ -279,3 +279,137 @@ class OutdoorAnimalScene:
                 evidence=[f"outdoor_animal: nature={nature_ratio:.2f}, var={local_var:.0f}"],
             )
         return FeatureValue.absent(f"no outdoor-animal: nature={nature_ratio:.2f}, yellow={yellow_ratio:.2f}")
+
+
+@register_feature(name="bottom_detail_bright_cap", tags=["compound", "food"], description="Bright top half + high edge detail in bottom half (mushroom cap + gills/ground)")
+class BottomDetailBrightCap:
+    def evaluate(self, graph: SceneGraph, region: Region | None = None) -> FeatureValue:
+        if graph.raw_image is None:
+            return FeatureValue.absent("no raw image")
+
+        gray = cv2.cvtColor(graph.raw_image, cv2.COLOR_BGR2GRAY)
+        h, w = gray.shape
+
+        top_bright = float(gray[:h // 2, :].mean())
+        bot_bright = float(gray[h // 2:, :].mean())
+        bright_diff = top_bright - bot_bright
+
+        bot_edges = cv2.Canny(gray[h // 2:, :], 50, 150)
+        bot_edge = float(bot_edges.sum()) / 255 / (h // 2 * w)
+
+        if bright_diff > 15 and bot_edge > 0.28:
+            score = min((bright_diff - 10) / 30 * (bot_edge - 0.2) / 0.2, 1.0)
+            return FeatureValue.detected(
+                confidence=max(0.3, score),
+                evidence=[f"mush_shape: bright_diff={bright_diff:.0f}, bot_edge={bot_edge:.2f}"],
+            )
+        return FeatureValue.absent(f"no mush shape: diff={bright_diff:.0f}, edge={bot_edge:.2f}")
+
+
+@register_feature(name="distinct_background", tags=["compound", "container", "food"], description="Object with distinct brightness contrast against background (tabletop/shelf object)")
+class DistinctBackground:
+    def evaluate(self, graph: SceneGraph, region: Region | None = None) -> FeatureValue:
+        if graph.raw_image is None:
+            return FeatureValue.absent("no raw image")
+
+        gray = cv2.cvtColor(graph.raw_image, cv2.COLOR_BGR2GRAY)
+        h, w = gray.shape
+
+        center_reg = gray[h // 4:3 * h // 4, w // 4:3 * w // 4]
+        border_top = gray[:h // 4, :].mean()
+        border_bot = gray[3 * h // 4:, :].mean()
+        border_left = gray[:, :w // 4].mean()
+        border_right = gray[:, 3 * w // 4:].mean()
+        border_mean = (border_top + border_bot + border_left + border_right) / 4
+        center_mean = float(center_reg.mean())
+        contrast = abs(center_mean - border_mean)
+
+        if contrast > 30:
+            score = min((contrast - 20) / 40, 1.0)
+            return FeatureValue.detected(
+                confidence=score,
+                evidence=[f"distinct_bg: contrast={contrast:.1f} (center={center_mean:.0f}, border={border_mean:.0f})"],
+            )
+        return FeatureValue.absent(f"no distinct bg: contrast={contrast:.1f}")
+
+
+@register_feature(name="top_textured_bottom_plain", tags=["compound", "container"], description="High texture variance in top half vs low in bottom (object on plain surface)")
+class TopTexturedBottomPlain:
+    def evaluate(self, graph: SceneGraph, region: Region | None = None) -> FeatureValue:
+        if graph.raw_image is None:
+            return FeatureValue.absent("no raw image")
+
+        gray = cv2.cvtColor(graph.raw_image, cv2.COLOR_BGR2GRAY)
+        h, w = gray.shape
+
+        top_var = float(cv2.Laplacian(gray[:h // 2, :], cv2.CV_64F).var())
+        bot_var = float(cv2.Laplacian(gray[h // 2:, :], cv2.CV_64F).var())
+        ratio = top_var / max(bot_var, 1)
+
+        if ratio > 2.0:
+            score = min((ratio - 1.5) / 5.0, 1.0)
+            return FeatureValue.detected(
+                confidence=max(0.3, score),
+                evidence=[f"top_textured: ratio={ratio:.1f} (top={top_var:.0f}, bot={bot_var:.0f})"],
+            )
+        return FeatureValue.absent(f"not top-textured: ratio={ratio:.1f}")
+
+
+@register_feature(name="large_warm_blob", tags=["compound", "animal"], description="Single dominant warm-colored connected region filling much of frame (dog body)")
+class LargeWarmBlob:
+    def evaluate(self, graph: SceneGraph, region: Region | None = None) -> FeatureValue:
+        if graph.raw_image is None:
+            return FeatureValue.absent("no raw image")
+
+        hsv = cv2.cvtColor(graph.raw_image, cv2.COLOR_BGR2HSV)
+        h, w = hsv.shape[:2]
+
+        warm = ((hsv[:, :, 0] >= 8) & (hsv[:, :, 0] <= 35) &
+                (hsv[:, :, 1] > 40) & (hsv[:, :, 2] > 50))
+        warm_ratio = float(warm.sum()) / (h * w)
+        if warm_ratio < 0.2:
+            return FeatureValue.absent(f"insufficient warm pixels: {warm_ratio:.2f}")
+
+        warm_uint8 = (warm * 255).astype(np.uint8)
+        num_labels, labels = cv2.connectedComponents(warm_uint8)
+        if num_labels <= 1:
+            return FeatureValue.absent("no warm components")
+
+        label_sizes = [(labels == i).sum() for i in range(1, num_labels)]
+        largest_blob = max(label_sizes)
+        blob_dominance = largest_blob / max(warm.sum(), 1)
+        blob_coverage = largest_blob / (h * w)
+
+        if blob_dominance > 0.7 and blob_coverage > 0.15:
+            score = min(blob_dominance * blob_coverage * 4, 1.0)
+            return FeatureValue.detected(
+                confidence=max(0.3, score),
+                evidence=[f"warm_blob: dominance={blob_dominance:.2f}, coverage={blob_coverage:.2f}"],
+            )
+        return FeatureValue.absent(f"no large warm blob: dom={blob_dominance:.2f}, cov={blob_coverage:.2f}")
+
+
+@register_feature(name="multi_hue_scene", tags=["compound", "scene"], description="Multiple distinct hue regions present (complex outdoor scene)")
+class MultiHueScene:
+    def evaluate(self, graph: SceneGraph, region: Region | None = None) -> FeatureValue:
+        if graph.raw_image is None:
+            return FeatureValue.absent("no raw image")
+
+        hsv = cv2.cvtColor(graph.raw_image, cv2.COLOR_BGR2HSV)
+        h, w = hsv.shape[:2]
+
+        sat_mask = hsv[:, :, 1] > 30
+        if sat_mask.sum() < 100:
+            return FeatureValue.absent("too few saturated pixels")
+
+        hues = hsv[:, :, 0][sat_mask].flatten()
+        hist, _ = np.histogram(hues, bins=18, range=(0, 180))
+        peaks = int((hist > hist.max() * 0.2).sum())
+
+        if peaks >= 4:
+            score = min((peaks - 2) / 6, 1.0)
+            return FeatureValue.detected(
+                confidence=max(0.3, score),
+                evidence=[f"multi_hue: {peaks} hue peaks"],
+            )
+        return FeatureValue.absent(f"few hue peaks: {peaks}")

@@ -18,11 +18,11 @@ class WheelLike:
         for atom in graph.atoms:
             if atom.kind == "circle":
                 _, cy = atom.region.center
-                if cy > lower_half_y:
+                if cy > lower_half_y and atom.region.area_fraction > 0.04:
                     wheel_candidates.append(atom)
             elif atom.kind == "contour" and atom.metadata.get("circularity", 0) > 0.65:
                 _, cy = atom.region.center
-                if cy > lower_half_y:
+                if cy > lower_half_y and atom.region.area_fraction > 0.04:
                     wheel_candidates.append(atom)
 
         if len(wheel_candidates) >= 2:

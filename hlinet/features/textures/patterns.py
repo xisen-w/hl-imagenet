@@ -118,3 +118,23 @@ class OrganicTexture:
                 evidence=[f"organic texture in {len(organic_scores)} patches"],
             )
         return FeatureValue.absent("no organic texture pattern")
+
+
+@register_feature(name="manufactured_smooth_surface", tags=["texture", "object"], description="Smooth manufactured surface (teapot glaze, ceramic, metal)")
+class ManufacturedSmoothSurface:
+    def evaluate(self, graph: SceneGraph, region: Region | None = None) -> FeatureValue:
+        if graph.raw_image is None:
+            return FeatureValue.absent("no raw image")
+        import cv2
+        gray = cv2.cvtColor(graph.raw_image, cv2.COLOR_BGR2GRAY)
+        h, w = gray.shape
+        gx = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=3)
+        gy = cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=3)
+        mag = np.sqrt(gx**2 + gy**2)
+        smooth_pct = float((mag < 10).sum()) / (h * w)
+        if smooth_pct > 0.08:
+            return FeatureValue.detected(
+                confidence=min(smooth_pct * 5, 1.0),
+                evidence=[f"smooth_surface={smooth_pct:.3f}"],
+            )
+        return FeatureValue.absent(f"smooth_pct={smooth_pct:.3f} < 0.08")

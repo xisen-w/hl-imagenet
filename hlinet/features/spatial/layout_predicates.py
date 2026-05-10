@@ -40,6 +40,38 @@ class HorizontalWindowPattern:
                 confidence=score,
                 evidence=[f"horizontal bands: {crossings} crossings, amplitude={amplitude:.0f}"],
             )
+
+        # Secondary paths require yellow + sky (bus context)
+        hsv = cv2.cvtColor(graph.raw_image, cv2.COLOR_BGR2HSV)
+        yellow = ((hsv[:, :, 0] >= 15) & (hsv[:, :, 0] <= 45) &
+                  (hsv[:, :, 1] > 50) & (hsv[:, :, 2] > 50))
+        yellow_ratio = float(yellow.sum()) / (h * w)
+        top = hsv[:h // 4, :, :]
+        blue_sky = ((top[:, :, 0] >= 90) & (top[:, :, 0] <= 130) & (top[:, :, 1] > 30))
+        bright_sky = (top[:, :, 2] > 180) & (top[:, :, 1] < 50)
+        sky_ratio = float((blue_sky | bright_sky).sum()) / (h // 4 * w)
+
+        if yellow_ratio > 0.10 and sky_ratio > 0.10:
+            # Vertical column pattern (bus from angle)
+            col_means = gray.mean(axis=0)
+            col_dev = col_means - col_means.mean()
+            col_crossings = int(np.sum(np.diff(np.sign(col_dev)) != 0))
+            col_amp = float(col_means.max() - col_means.min())
+            if col_crossings >= 12 and col_amp > 25:
+                score = min(col_crossings / 20 * col_amp / 60, 1.0)
+                return FeatureValue.detected(
+                    confidence=score,
+                    evidence=[f"vertical window columns: {col_crossings} crossings, amp={col_amp:.0f}, yellow={yellow_ratio:.2f}"],
+                )
+
+            # Relaxed row pattern (weak amplitude but strong yellow+sky context)
+            if crossings >= 6 and amplitude > 30 and yellow_ratio > 0.25 and sky_ratio > 0.30:
+                score = min(crossings / 12 * amplitude / 60, 1.0)
+                return FeatureValue.detected(
+                    confidence=score,
+                    evidence=[f"relaxed window pattern: {crossings} crossings, amp={amplitude:.0f}, yellow+sky context"],
+                )
+
         return FeatureValue.absent(f"weak horizontal pattern: crossings={crossings}, amp={amplitude:.0f}")
 
 

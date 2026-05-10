@@ -91,8 +91,6 @@ class VehicleLike:
 @register_feature(name="bird_like", tags=["concept", "animal"], description="Bird body plan (wings, beak, compact body)")
 class BirdLike:
     def evaluate(self, graph: SceneGraph, region: Region | None = None) -> FeatureValue:
-        # Extremely strict: at 64x64 almost nothing should match bird.
-        # Only fires on synthetic eagle shapes or very clear bird silhouettes.
         from hlinet.registry import registry
 
         sym_feat = registry.get_feature("bilateral_symmetry")
@@ -100,46 +98,50 @@ class BirdLike:
         if sym_val.confidence < 0.8:
             return FeatureValue.absent("insufficient symmetry for bird")
 
-        vehicle_feat = registry.get_feature("vehicle_like")
-        if vehicle_feat.evaluate(graph).confidence > 0.2:
-            return FeatureValue.absent("looks more like vehicle")
-
         yellow_feat = registry.get_feature("yellow_dominant")
         if yellow_feat.evaluate(graph).confidence > 0.3:
             return FeatureValue.absent("too yellow for bird")
 
-        smooth_feat = registry.get_feature("smooth_texture")
-        if smooth_feat.evaluate(graph).confidence > 0.5:
-            return FeatureValue.absent("too smooth for bird")
+        import cv2 as _cv2
+        if graph.raw_image is not None:
+            _hsv = _cv2.cvtColor(graph.raw_image, _cv2.COLOR_BGR2HSV)
+            _mean_sat = float(_hsv[:, :, 1].mean())
+            if _mean_sat > 55:
+                return FeatureValue.absent("too saturated for bird")
+            _gray = _cv2.cvtColor(graph.raw_image, _cv2.COLOR_BGR2GRAY)
+            _edges = _cv2.Canny(_gray, 50, 150)
+            _edge_d = float(_edges.sum() / 255) / (_gray.shape[0] * _gray.shape[1])
+            if _edge_d > 0.05:
+                return FeatureValue.absent("too much edge detail for bird")
 
-        # Check for triangular spread shape (wings)
+        # Check for spread-wing body shape
         h, w = graph.image_shape[:2]
         segments = [a for a in graph.atoms if a.kind == "segment" and a.region.area_fraction > 0.02]
-
-        # Bird needs: centered compact body that is WIDER than tall (spread wings)
         spread_body = False
         for seg in segments:
             cx, cy = seg.region.center
             ar = seg.region.aspect_ratio
             if (0.25 < cx/w < 0.75 and 0.25 < cy/h < 0.75
                     and 0.05 < seg.region.area_fraction < 0.5
-                    and ar > 1.2):  # wider than tall
+                    and ar > 1.2):
                 spread_body = True
                 break
 
         if not spread_body:
             return FeatureValue.absent("no spread-wing body shape")
 
+        sky_feat = registry.get_feature("sky_above_object")
+        sky_val = sky_feat.evaluate(graph)
         golden_feat = registry.get_feature("golden_brown_color")
         golden_val = golden_feat.evaluate(graph)
 
-        score = 0.2 + (golden_val.confidence * 0.3) + (sym_val.confidence - 0.8) * 1.0
-        score = max(0, min(score, 0.7))
+        score = 0.25 + (sym_val.confidence - 0.8) * 1.0 + golden_val.confidence * 0.2 + sky_val.confidence * 0.35
+        score = max(0, min(score, 0.85))
 
-        if score > 0.35:
+        if score > 0.3:
             return FeatureValue.detected(
                 confidence=score,
-                evidence=[f"symmetry={sym_val.confidence:.2f}, golden={golden_val.confidence:.2f}, spread_wings"],
+                evidence=[f"symmetry={sym_val.confidence:.2f}, sky={sky_val.confidence:.2f}, spread_wings"],
             )
         return FeatureValue.absent(f"bird score too low: {score:.2f}")
 
