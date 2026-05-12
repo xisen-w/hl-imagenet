@@ -1,6 +1,6 @@
 # HL-ImageNet: A Preliminary Heuristic-Learning Demo for Image Classification
 
-> This is not a standard ImageNet benchmark result yet. Phase 1 used a mixed exploratory setup with 4 real Tiny ImageNet classes and 6 synthetic classes, and the main 86.1% number is development-set accuracy after iterative tuning. Phase 2 is now in exploratory split-aware development, and a Phase 2.2 diagnostic lens has been added to analyze validation failure geometry without changing classifier behavior.
+> This is not a standard ImageNet benchmark result. Phase 1 used a mixed exploratory setup with 4 real Tiny ImageNet classes and 6 synthetic classes, and the main 86.1% number is development-set accuracy after iterative tuning. Phase 2 now includes split-aware validation diagnostics and a benchmark harness against transparent non-neural baselines. Current Phase 2 validation shows the HL symbolic classifier above random and majority baselines, but below simple handcrafted feature baselines.
 
 **Heuristic Learning for Image Classification — Without Neural Networks**
 
@@ -25,6 +25,35 @@ This is an application of Jiayi Weng's [Heuristic Learning](https://trinkle23897
 | Inference time | ~25ms per image (M-series Mac) |
 
 > **Important**: The 86.1% was measured on the same 230 images used during development. All ~50 thresholds were tuned against these images. A later 400-image validation folder scored 54%, but exact file-hash checking found 38 images overlapping with the development set. On the stricter non-overlapping subset, accuracy is 51.4% (186/362). See [Evaluation Methodology](#evaluation-methodology) for full details.
+
+
+### Phase 2.3: Split-aware validation benchmark with non-neural baselines
+
+Phase 2.3 adds a benchmark harness that compares the current HL symbolic classifier against transparent non-neural baselines on the same 10-class Phase 2 validation split.
+
+Benchmark artifacts:
+
+- `logs/phase2/benchmarks/latest_phase2_benchmark.md`
+- `logs/phase2/benchmarks/latest_phase2_benchmark.json`
+
+Current full validation benchmark:
+
+| Model | Top-1 | Top-3 | Mean latency ms |
+|---|---:|---:|---:|
+| handcrafted_stats_knn | 46.1% | 72.1% | 0.88 |
+| image_stats_centroid | 43.4% | 73.1% | 0.68 |
+| color_centroid | 36.7% | 65.9% | 0.17 |
+| hl_symbolic_classifier | 33.4% | 68.6% | 73.39 |
+| majority_class | 10.0% | 30.0% | 0.00 |
+| random | 9.9% | 32.4% | 0.05 |
+
+> **Benchmark boundary**: This is a validation-split comparison, not a final held-out ImageNet result. The benchmark harness does not change classifier behavior and does not claim accuracy improvement. The current HL symbolic classifier beats random and majority baselines, but does not yet beat simple handcrafted non-neural baselines on this split.
+
+Run the benchmark harness:
+
+    python scripts/run_phase2_benchmarks.py --data-root ".\data\phase2" --split val
+
+The local Tiny ImageNet image split is intentionally not committed. The benchmark harness and generated benchmark artifacts are committed; `data/` remains ignored.
 
 ### Per-class accuracy (dev set)
 
@@ -334,8 +363,8 @@ Current repository context:
 - Repository: hl-imagenet
 - Purpose: heuristic-learning image classification demo without neural networks.
 - Primary package: hlinet.
-- Primary docs: README.md, docs/blog.md, docs/result1.md, docs/experiment_report.md, docs/design.md, docs/architecture/hl_imagenet_rcc_phase2_diagnostic_lens_v1_0.tex.
-- Primary scripts: scripts/run_eval.py, scripts/predict_image.py, scripts/generate_plots.py, scripts/demo.py, scripts/run_phase2_diagnostics.py.
+- Primary docs: README.md, docs/blog.md, docs/result1.md, docs/experiment_report.md, docs/design.md, docs/architecture/hl_imagenet_rcc_phase2_diagnostic_lens_v1_0.tex, docs/architecture/hl_imagenet_phase2_benchmark_harness_v1_0.tex.
+- Primary scripts: scripts/run_eval.py, scripts/predict_image.py, scripts/generate_plots.py, scripts/demo.py, scripts/run_phase2_diagnostics.py, scripts/run_phase2_benchmarks.py.
 - Phase 1 claim boundary: 86.1 percent is development-set accuracy after iterative tuning.
 - Phase 1 hard-class boundary: 84 percent is development-set accuracy on the 4 real hard classes.
 - Validation-folder result: 54 percent on 4 hard classes.
@@ -344,6 +373,7 @@ Current repository context:
 - RCC mode in this change: documentation-only context layer.
 - No source behavior is changed by the RCC layer.
 - Phase 2.2 diagnostic lens is analysis-only: it reads existing Phase 2 logs and emits diagnostic artifacts without changing classifier behavior.
+- Phase 2.3 benchmark harness is comparison-only: it evaluates the current HL classifier against transparent non-neural baselines without changing classifier behavior.
 
 AI agents must update this section only when repository purpose, evaluation claims, command surface, package structure, or phase status changes.
 
@@ -383,12 +413,12 @@ AI agents should reconstruct repository context through bounded README surfaces 
 - hlinet/features: symbolic feature predicates.
 - hlinet/classifier: scoring, tiebreakers, prototypes, and prediction behavior.
 - hlinet/proof: proof trace rendering.
-- hlinet/eval: dataset loading, metrics, evaluation execution, and Phase 2 diagnostic analysis.
+- hlinet/eval: dataset loading, metrics, evaluation execution, Phase 2 diagnostic analysis, and Phase 2 benchmark comparisons.
 - hlinet/agent: heuristic-learning loop mechanics.
 - hlinet/algebra: visual concept algebra operators and routing helpers.
-- scripts: human-facing commands, including Phase 2 diagnostics.
+- scripts: human-facing commands, including Phase 2 diagnostics and Phase 2 benchmarks.
 - docs: explanation, reports, plots, design notes, and architecture locks.
-- logs: generated run records, historical reasoning snapshots, Phase 2 eval logs, and diagnostic artifacts.
+- logs: generated run records, historical reasoning snapshots, Phase 2 eval logs, diagnostic artifacts, and benchmark artifacts.
 
 ## AI non-claim lock
 
@@ -403,6 +433,7 @@ Never claim or imply:
 - Plots or logs prove correctness without evaluation context.
 - RCC documentation proves source correctness.
 - Phase 2 diagnostics prove classifier correctness or imply classifier improvement.
+- Phase 2 benchmarks prove final ImageNet performance or imply classifier improvement.
 
 ## AI interpretation of current evidence
 
