@@ -40,6 +40,8 @@ This is an application of Jiayi Weng's [Heuristic Learning](https://trinkle23897
 
 From 12.7% (random baseline) to 86.1% over 248 iterations. See `docs/plots/` for all 8 visualizations.
 
+For a deeper analysis of the critical transitions, plateau-breaking moments, representation saturation ceiling, and how this maps onto Weng's HL framework, see the [full blog post](docs/blog.md).
+
 ---
 
 ## How It Works
