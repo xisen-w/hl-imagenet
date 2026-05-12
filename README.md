@@ -271,7 +271,7 @@ hl-image-net/
 │   │   └── concepts/      #   high-level concept detectors
 │   ├── classifier/        # Scorer, hierarchy, tiebreaker (22 functions), prediction
 │   ├── proof/             # Proof trace generator
-│   ├── eval/              # Dataset loader, metrics, evaluation runner, diagnostics
+│   ├── eval/              # Dataset loader, metrics, evaluation runner, diagnostics, benchmarks
 │   ├── agent/             # HL loop: analyzer, proposer, tester
 │   └── algebra/           # Visual concept algebra operators + router
 ├── scripts/
@@ -283,7 +283,7 @@ hl-image-net/
 ├── data/imagenet_10/      # 10-class dataset (not in repo)
 ├── logs/
 │   ├── phase1/            # Phase 1 eval logs, validation logs, reasoning snapshots
-│   └── phase2/            # Phase 2 eval logs plus diagnostic lens artifacts
+│   └── phase2/            # Phase 2 eval logs, diagnostic artifacts, benchmark artifacts
 └── docs/
     ├── blog.md            # Full writeup
     ├── result1.md         # Results analysis + critical transitions
@@ -437,7 +437,7 @@ Never claim or imply:
 
 ## AI interpretation of current evidence
 
-HL-ImageNet is a preliminary heuristic-learning demo showing that a coding agent can iteratively maintain a symbolic image classifier using classical vision features, scoring rules, tiebreakers, logs, and proof traces. Phase 1 demonstrates confusion-driven improvement and representation-saturation behavior, but its headline accuracy is development-set accuracy, not a clean held-out benchmark. Phase 2 exploratory classifier work is now present upstream, and the Phase 2.2 diagnostic lens exposes validation failure geometry from existing logs. The stricter validation numbers and diagnostic non-claim boundaries must remain visible whenever results are summarized.
+HL-ImageNet is a preliminary heuristic-learning demo showing that a coding agent can iteratively maintain a symbolic image classifier using classical vision features, scoring rules, tiebreakers, logs, and proof traces. Phase 1 demonstrates confusion-driven improvement and representation-saturation behavior, but its headline accuracy is development-set accuracy, not a clean held-out benchmark. Phase 2 exploratory classifier work is now present upstream. The Phase 2.2 diagnostic lens exposes validation failure geometry from existing logs, and the Phase 2.3 benchmark harness compares the current HL classifier against transparent non-neural baselines. The stricter validation numbers, diagnostic non-claim boundaries, and benchmark non-claim boundaries must remain visible whenever results are summarized.
 
 ## Required local verification
 
@@ -462,6 +462,6 @@ When adding a new major folder, create a mini README with Purpose, S, H, A, T, I
 
 ## Final AI warning
 
-This repository is strongest when claim boundaries stay visible. Do not optimize documentation to sound stronger than the evidence. Preserve the development-set versus validation-set distinction, the synthetic-class caveat, the Phase 2 split labels, the diagnostic non-claim boundary, and the fact that RCC improves navigation rather than proving code correctness.
+This repository is strongest when claim boundaries stay visible. Do not optimize documentation to sound stronger than the evidence. Preserve the development-set versus validation-set distinction, the synthetic-class caveat, the Phase 2 split labels, the diagnostic non-claim boundary, the benchmark non-claim boundary, and the fact that RCC improves navigation rather than proving code correctness.
 
 <!-- RCC-AI-README:END -->
