@@ -1,0 +1,825 @@
+{
+  "schema": "hl_imagenet_phase2_regression_guard_v1",
+  "generated_at": "2026-05-12T12:42:35",
+  "source_files": {
+    "benchmark": "C:\\Users\\jacks\\OneDrive\\Desktop\\hl-imagenet\\logs\\phase2\\benchmarks\\latest_phase2_benchmark.json",
+    "attribution": "C:\\Users\\jacks\\OneDrive\\Desktop\\hl-imagenet\\logs\\phase2\\attribution\\latest_phase2_attribution.json",
+    "candidates": "C:\\Users\\jacks\\OneDrive\\Desktop\\hl-imagenet\\logs\\phase2\\candidates\\latest_phase2_candidate_plan.json"
+  },
+  "baseline": {
+    "benchmark": {
+      "top1": 0.334,
+      "top3": 0.6865,
+      "mean_latency_ms": 73.39244769909419,
+      "leaderboard_rank": 4,
+      "leaderboard_size": 6
+    },
+    "attribution": {
+      "samples": 2000,
+      "accuracy": 0.334,
+      "top3_accuracy": 0.6865,
+      "outcome_counts": {
+        "miss": 627,
+        "top3_rescue": 705,
+        "correct": 668
+      },
+      "baseline_right_hl_wrong": 817,
+      "hl_right_all_baselines_wrong": 68,
+      "major_attractor_false_positives": {
+        "banana": 416,
+        "king_penguin": 389,
+        "golden_retriever": 245
+      },
+      "victim_classes": {
+        "teapot": {
+          "recall": 0.05,
+          "top3_recall": 0.45,
+          "miss_count": 190,
+          "top_wrong_predictions": [
+            [
+              "king_penguin",
+              72
+            ],
+            [
+              "golden_retriever",
+              50
+            ],
+            [
+              "banana",
+              43
+            ],
+            [
+              "mushroom",
+              6
+            ],
+            [
+              "jellyfish",
+              6
+            ]
+          ]
+        },
+        "brown_bear": {
+          "recall": 0.06,
+          "top3_recall": 0.55,
+          "miss_count": 188,
+          "top_wrong_predictions": [
+            [
+              "banana",
+              70
+            ],
+            [
+              "king_penguin",
+              58
+            ],
+            [
+              "golden_retriever",
+              32
+            ],
+            [
+              "mushroom",
+              14
+            ],
+            [
+              "school_bus",
+              5
+            ]
+          ]
+        },
+        "sports_car": {
+          "recall": 0.115,
+          "top3_recall": 0.615,
+          "miss_count": 177,
+          "top_wrong_predictions": [
+            [
+              "king_penguin",
+              113
+            ],
+            [
+              "school_bus",
+              22
+            ],
+            [
+              "golden_retriever",
+              21
+            ],
+            [
+              "banana",
+              9
+            ],
+            [
+              "mushroom",
+              7
+            ]
+          ]
+        },
+        "orange": {
+          "recall": 0.165,
+          "top3_recall": 0.72,
+          "miss_count": 167,
+          "top_wrong_predictions": [
+            [
+              "banana",
+              83
+            ],
+            [
+              "golden_retriever",
+              61
+            ],
+            [
+              "teapot",
+              9
+            ],
+            [
+              "king_penguin",
+              6
+            ],
+            [
+              "school_bus",
+              5
+            ]
+          ]
+        },
+        "mushroom": {
+          "recall": 0.22,
+          "top3_recall": 0.55,
+          "miss_count": 156,
+          "top_wrong_predictions": [
+            [
+              "banana",
+              67
+            ],
+            [
+              "king_penguin",
+              35
+            ],
+            [
+              "golden_retriever",
+              25
+            ],
+            [
+              "school_bus",
+              11
+            ],
+            [
+              "teapot",
+              8
+            ]
+          ]
+        }
+      }
+    },
+    "candidate_context": {
+      "feature_overactivation_warning_count": 13,
+      "top_feature_overactivation_warnings": [
+        {
+          "feature": "bilateral_symmetry",
+          "sample_count": 2000,
+          "activation_rate": 1.0,
+          "top_true_classes": [
+            [
+              "golden_retriever",
+              200
+            ],
+            [
+              "mushroom",
+              200
+            ],
+            [
+              "teapot",
+              200
+            ],
+            [
+              "school_bus",
+              200
+            ],
+            [
+              "banana",
+              200
+            ]
+          ],
+          "risk": "global_overactivation"
+        },
+        {
+          "feature": "quadruped_like",
+          "sample_count": 1966,
+          "activation_rate": 0.983,
+          "top_true_classes": [
+            [
+              "golden_retriever",
+              200
+            ],
+            [
+              "brown_bear",
+              199
+            ],
+            [
+              "sports_car",
+              199
+            ],
+            [
+              "mushroom",
+              198
+            ],
+            [
+              "king_penguin",
+              198
+            ]
+          ],
+          "risk": "global_overactivation"
+        },
+        {
+          "feature": "phase2_golden_retriever_signature",
+          "sample_count": 1780,
+          "activation_rate": 0.89,
+          "top_true_classes": [
+            [
+              "orange",
+              195
+            ],
+            [
+              "banana",
+              191
+            ],
+            [
+              "jellyfish",
+              191
+            ],
+            [
+              "teapot",
+              189
+            ],
+            [
+              "golden_retriever",
+              186
+            ]
+          ],
+          "risk": "global_overactivation"
+        },
+        {
+          "feature": "phase2_teapot_signature",
+          "sample_count": 1495,
+          "activation_rate": 0.7475,
+          "top_true_classes": [
+            [
+              "jellyfish",
+              185
+            ],
+            [
+              "orange",
+              182
+            ],
+            [
+              "king_penguin",
+              178
+            ],
+            [
+              "teapot",
+              174
+            ],
+            [
+              "banana",
+              167
+            ]
+          ],
+          "risk": "global_overactivation"
+        },
+        {
+          "feature": "phase2_mushroom_signature",
+          "sample_count": 1490,
+          "activation_rate": 0.745,
+          "top_true_classes": [
+            [
+              "mushroom",
+              189
+            ],
+            [
+              "brown_bear",
+              185
+            ],
+            [
+              "sports_car",
+              180
+            ],
+            [
+              "school_bus",
+              167
+            ],
+            [
+              "golden_retriever",
+              164
+            ]
+          ],
+          "risk": "global_overactivation"
+        },
+        {
+          "feature": "phase2_banana_signature",
+          "sample_count": 1489,
+          "activation_rate": 0.7445,
+          "top_true_classes": [
+            [
+              "orange",
+              191
+            ],
+            [
+              "banana",
+              188
+            ],
+            [
+              "mushroom",
+              175
+            ],
+            [
+              "golden_retriever",
+              172
+            ],
+            [
+              "teapot",
+              162
+            ]
+          ],
+          "risk": "global_overactivation"
+        },
+        {
+          "feature": "phase2_school_bus_signature",
+          "sample_count": 1463,
+          "activation_rate": 0.7315,
+          "top_true_classes": [
+            [
+              "school_bus",
+              191
+            ],
+            [
+              "sports_car",
+              188
+            ],
+            [
+              "brown_bear",
+              166
+            ],
+            [
+              "mushroom",
+              160
+            ],
+            [
+              "king_penguin",
+              160
+            ]
+          ],
+          "risk": "global_overactivation"
+        },
+        {
+          "feature": "phase2_brown_bear_signature",
+          "sample_count": 1438,
+          "activation_rate": 0.719,
+          "top_true_classes": [
+            [
+              "brown_bear",
+              192
+            ],
+            [
+              "king_penguin",
+              188
+            ],
+            [
+              "sports_car",
+              172
+            ],
+            [
+              "golden_retriever",
+              170
+            ],
+            [
+              "mushroom",
+              164
+            ]
+          ],
+          "risk": "global_overactivation"
+        },
+        {
+          "feature": "golden_fur_in_nature",
+          "sample_count": 1385,
+          "activation_rate": 0.6925,
+          "top_true_classes": [
+            [
+              "orange",
+              191
+            ],
+            [
+              "banana",
+              189
+            ],
+            [
+              "school_bus",
+              186
+            ],
+            [
+              "golden_retriever",
+              178
+            ],
+            [
+              "mushroom",
+              163
+            ]
+          ],
+          "risk": "global_overactivation"
+        },
+        {
+          "feature": "phase2_king_penguin_signature",
+          "sample_count": 1075,
+          "activation_rate": 0.5375,
+          "top_true_classes": [
+            [
+              "king_penguin",
+              181
+            ],
+            [
+              "sports_car",
+              168
+            ],
+            [
+              "jellyfish",
+              165
+            ],
+            [
+              "teapot",
+              134
+            ],
+            [
+              "brown_bear",
+              113
+            ]
+          ],
+          "risk": "global_overactivation"
+        }
+      ],
+      "top_attractor_targets": [
+        {
+          "attractor_label": "banana",
+          "false_positive_count": 416,
+          "top_collapse_paths": [
+            {
+              "collapse_path": "orange->banana",
+              "count": 83
+            },
+            {
+              "collapse_path": "golden_retriever->banana",
+              "count": 82
+            },
+            {
+              "collapse_path": "brown_bear->banana",
+              "count": 70
+            },
+            {
+              "collapse_path": "mushroom->banana",
+              "count": 67
+            },
+            {
+              "collapse_path": "teapot->banana",
+              "count": 43
+            },
+            {
+              "collapse_path": "king_penguin->banana",
+              "count": 30
+            },
+            {
+              "collapse_path": "school_bus->banana",
+              "count": 22
+            }
+          ],
+          "candidate_action": "inspect suppressive conditions or tighten broad signatures before changing scoring"
+        },
+        {
+          "attractor_label": "king_penguin",
+          "false_positive_count": 389,
+          "top_collapse_paths": [
+            {
+              "collapse_path": "sports_car->king_penguin",
+              "count": 113
+            },
+            {
+              "collapse_path": "teapot->king_penguin",
+              "count": 72
+            },
+            {
+              "collapse_path": "brown_bear->king_penguin",
+              "count": 58
+            },
+            {
+              "collapse_path": "mushroom->king_penguin",
+              "count": 35
+            },
+            {
+              "collapse_path": "golden_retriever->king_penguin",
+              "count": 34
+            },
+            {
+              "collapse_path": "jellyfish->king_penguin",
+              "count": 32
+            },
+            {
+              "collapse_path": "school_bus->king_penguin",
+              "count": 27
+            },
+            {
+              "collapse_path": "banana->king_penguin",
+              "count": 12
+            }
+          ],
+          "candidate_action": "inspect suppressive conditions or tighten broad signatures before changing scoring"
+        },
+        {
+          "attractor_label": "golden_retriever",
+          "false_positive_count": 245,
+          "top_collapse_paths": [
+            {
+              "collapse_path": "orange->golden_retriever",
+              "count": 61
+            },
+            {
+              "collapse_path": "teapot->golden_retriever",
+              "count": 50
+            },
+            {
+              "collapse_path": "brown_bear->golden_retriever",
+              "count": 32
+            },
+            {
+              "collapse_path": "banana->golden_retriever",
+              "count": 27
+            },
+            {
+              "collapse_path": "mushroom->golden_retriever",
+              "count": 25
+            },
+            {
+              "collapse_path": "sports_car->golden_retriever",
+              "count": 21
+            },
+            {
+              "collapse_path": "school_bus->golden_retriever",
+              "count": 13
+            },
+            {
+              "collapse_path": "jellyfish->golden_retriever",
+              "count": 10
+            }
+          ],
+          "candidate_action": "inspect suppressive conditions or tighten broad signatures before changing scoring"
+        },
+        {
+          "attractor_label": "school_bus",
+          "false_positive_count": 72,
+          "top_collapse_paths": [
+            {
+              "collapse_path": "sports_car->school_bus",
+              "count": 22
+            },
+            {
+              "collapse_path": "mushroom->school_bus",
+              "count": 11
+            },
+            {
+              "collapse_path": "banana->school_bus",
+              "count": 11
+            }
+          ],
+          "candidate_action": "inspect suppressive conditions or tighten broad signatures before changing scoring"
+        },
+        {
+          "attractor_label": "mushroom",
+          "false_positive_count": 66,
+          "top_collapse_paths": [
+            {
+              "collapse_path": "school_bus->mushroom",
+              "count": 15
+            },
+            {
+              "collapse_path": "brown_bear->mushroom",
+              "count": 14
+            }
+          ],
+          "candidate_action": "inspect suppressive conditions or tighten broad signatures before changing scoring"
+        }
+      ],
+      "top_victim_targets": [
+        {
+          "class": "teapot",
+          "recall": 0.05,
+          "top3_recall": 0.45,
+          "rescue_gap": 0.4,
+          "miss_count": 190,
+          "top_wrong_predictions": [
+            [
+              "king_penguin",
+              72
+            ],
+            [
+              "golden_retriever",
+              50
+            ],
+            [
+              "banana",
+              43
+            ],
+            [
+              "mushroom",
+              6
+            ],
+            [
+              "jellyfish",
+              6
+            ]
+          ],
+          "candidate_action": "prioritize if low recall and high top3 rescue gap"
+        },
+        {
+          "class": "brown_bear",
+          "recall": 0.06,
+          "top3_recall": 0.55,
+          "rescue_gap": 0.49000000000000005,
+          "miss_count": 188,
+          "top_wrong_predictions": [
+            [
+              "banana",
+              70
+            ],
+            [
+              "king_penguin",
+              58
+            ],
+            [
+              "golden_retriever",
+              32
+            ],
+            [
+              "mushroom",
+              14
+            ],
+            [
+              "school_bus",
+              5
+            ]
+          ],
+          "candidate_action": "prioritize if low recall and high top3 rescue gap"
+        },
+        {
+          "class": "sports_car",
+          "recall": 0.115,
+          "top3_recall": 0.615,
+          "rescue_gap": 0.5,
+          "miss_count": 177,
+          "top_wrong_predictions": [
+            [
+              "king_penguin",
+              113
+            ],
+            [
+              "school_bus",
+              22
+            ],
+            [
+              "golden_retriever",
+              21
+            ],
+            [
+              "banana",
+              9
+            ],
+            [
+              "mushroom",
+              7
+            ]
+          ],
+          "candidate_action": "prioritize if low recall and high top3 rescue gap"
+        },
+        {
+          "class": "orange",
+          "recall": 0.165,
+          "top3_recall": 0.72,
+          "rescue_gap": 0.5549999999999999,
+          "miss_count": 167,
+          "top_wrong_predictions": [
+            [
+              "banana",
+              83
+            ],
+            [
+              "golden_retriever",
+              61
+            ],
+            [
+              "teapot",
+              9
+            ],
+            [
+              "king_penguin",
+              6
+            ],
+            [
+              "school_bus",
+              5
+            ]
+          ],
+          "candidate_action": "prioritize if low recall and high top3 rescue gap"
+        },
+        {
+          "class": "mushroom",
+          "recall": 0.22,
+          "top3_recall": 0.55,
+          "rescue_gap": 0.33000000000000007,
+          "miss_count": 156,
+          "top_wrong_predictions": [
+            [
+              "banana",
+              67
+            ],
+            [
+              "king_penguin",
+              35
+            ],
+            [
+              "golden_retriever",
+              25
+            ],
+            [
+              "school_bus",
+              11
+            ],
+            [
+              "teapot",
+              8
+            ]
+          ],
+          "candidate_action": "prioritize if low recall and high top3 rescue gap"
+        }
+      ],
+      "phase2_6_recommendation": {
+        "recommended_first_move": "do not modify classifier yet; inspect baseline-right/HL-wrong rows for the top collapse paths and compare them against HL-right/all-baselines-wrong rows",
+        "likely_first_code_target": "tighten globally overactive Phase 2 signatures or add regression guards before attractor suppression",
+        "must_rerun_after_any_classifier_change": [
+          "python scripts/run_phase2_diagnostics.py --input <new_phase2_eval_json>",
+          "python scripts/run_phase2_benchmarks.py --data-root \".\\data\\phase2\" --split val",
+          "python scripts/run_phase2_attribution.py --data-root \".\\data\\phase2\" --split val",
+          "python scripts/run_phase2_candidates.py"
+        ]
+      }
+    }
+  },
+  "guard_contract": {
+    "mode": "baseline_lock_before_classifier_delta",
+    "minimum_top1_accuracy": 0.329,
+    "minimum_top3_accuracy": 0.6815,
+    "minimum_hl_unique_wins": 61,
+    "maximum_allowed_major_attractor_increase": 0,
+    "required_major_attractor_decrease_for_success": 1,
+    "required_victim_class_improvement_for_success": 1,
+    "required_reruns_after_classifier_change": [
+      "python scripts/run_phase2_diagnostics.py --input <new_phase2_eval_json>",
+      "python scripts/run_phase2_benchmarks.py --data-root \".\\data\\phase2\" --split val",
+      "python scripts/run_phase2_attribution.py --data-root \".\\data\\phase2\" --split val",
+      "python scripts/run_phase2_candidates.py",
+      "python scripts/run_phase2_regression_guard.py"
+    ]
+  },
+  "current_status": {
+    "overall_status": "pass",
+    "checks": [
+      {
+        "name": "top1_accuracy_baseline",
+        "value": 0.334,
+        "threshold": 0.329,
+        "status": "pass"
+      },
+      {
+        "name": "top3_accuracy_baseline",
+        "value": 0.6865,
+        "threshold": 0.6815,
+        "status": "pass"
+      },
+      {
+        "name": "hl_unique_wins_baseline",
+        "value": 68,
+        "threshold": 61,
+        "status": "pass"
+      }
+    ],
+    "note": "This baseline should pass because it is the locked pre-change state."
+  },
+  "phase2_6b_gate": {
+    "allowed_next_step": "one controlled classifier delta only",
+    "preferred_target": "tighten globally overactive Phase 2 signatures or add regression guards before attractor suppression",
+    "forbidden_moves": [
+      "broad scorer rewrite",
+      "multiple simultaneous classifier changes",
+      "validation-only tuning without reruns",
+      "claiming improvement without benchmark/attribution comparison"
+    ]
+  },
+  "non_claim_lock": [
+    "This regression guard does not change classifier behavior.",
+    "This regression guard does not claim accuracy improvement.",
+    "This regression guard does not prove classifier correctness.",
+    "Validation regression checks are not final test evidence.",
+    "Any future classifier change must rerun diagnostics, benchmarks, attribution, candidates, and regression guard."
+  ]
+}

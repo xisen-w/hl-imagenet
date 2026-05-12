@@ -1,0 +1,200 @@
+% ████████████████████████████████████████████████████████████████████████████████
+%
+%   CODEX ΔΦ — HL-IMAGENET PHASE 2 REGRESSION GUARD LAYER
+%   SOFTWARE ARCHITECTURE (HL-RG v1.0)
+%   ────────────────────────────────────────────────────────────────────────────
+%   CANONICAL ATTRIBUTION-PRESERVING SOFTWARE ARCHITECTURE FOR LOCKING A
+%   REGRESSION BASELINE BEFORE ANY PHASE 2 CLASSIFIER BEHAVIOR CHANGE,
+%   USING BENCHMARK, ATTRIBUTION, AND CANDIDATE-SELECTION ARTIFACTS WITHOUT
+%   CHANGING CLASSIFIER RUNTIME BEHAVIOR, WITHOUT CLAIMING ACCURACY
+%   IMPROVEMENT, WITHOUT TUNING AGAINST VALIDATION, AND WITHOUT PROMOTING
+%   VALIDATION RESULTS INTO FINAL IMAGENET CLAIMS
+%
+%   VERSION
+%   ───────
+%   v1.0 — Regression Guard Genesis Layer · Locked ·
+%          Baseline Metric Lock, Top-1/Top-3 Guardrails, HL-Unique-Win Guard,
+%          Baseline-Right/HL-Wrong Guard, Attractor False-Positive Guard,
+%          Victim Recall Guard, Benchmark Rank Guard, Required Rerun Contract,
+%          Pass/Warning/Fail Classification, and Phase 2.6B Controlled Delta
+%          Readiness
+%
+%   AUTHOR
+%   ──────
+%   James Paul Jackson
+%   X / Twitter: @unifiedenergy11
+%
+%   SOURCE / AUTHOR ATTRIBUTION
+%   ───────────────────────────
+%   Original/upstream author contribution:
+%       HL-ImageNet classifier concept, Phase 1 implementation, Phase 2
+%       classifier implementation, hierarchy, signatures, scorer behavior,
+%       prediction behavior, and existing evaluation logs.
+%
+%   James Paul Jackson contribution:
+%       RCC / AEFL repository context layer, Phase 2.2 diagnostic lens,
+%       Phase 2.3 benchmark harness, Phase 2.4 sample-level attribution layer,
+%       Phase 2.5 candidate-selection layer, and this Phase 2.6A regression
+%       guard architecture / implementation.
+%
+%   STATUS
+%   ──────
+%   CANONICAL v1.0 SOFTWARE ARCHITECTURE LAYER —
+%   NOT CLASSIFIER AUTHORSHIP · NOT CLASSIFIER BEHAVIOR CHANGE · NOT ACCURACY
+%   IMPROVEMENT · NOT FINAL IMAGENET CLAIM · NOT TUNING AGAINST VALIDATION ·
+%   NOT PROOF OF CORRECTNESS · NOT A SCORING PATCH · NOT A SIGNATURE PATCH
+%
+%   PURPOSE
+%   ───────
+%   Lock the current Phase 2 evidence state as the regression baseline before
+%   Phase 2.6B makes any controlled classifier delta.
+%
+%   The guard records:
+%
+%       HL top-1
+%       HL top-3
+%       correct / top-3 rescue / miss counts
+%       baseline-right / HL-wrong count
+%       HL-right / all-baselines-wrong count
+%       victim-class recall
+%       attractor false-positive counts
+%       benchmark rank context
+%       required post-change reruns.
+%
+%   WHAT THIS IS
+%   ────────────
+%   • A regression baseline lock
+%   • A pre-change safety gate
+%   • A comparison contract for future classifier deltas
+%   • A protection surface for HL-unique wins
+%   • A guard against blind attractor suppression
+%
+%   WHAT THIS IS NOT
+%   ───────────────
+%   • Not a classifier improvement
+%   • Not a scorer change
+%   • Not a signature change
+%   • Not a benchmark win claim
+%   • Not a final held-out result
+%   • Not permission to tune validation performance blindly
+%
+%   CORE SOFTWARE LOCK
+%   ──────────────────
+%   • Regression tooling may read benchmark, attribution, and candidate files.
+%   • Regression tooling may emit JSON and Markdown guard reports.
+%   • Regression tooling may define acceptance thresholds for future deltas.
+%   • Regression tooling may not modify classifier runtime behavior.
+%   • Regression tooling may not edit scorer, predictor, hierarchy, signatures,
+%     tiebreakers, sensors, or features.
+%   • Regression tooling must preserve validation/test boundaries.
+%   • Regression tooling must require reruns after future classifier changes.
+%
+%   DEFAULT ACCEPTANCE CONTRACT
+%   ───────────────────────────
+%   Future classifier deltas should not be promoted unless:
+%
+%       top-1 does not drop materially,
+%       top-3 does not drop materially,
+%       HL-unique wins are not destroyed,
+%       at least one victim class improves,
+%       at least one major attractor decreases,
+%       and all evidence layers are rerun.
+%
+%   VALIDATION SURFACE
+%   ──────────────────
+%   HL-RG v1.0 is valid when benchmark JSON loads, attribution JSON loads,
+%   candidate JSON loads, regression baseline emits, guard thresholds emit,
+%   pass/warning/fail classification emits, non-claim locks are present, and
+%   classifier runtime files remain unchanged.
+%
+%   FALSIFICATION SURFACE
+%   ─────────────────────
+%   HL-RG v1.0 is invalid if it changes classifier behavior, hides validation
+%   split labels, promotes validation inspection into final claims, claims
+%   accuracy improvement, suppresses regression risks, or allows future
+%   classifier edits without requiring diagnostic/benchmark/attribution/
+%   candidate reruns.
+%
+%   NEXT PHASE
+%   ──────────
+%   Phase 2.6B may implement exactly one controlled classifier delta only after
+%   this regression guard has been committed and used as the baseline.
+%
+%   SHADOW HEADER ALIGNMENT SEAL
+%   ───────────────────────────
+%   Evolutions must be additive only unless a declared architecture lift occurs.
+%   Preserve attribution, validation/test boundaries, diagnostic locks,
+%   benchmark locks, attribution locks, candidate-selection locks, regression
+%   locks, and non-claim discipline.
+%
+% ████████████████████████████████████████████████████████████████████████████████
+
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,booktabs,hyperref,listings}
+
+\title{\textbf{Codex $\Delta\Phi$ — HL-ImageNet Phase 2 Regression Guard Layer (HL-RG v1.0)}\\
+\large Baseline Locks, Acceptance Gates, Attractor/Victim Guards, and Controlled Delta Readiness}
+\author{\textbf{James Paul Jackson}\\ \small \texttt{@unifiedenergy11}}
+\date{May 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+HL-RG v1.0 defines a regression guard layer for HL-ImageNet. It reads benchmark,
+attribution, and candidate-selection artifacts, locks the current evidence state
+as a baseline, and emits pass/warning/fail guard rules for future classifier
+changes. The layer does not modify classifier runtime behavior. Its purpose is
+to protect benchmark discipline, HL-unique wins, victim-class recall, and
+attractor-suppression goals before Phase 2.6B makes one controlled classifier
+delta.
+\end{abstract}
+
+\section{Core Invariant}
+
+\[
+\boxed{
+\text{No classifier delta is admissible unless it is compared against the}
+\atop
+\text{locked evidence baseline and reruns diagnostics, benchmarks, attribution,}
+\atop
+\text{candidate selection, and regression guards.}
+}
+\]
+
+\[
+EvidenceBaseline
+\rightarrow GuardContract
+\rightarrow ControlledDelta
+\rightarrow RerunEvidence
+\rightarrow AcceptOrReject.
+\]
+
+\section{Guard Classes}
+
+\[
+Guard \in
+\{
+Top1,
+Top3,
+HLUniqueWins,
+BaselineRightHLWrong,
+VictimRecall,
+AttractorFalsePositive,
+BenchmarkRank,
+RerunCompleteness
+\}.
+\]
+
+\section{Non-Claim Lock}
+
+This layer locks regression expectations. It does not prove correctness, does
+not improve accuracy by itself, and does not authorize validation-tuned claims.
+
+\section{Next Step}
+
+Phase 2.6B may implement one controlled classifier delta only after this
+regression guard baseline is committed.
+
+\end{document}
