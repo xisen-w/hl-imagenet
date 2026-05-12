@@ -8,7 +8,7 @@ Canonical architecture locks and architecture-delta documents for HL-ImageNet re
 
 ## S - Formal specification
 
-This folder stores architecture documents that define contribution boundaries, software deltas, diagnostic contracts, benchmark contracts, attribution contracts, candidate-selection contracts, regression-guard contracts, validation surfaces, falsification surfaces, and non-claim locks before implementation changes are made.
+This folder stores architecture documents that define contribution boundaries, software deltas, diagnostic contracts, benchmark contracts, attribution contracts, candidate-selection contracts, regression-guard contracts, rejected-delta ledger contracts, validation surfaces, falsification surfaces, and non-claim locks before implementation changes are made.
 
 ## H - Hooks and integration edges
 
@@ -38,7 +38,7 @@ This folder stores architecture documents that define contribution boundaries, s
 
 ## T - Theory or method basis
 
-Architecture locks preserve attribution and prevent implementation drift. In this repo, the architecture layer distinguishes upstream classifier work from RCC/context contributions, diagnostic/evidence tooling, benchmark-comparison tooling, attribution tooling, candidate-selection tooling, regression-guard tooling, and future classifier behavior changes.
+Architecture locks preserve attribution and prevent implementation drift. In this repo, the architecture layer distinguishes upstream classifier work from RCC/context contributions, diagnostic/evidence tooling, benchmark-comparison tooling, attribution tooling, candidate-selection tooling, regression-guard tooling, rejected-delta ledgering, and future classifier behavior changes.
 
 ## I - Invariants
 
@@ -50,6 +50,7 @@ Architecture locks preserve attribution and prevent implementation drift. In thi
 - Attribution architecture does not prove classifier correctness or imply classifier improvement.
 - Candidate-selection architecture does not prove classifier correctness or imply classifier improvement.
 - Regression-guard architecture does not prove classifier correctness or imply classifier improvement.
+- Rejected-delta architecture does not prove classifier correctness or imply classifier improvement.
 - Future classifier changes should receive their own architecture delta before implementation.
 
 ## E - Example

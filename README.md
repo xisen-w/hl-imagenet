@@ -188,6 +188,43 @@ Run the regression guard:
 
     python scripts/run_phase2_regression_guard.py
 
+
+### Phase 2.6C: Rejected delta ledger
+
+Phase 2.6C preserves the failed Phase 2.6B controlled classifier delta as a negative-result artifact while restoring the accepted classifier/evidence baseline.
+
+Rejected delta artifact:
+
+- `logs/phase2/rejected_deltas/phase2_6b_exclusion_guard/rejected_phase2_6b_delta_compare.md`
+- `logs/phase2/rejected_deltas/phase2_6b_exclusion_guard/rejected_phase2_6b_delta_compare.json`
+
+The rejected Phase 2.6B delta attempted a single global scorer change:
+
+    score = 0.72R + 0.16S - 0.22X - P
+
+instead of:
+
+    score = 0.75R + 0.15S - 0.15X - P
+
+Rejected result:
+
+| Metric | Pre | Post | Delta |
+|---|---:|---:|---:|
+| Top-1 | 33.4% | 32.55% | -0.85pp |
+| Top-3 | 68.65% | 68.10% | -0.55pp |
+| HL-unique wins | 68 | 69 | +1 |
+| Baseline-right / HL-wrong | 817 | 835 | +18 |
+
+Attractor result:
+
+| Attractor | Pre | Post | Delta |
+|---|---:|---:|---:|
+| banana | 416 | 442 | +26 |
+| golden_retriever | 245 | 211 | -34 |
+| king_penguin | 389 | 410 | +21 |
+
+> **Rejected-delta boundary**: This is a preserved failure lesson, not a classifier improvement. The failed scorer change is not promoted. The lesson is that global exclusion pressure is too blunt; the next classifier delta should be class-specific.
+
 ### Per-class accuracy (dev set)
 
 | Class | Dev Accuracy | Notes |
@@ -292,7 +329,7 @@ Phase 1 demonstrated that the HL loop *can* build a symbolic classifier, but the
 - Test set is touched only once at the very end
 - No threshold tuning against val or test images
 
-**Status**: Phase 2 exploratory classifier work has started upstream. The current repo includes Phase 2 class signatures, a flat 10-class hierarchy, soft scoring, Phase 2 evaluation logs, a Phase 2.2 diagnostic lens, a Phase 2.3 benchmark harness, a Phase 2.4 sample-level attribution layer, a Phase 2.5 attribution-guided candidate-selection layer, and a Phase 2.6A regression guard baseline.
+**Status**: Phase 2 exploratory classifier work has started upstream. The current repo includes Phase 2 class signatures, a flat 10-class hierarchy, soft scoring, Phase 2 evaluation logs, a Phase 2.2 diagnostic lens, a Phase 2.3 benchmark harness, a Phase 2.4 sample-level attribution layer, a Phase 2.5 attribution-guided candidate-selection layer, and a Phase 2.6A regression guard baseline, and a Phase 2.6C rejected-delta ledger for preserving failed controlled-delta evidence.
 
 Current diagnostic snapshot from logs/phase2/diagnostics/latest_phase2_diagnostic.md:
 
@@ -458,6 +495,7 @@ python scripts/predict_image.py path/to/image.jpg
 6. **Phase 2 attribution boundary**: The Phase 2.4 attribution layer explains individual validation predictions and collapse paths. It does not change classifier behavior, prove correctness, or improve accuracy by itself.
 7. **Phase 2 candidate-selection boundary**: The Phase 2.5 candidate-selection layer ranks possible future interventions from diagnostics, benchmarks, and attribution. It does not change classifier behavior or claim accuracy improvement.
 8. **Phase 2 regression-guard boundary**: The Phase 2.6A regression guard locks the current evidence baseline before classifier changes. It does not change classifier behavior, prove correctness, or claim improvement.
+9. **Phase 2 rejected-delta boundary**: The Phase 2.6C rejected-delta ledger preserves failed classifier experiments as negative evidence. It does not promote failed behavior changes or claim improvement.
 
 ---
 
@@ -500,7 +538,7 @@ Current repository context:
 - Repository: hl-imagenet
 - Purpose: heuristic-learning image classification demo without neural networks.
 - Primary package: hlinet.
-- Primary docs: README.md, docs/blog.md, docs/result1.md, docs/experiment_report.md, docs/design.md, docs/architecture/hl_imagenet_rcc_phase2_diagnostic_lens_v1_0.tex, docs/architecture/hl_imagenet_phase2_benchmark_harness_v1_0.tex, docs/architecture/hl_imagenet_phase2_sample_attribution_v1_0.tex, docs/architecture/hl_imagenet_phase2_candidate_selection_v1_0.tex, docs/architecture/hl_imagenet_phase2_regression_guard_v1_0.tex.
+- Primary docs: README.md, docs/blog.md, docs/result1.md, docs/experiment_report.md, docs/design.md, docs/architecture/hl_imagenet_rcc_phase2_diagnostic_lens_v1_0.tex, docs/architecture/hl_imagenet_phase2_benchmark_harness_v1_0.tex, docs/architecture/hl_imagenet_phase2_sample_attribution_v1_0.tex, docs/architecture/hl_imagenet_phase2_candidate_selection_v1_0.tex, docs/architecture/hl_imagenet_phase2_regression_guard_v1_0.tex, docs/architecture/hl_imagenet_phase2_rejected_delta_ledger_v1_0.tex.
 - Primary scripts: scripts/run_eval.py, scripts/predict_image.py, scripts/generate_plots.py, scripts/demo.py, scripts/run_phase2_diagnostics.py, scripts/run_phase2_benchmarks.py, scripts/run_phase2_attribution.py, scripts/run_phase2_candidates.py, scripts/run_phase2_regression_guard.py.
 - Phase 1 claim boundary: 86.1 percent is development-set accuracy after iterative tuning.
 - Phase 1 hard-class boundary: 84 percent is development-set accuracy on the 4 real hard classes.
@@ -605,6 +643,6 @@ When adding a new major folder, create a mini README with Purpose, S, H, A, T, I
 
 ## Final AI warning
 
-This repository is strongest when claim boundaries stay visible. Do not optimize documentation to sound stronger than the evidence. Preserve the development-set versus validation-set distinction, the synthetic-class caveat, the Phase 2 split labels, the diagnostic non-claim boundary, the benchmark non-claim boundary, the attribution non-claim boundary, the candidate-selection non-claim boundary, the regression-guard non-claim boundary, and the fact that RCC improves navigation rather than proving code correctness.
+This repository is strongest when claim boundaries stay visible. Do not optimize documentation to sound stronger than the evidence. Preserve the development-set versus validation-set distinction, the synthetic-class caveat, the Phase 2 split labels, the diagnostic non-claim boundary, the benchmark non-claim boundary, the attribution non-claim boundary, the candidate-selection non-claim boundary, the regression-guard non-claim boundary, the rejected-delta non-claim boundary, and the fact that RCC improves navigation rather than proving code correctness.
 
 <!-- RCC-AI-README:END -->

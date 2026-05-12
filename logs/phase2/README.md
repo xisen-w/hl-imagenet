@@ -4,11 +4,11 @@
 
 ## Purpose
 
-Phase 2 evaluation logs, derived diagnostic artifacts, benchmark-comparison artifacts, sample-level attribution artifacts, candidate-selection artifacts, and regression-guard artifacts for the split-aware 10-real-class Tiny ImageNet experiment.
+Phase 2 evaluation logs, derived diagnostic artifacts, benchmark-comparison artifacts, sample-level attribution artifacts, candidate-selection artifacts, and regression-guard artifacts, and rejected-delta artifacts for the split-aware 10-real-class Tiny ImageNet experiment.
 
 ## S - Formal specification
 
-This folder stores Phase 2 evaluation JSON/Markdown outputs, Phase 2.2 diagnostic reports, Phase 2.3 benchmark reports, Phase 2.4 sample-level attribution reports, Phase 2.5 candidate-selection plans, and Phase 2.6A regression-guard baselines.
+This folder stores Phase 2 evaluation JSON/Markdown outputs, Phase 2.2 diagnostic reports, Phase 2.3 benchmark reports, Phase 2.4 sample-level attribution reports, Phase 2.5 candidate-selection plans, and Phase 2.6A regression-guard baselines, and Phase 2.6C rejected-delta ledgers.
 
 ## H - Hooks and integration edges
 
@@ -38,7 +38,7 @@ This folder stores Phase 2 evaluation JSON/Markdown outputs, Phase 2.2 diagnosti
 
 ## T - Theory or method basis
 
-Phase 2 is the split-aware evidence path for the symbolic classifier. Diagnostics expose failure geometry, benchmarks compare against baselines, attribution shows individual validation rows, candidate selection ranks future intervention candidates, and regression guards lock the baseline before controlled classifier deltas.
+Phase 2 is the split-aware evidence path for the symbolic classifier. Diagnostics expose failure geometry, benchmarks compare against baselines, attribution shows individual validation rows, candidate selection ranks future intervention candidates, regression guards lock the baseline before controlled classifier deltas, and rejected-delta ledgers preserve failed experiments without promoting them.
 
 ## I - Invariants
 
@@ -49,6 +49,7 @@ Phase 2 is the split-aware evidence path for the symbolic classifier. Diagnostic
 - Do not treat attribution as classifier improvement or correctness proof.
 - Do not treat candidate selection as classifier improvement or correctness proof.
 - Do not treat regression guards as classifier improvement or correctness proof.
+- Do not treat rejected-delta ledgers as classifier improvement or correctness proof.
 - Do not promote validation results into final benchmark claims.
 - Do not commit local Tiny ImageNet image data.
 

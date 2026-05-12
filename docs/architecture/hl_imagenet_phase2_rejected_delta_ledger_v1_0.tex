@@ -1,0 +1,114 @@
+% ████████████████████████████████████████████████████████████████████████████████
+%
+%   CODEX ΔΦ — HL-IMAGENET PHASE 2 REJECTED DELTA LEDGER
+%   SOFTWARE ARCHITECTURE (HL-RDL v1.0)
+%   ────────────────────────────────────────────────────────────────────────────
+%   CANONICAL FAILURE-PRESERVATION LAYER FOR RECORDING A REJECTED CLASSIFIER
+%   DELTA WITHOUT COMMITTING THE FAILED CLASSIFIER BEHAVIOR CHANGE
+%
+%   VERSION
+%   ───────
+%   v1.0 — Rejected Delta Ledger Genesis Layer · Locked ·
+%          Failed Delta Capture, Guard-Failure Preservation, Baseline Restore,
+%          No-Claim Boundary, and Future Class-Specific Delta Guidance
+%
+%   AUTHOR
+%   ──────
+%   James Paul Jackson
+%   X / Twitter: @unifiedenergy11
+%
+%   PURPOSE
+%   ───────
+%   Preserve a failed Phase 2.6B classifier experiment as evidence while
+%   restoring the repository to the accepted Phase 2.6A regression baseline.
+%
+%   REJECTED DELTA
+%   ──────────────
+%   Phase 2.6B attempted a single global exclusion-pressure scoring change:
+%
+%       score = 0.72R + 0.16S - 0.22X - P
+%
+%   instead of:
+%
+%       score = 0.75R + 0.15S - 0.15X - P
+%
+%   OUTCOME
+%   ───────
+%   The delta failed the regression guard:
+%
+%       top-1 dropped below threshold
+%       top-3 dropped below threshold
+%       banana false positives increased
+%       king_penguin false positives increased
+%       baseline-right / HL-wrong samples increased
+%
+%   LESSON
+%   ──────
+%   Global exclusion pressure is too blunt. The next classifier delta should
+%   be class-specific, not a global scorer-pressure change.
+%
+%   WHAT THIS IS
+%   ────────────
+%   • A failed-delta ledger
+%   • A negative result artifact
+%   • A guard-confirmation record
+%   • A constraint on future Phase 2.6D design
+%
+%   WHAT THIS IS NOT
+%   ───────────────
+%   • Not a classifier improvement
+%   • Not a committed behavior change
+%   • Not a benchmark win
+%   • Not final ImageNet evidence
+%
+%   CANONICAL LOCK
+%   ──────────────
+%   Failed deltas must be preserved when they teach a design constraint, but
+%   the failed classifier behavior must not be promoted into the main runtime.
+%
+% ████████████████████████████████████████████████████████████████████████████████
+
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,hyperref}
+
+\title{\textbf{Codex $\Delta\Phi$ — HL-ImageNet Phase 2 Rejected Delta Ledger}\\
+\large Failed Global Exclusion-Guard Delta and Class-Specific Delta Guidance}
+\author{\textbf{James Paul Jackson}\\ \small \texttt{@unifiedenergy11}}
+\date{May 2026}
+
+\begin{document}
+\maketitle
+
+\section{Rejected Delta}
+
+Phase 2.6B attempted a global exclusion-pressure scoring change. The regression
+guard rejected it.
+
+\section{Failure Summary}
+
+\[
+Top1: 0.334 \rightarrow 0.3255
+\]
+
+\[
+Top3: 0.6865 \rightarrow 0.681
+\]
+
+\[
+BaselineRightHLWrong: 817 \rightarrow 835
+\]
+
+\section{Lesson}
+
+The global exclusion-pressure change reduced golden-retriever false positives
+but increased banana and king-penguin false positives. Therefore, the next
+classifier delta should target class-specific signature tightening or
+class-specific exclusion gates.
+
+\section{Non-Claim Lock}
+
+This ledger preserves a failed experiment. It does not claim accuracy
+improvement and does not commit the failed classifier behavior.
+
+\end{document}

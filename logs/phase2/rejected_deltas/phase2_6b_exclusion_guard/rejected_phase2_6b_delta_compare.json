@@ -1,0 +1,127 @@
+{
+  "schema": "hl_imagenet_phase2_rejected_delta_ledger_v1",
+  "delta_name": "phase2_6b_exclusion_guard_scoring_delta",
+  "overall_status": "fail",
+  "source": "reconstructed_from_local_console_output",
+  "attempted_change": {
+    "file": "hlinet/classifier/scorer.py",
+    "old_formula": "score = required_score * 0.75 + supporting_score * 0.15 - excluding_score * 0.15 - alt_penalty",
+    "new_formula": "score = required_score * 0.72 + supporting_score * 0.16 - excluding_score * 0.22 - alt_penalty",
+    "change_type": "global_exclusion_pressure_increase"
+  },
+  "pre_baseline": {
+    "top1": 0.334,
+    "top3": 0.6865,
+    "hl_unique_wins": 68,
+    "baseline_right_hl_wrong": 817
+  },
+  "post_delta": {
+    "top1": 0.3255,
+    "top3": 0.681,
+    "hl_unique_wins": 69,
+    "baseline_right_hl_wrong": 835
+  },
+  "guard_checks": [
+    {
+      "name": "minimum_top1_accuracy",
+      "value": 0.3255,
+      "threshold": 0.329,
+      "status": "fail"
+    },
+    {
+      "name": "minimum_top3_accuracy",
+      "value": 0.681,
+      "threshold": 0.6815,
+      "status": "fail"
+    },
+    {
+      "name": "minimum_hl_unique_wins",
+      "value": 69,
+      "threshold": 61,
+      "status": "pass"
+    },
+    {
+      "name": "no_major_attractor_increase",
+      "value": 2,
+      "threshold": 0,
+      "status": "fail",
+      "details": ["banana", "king_penguin"]
+    },
+    {
+      "name": "major_attractor_decrease_present",
+      "value": 1,
+      "threshold": 1,
+      "status": "pass",
+      "details": ["golden_retriever"]
+    },
+    {
+      "name": "victim_class_improvement_present",
+      "value": 1,
+      "threshold": 1,
+      "status": "pass",
+      "details": ["teapot"]
+    }
+  ],
+  "major_attractor_deltas": {
+    "banana": {
+      "pre": 416,
+      "post": 442,
+      "delta": 26
+    },
+    "golden_retriever": {
+      "pre": 245,
+      "post": 211,
+      "delta": -34
+    },
+    "king_penguin": {
+      "pre": 389,
+      "post": 410,
+      "delta": 21
+    }
+  },
+  "victim_class_deltas": {
+    "brown_bear": {
+      "pre_recall": 0.060,
+      "post_recall": 0.050,
+      "delta_recall": -0.010,
+      "pre_miss": 188,
+      "post_miss": 190
+    },
+    "mushroom": {
+      "pre_recall": 0.220,
+      "post_recall": 0.170,
+      "delta_recall": -0.050,
+      "pre_miss": 156,
+      "post_miss": 166
+    },
+    "orange": {
+      "pre_recall": 0.165,
+      "post_recall": 0.165,
+      "delta_recall": 0.000,
+      "pre_miss": 167,
+      "post_miss": 167
+    },
+    "sports_car": {
+      "pre_recall": 0.115,
+      "post_recall": 0.105,
+      "delta_recall": -0.010,
+      "pre_miss": 177,
+      "post_miss": 179
+    },
+    "teapot": {
+      "pre_recall": 0.050,
+      "post_recall": 0.065,
+      "delta_recall": 0.015,
+      "pre_miss": 190,
+      "post_miss": 187
+    }
+  },
+  "decision": "rejected",
+  "lesson": "Global exclusion pressure is too blunt. It reduced golden_retriever false positives but increased banana and king_penguin false positives and dropped top-1/top-3 below guard thresholds. Next classifier delta should be class-specific.",
+  "non_claim_lock": [
+    "This rejected delta does not prove classifier improvement.",
+    "The failed scorer change is not committed.",
+    "Validation evidence is not final test evidence.",
+    "This ledger preserves negative evidence to constrain future design."
+  ]
+}
