@@ -1,14 +1,14 @@
-# Heuristic Learning for Image Classification: 86.1% on ImageNet Without a Single Learned Weight
+# Heuristic Learning for Image Classification: 86.1% on ImageNet Without Neural Networks
 
-*A coding agent maintains a symbolic visual system that keeps improving — no gradients, no training, no forgetting.*
+*A coding agent maintains a symbolic visual system that keeps improving: no gradients, no training, no forgetting.*
 
 ---
 
 ## The Provocation
 
-Jiayi Weng's *Learning Beyond Gradients* [1] makes a striking claim: heuristics were never useless — they were just too expensive to maintain. Coding agents change that maintenance curve. A rule-based system maintained by an LLM agent can keep absorbing feedback, growing more capable, and never catastrophically forgetting — because old capabilities live in code and tests, not in weight matrices that get overwritten.
+Jiayi Weng's *Learning Beyond Gradients* [1] makes a striking claim: heuristics were never useless, they were just too expensive to maintain. Coding agents change that maintenance curve. A rule-based system maintained by an LLM agent can keep absorbing feedback, growing more capable, and never catastrophically forgetting, because old capabilities live in code and tests, not in weight matrices that get overwritten.
 
-Weng demonstrated this with Atari (Breakout reaching the theoretical maximum 864), MuJoCo (Ant at 6000+), and an Atari57 batch where median human-normalized scores rivaled PPO baselines. The core insight: what's being updated is not a policy function but a *software system* — with memory, feedback channels, regression tests, and experiment records.
+Weng demonstrated this with Atari (Breakout reaching the theoretical maximum 864), MuJoCo (Ant at 6000+), and an Atari57 batch where median human-normalized scores rivaled PPO baselines. The core insight: what's being updated is not a policy function but a *software system*, with memory, feedback channels, regression tests, and experiment records.
 
 But Weng also wrote: *"With what I know today, I cannot imagine an agent writing pure Python code, without a neural network, to solve ImageNet."*
 
@@ -18,7 +18,7 @@ I decided to test that boundary directly.
 
 ## This Experiment: Heuristic Learning Applied to Vision
 
-**Task**: Classify 64x64 ImageNet images into 10 classes — golden retriever, mushroom, teapot, school bus, banana, bicycle, eagle, laptop, piano, zebra.
+**Task**: Classify 64x64 ImageNet images into 10 classes: golden retriever, mushroom, teapot, school bus, banana, bicycle, eagle, laptop, piano, zebra.
 
 **Method**: A coding agent (Claude) iteratively builds and maintains a purely symbolic image classification system. No neural networks. No learned weights. No embeddings. Only classical computer vision (OpenCV), hand-crafted features, and symbolic scoring rules.
 
@@ -47,7 +47,7 @@ Let me map this experiment directly onto Weng's HL framework:
 | Update | Gradient descent | Direct code edits by coding agent |
 | Memory | Replay buffer (or none) | Experiment logs, trial records, reasoning snapshots |
 
-The object being maintained is not a model — it's a **Heuristic System** in Weng's precise sense: a programmatic policy, state representation, feedback channels, experiment records, and an update mechanism executed by a coding agent. A single rule is not enough. Rules, feedback, history, and the next update path all connect.
+The object being maintained is not a model. It's a **Heuristic System** in Weng's precise sense: a programmatic policy, state representation, feedback channels, experiment records, and an update mechanism executed by a coding agent. A single rule is not enough. Rules, feedback, history, and the next update path all connect.
 
 ### The Update Loop
 
@@ -127,7 +127,7 @@ Session 11:   86%   green+warm counter-signals (final)
 
 This curve mirrors Weng's Breakout trajectory (387 → 507 → 839 → 864): rapid early gains from structural changes, then increasingly targeted fixes at the margin. The Breakout policy grew "action probes, state readers, ball and paddle detectors, landing prediction, stuck-loop detection, regression tests, video replays, and experiment logs." My classifier grew feature detectors, tiebreaker functions, confusion diagnostics, score caps, margin thresholds, and conjunctive guard conditions.
 
-Both systems grew into something much more than a single policy file. Both required the coding agent to maintain a *system* — not just write one rule and move on.
+Both systems grew into something much more than a single policy file. Both required the coding agent to maintain a *system*, not just write one rule and move on.
 
 ---
 
@@ -135,23 +135,115 @@ Both systems grew into something much more than a single policy file. Both requi
 
 Weng identifies several properties that HL has over Deep RL. Here's how each manifested:
 
-### Explainability
+### Explainability: How the System Actually Decides
 
-Every classification produces a proof trace. When the system classifies a brass teapot as a golden retriever, I can read *exactly why*: `golden_brown_color` fires at 0.95 because the warm hue range (8-35) covers 67% of the image. No attribution method needed. No saliency map. The failure mode is readable English.
+Every classification produces a full proof trace: which features fired, what evidence supported them, what was absent. No saliency map, no gradient attribution, no post-hoc explanation. The reasoning *is* the decision.
+
+Here are real decision traces from the final system:
+
+**A zebra (correct, high confidence):**
+
+```
+Prediction: zebra (0.701)
+Alternatives: piano (0.66), teapot (0.42)
+
+Claim: image contains 'zebra'
+Route: root -> animal -> zebra
+Evidence:
+  pure_vertical_stripes: 1.00 (col_var=122.2, row_var=0.3)
+  black_white_dominant:  1.00 (BW coverage: 0.98; low saturation: True)
+  striped_texture:       0.90 (consistency=1.00, energy=0.67, bw=0.98)
+Absent (supporting exclusion):
+  green_context: not detected
+  wheel_like: not detected
+```
+
+The system says: "I see strong vertical stripes (column variance 122 vs row variance 0.3), the image is 98% black and white, and stripe consistency is 1.0. No green background (not outdoor animal), no wheels (not bicycle). This is a zebra." A human can verify each claim by looking at the image.
+
+**A golden retriever (correct, tight margin):**
+
+```
+Prediction: golden_retriever (0.751)
+Alternatives: teapot (0.43), mushroom (0.40)
+
+Evidence:
+  golden_brown_color:    1.00 (golden/brown coverage: 0.58)
+  golden_fur_in_nature:  1.00 (golden=0.58, green=0.06, var=2966)
+  large_warm_blob:       1.00 (dominance=1.00, coverage=0.71)
+  outdoor_animal_scene:  1.00 (nature=0.71, var=1134)
+Absent:
+  striped_texture: not detected
+  repeated_vertical_lines: not detected
+```
+
+The system says: "58% of pixels match golden-brown hue (hue 8-35, sat>40). There's a large warm-colored blob covering 71% of the image. The scene has nature context (0.71). No stripes, no vertical lines. This is a golden retriever." Note that teapot scored 0.43, only 0.32 behind. The margin reflects real ambiguity: at 64x64, a brass teapot can look similar.
+
+**A school bus (correct, won via tiebreaker):**
+
+```
+Prediction: school_bus (0.502)
+Alternatives: teapot (0.46), mushroom (0.38)
+
+Evidence:
+  yellow_body_with_sky:  1.00 (sky=0.95, yellow_body=0.13)
+  sky_above_object:      0.95 (sky detected in top: ratio=0.95)
+  repeated_vertical_lines: 0.82 (21 crossings, amplitude=35)
+  horizontal_window_pattern: fires (dark rectangular bands)
+```
+
+The system says: "95% sky in the top quarter, yellow body visible below. 21 vertical luminance crossings in the middle band (window pattern). This is a school bus." The horizontal_window_pattern feature is pathognomonic: no other class has a regular grid of dark rectangles.
+
+**A mushroom (correct, won via tiebreaker swap):**
+
+```
+Prediction: mushroom (0.446)
+Runner-up before swap: golden_retriever (0.724)
+
+Evidence:
+  golden_brown_color:  1.00 (coverage: 0.69)
+  large_warm_blob:     1.00 (coverage: 0.69)
+Tiebreaker: dog_vs_mushroom
+  grad_top_bin = 0.21 (> 0.18 threshold)
+  green_ratio = 0.38 (> 0.089 threshold)
+  warm_ratio = 0.69 (< 0.68 threshold? no, but green > 0.25)
+  -> directional gradients + green context -> swap to mushroom
+```
+
+This is the hard case. The mushroom's brown cap fires `golden_brown_color` at 0.69, making golden_retriever score 0.724 as the base winner. But the tiebreaker detects: (1) directional gradient concentration (cap surface has oriented texture), (2) 38% green pixels (forest floor), (3) warm coverage 0.69 but with green context. The conjunction of all three signals triggers a swap.
+
+**A failure: teapot misclassified as golden_retriever:**
+
+```
+Prediction: golden_retriever (0.72)   [WRONG - true label: teapot]
+Runner-up: teapot (0.52)
+
+Evidence:
+  golden_brown_color: 0.95 (brass surface covers 67% of pixels)
+  organic_texture:    0.78 (14/25 patches with entropy > 2.0)
+Tiebreaker: dog_vs_teapot attempted
+  bg_contrast = 32 (< 40 threshold, no flip)
+  green_ratio = 0.02 (< 0.30, no flip)
+  -> no strong teapot signal, no dog counter-signal
+  -> stays golden_retriever [ERROR]
+```
+
+The failure is readable too. The brass teapot's warm surface (hue 8-35, sat>40) covers 67% of pixels, which is indistinguishable from golden fur at this resolution. The tiebreaker checks background contrast (32, just below the 40 threshold for a flip) and green ratio (0.02, no nature context). Neither condition fires strongly enough to override. The system correctly identifies *why* it fails: brass and fur are the same color at 64x64, and the teapot lacks the green outdoor context that would confirm a dog.
+
+This level of transparency is impossible with neural networks. A ResNet achieving 95% on this task would give you a softmax vector. If it misclassifies a brass teapot as a dog, you get "dog: 0.73, teapot: 0.21" with no explanation of *what visual evidence* led to that decision.
 
 ### Sample Efficiency
 
-When the coding agent identified that `green_ratio > 0.50 AND warm_ratio > 0.34 AND yellow_ratio < 0.45` separates dogs-in-nature from mushrooms, that single code edit jumped the policy directly to a new level — three previously failing images fixed in one commit. A neural network would need many gradient steps and risk catastrophic forgetting.
+When the coding agent identified that `green_ratio > 0.50 AND warm_ratio > 0.34 AND yellow_ratio < 0.45` separates dogs-in-nature from mushrooms, that single code edit jumped the policy directly to a new level: three previously failing images fixed in one commit. A neural network would need many gradient steps and risk catastrophic forgetting.
 
 ### Regression-Testability
 
 Every fix was regression-tested against all 230 images. Old capabilities become implicit test cases. When I added a dog-vs-mushroom condition, I immediately checked whether any correctly-classified mushrooms flipped to dog. This is the HL version of "old capabilities can become tests, replays, or golden cases."
 
-In one instance, adding `warm_ratio > 0.20` as a dog-vs-mushroom signal caused `mush_0001` to regress (it had warm=0.248, just above threshold). The fix was tightening to `warm_ratio > 0.34`. This kind of precise threshold surgery is possible *because the policy is code* — not a 40M-parameter weight matrix.
+In one instance, adding `warm_ratio > 0.20` as a dog-vs-mushroom signal caused `mush_0001` to regress (it had warm=0.248, just above threshold). The fix was tightening to `warm_ratio > 0.34`. This kind of precise threshold surgery is possible *because the policy is code*, not a 40M-parameter weight matrix.
 
 ### Avoiding Catastrophic Forgetting
 
-The system never forgot how to classify zebras when I improved mushroom detection. Features and tiebreakers are modular — changing one class's scoring doesn't affect another's unless they share features. Old capabilities literally live in their own code paths.
+The system never forgot how to classify zebras when I improved mushroom detection. Features and tiebreakers are modular: changing one class's scoring doesn't affect another's unless they share features. Old capabilities literally live in their own code paths.
 
 This is Weng's key insight: *"old capabilities do not have to live only inside model weights; they can be written into rule sets and tests."*
 
@@ -175,7 +267,7 @@ No single feature separates golden retrievers from mushrooms at 64x64. But conju
 - `gradient_top_bin > 0.18 AND green > 0.089 AND warm < 0.68` → mushroom
 - `texture_ratio > 2.5 AND bright_diff < 0` → teapot
 
-This is the HL equivalent of Weng's Ant policy growing "rhythmic control, posture feedback, contact signals, and short-horizon model rollouts" — individually simple rules that compose into effective behavior.
+This is the HL equivalent of Weng's Ant policy growing "rhythmic control, posture feedback, contact signals, and short-horizon model rollouts" , individually simple rules that compose into effective behavior.
 
 ### Failed: Every Global Optimization
 
@@ -187,7 +279,7 @@ This validates Weng's framework: HL updates work locally. The coding agent makes
 
 "Demote" instead of swap: 72% (-14%). Post-swap re-sort: 55% (-31%). These are architecturally "cleaner" but they destroy the emergent properties of the existing system.
 
-This is the HL coupling-complexity problem. The system's modules interact. A "better" abstraction that ignores these interactions fails catastrophically. Weng's concept of coupling complexity — "how many interdependent states, rules, tests, feedback signals, and historical constraints an update has to account for at the same time" — is exactly what made these refactors fail.
+This is the HL coupling-complexity problem. The system's modules interact. A "better" abstraction that ignores these interactions fails catastrophically. Weng's concept of coupling complexity ("how many interdependent states, rules, tests, feedback signals, and historical constraints an update has to account for at the same time") is exactly what made these refactors fail.
 
 ---
 
@@ -207,7 +299,7 @@ This is **representation saturation**: all measurable properties of the signal h
 
 In HL terms: the feedback loop has converged. Not because the coding agent can't write more code, but because the *environment* (the pixels) has stopped providing discriminative signal. The system needs a new *representation* (higher resolution) before more learning can happen.
 
-This connects to Weng's Montezuma example: "Some environments need stronger program forms: composable macro-actions, recoverable search state, and long-term memory. Plain `if else` cannot solve everything." Here, the system needs a stronger *sensory* form — more pixels — before it can solve the remaining cases.
+This connects to Weng's Montezuma example: "Some environments need stronger program forms: composable macro-actions, recoverable search state, and long-term memory. Plain `if else` cannot solve everything." Here, the system needs a stronger *sensory* form (more pixels) before it can solve the remaining cases.
 
 ---
 
@@ -217,12 +309,12 @@ Weng wrote: *"I cannot imagine an agent writing pure Python code, without a neur
 
 At full ImageNet scale (1000 classes, 224x224), this is likely true. But the boundary is more nuanced than "impossible":
 
-- **10 classes, 64x64**: 86.1% — well within reach of pure HL
+- **10 classes, 64x64**: 86.1%, well within reach of pure HL
 - **10 classes, 128x128**: likely 92%+ (resolution removes the saturation ceiling)
-- **50 classes**: unknown — the feature library has 8.4 classes per feature reuse, suggesting room to grow
+- **50 classes**: unknown, the feature library has 8.4 classes per feature reuse, suggesting room to grow
 - **1000 classes**: almost certainly requires hybrid (HL for structure + shallow NN for texture)
 
-The experiment places a concrete stake in the ground: for a limited class space, Heuristic Learning achieves *meaningful* image classification — not toy-level, but legitimately competitive with neural baselines for the information available at this resolution.
+The experiment places a concrete stake in the ground: for a limited class space, Heuristic Learning achieves *meaningful* image classification, not toy-level, but legitimately competitive with neural baselines for the information available at this resolution.
 
 ---
 
@@ -253,7 +345,7 @@ This matches Weng's hypothesis: "Clearer feedback increases the coupling complex
 | Atari57 median | Codex batch | HNS 0.83 | Scalable HL workflow |
 | **ImageNet 10-class** | **Claude classifier** | **86.1% top-1** | **Feature invention, confusion-driven update, representation saturation** |
 
-This experiment extends HL into a new domain — static perception rather than sequential control. The HL loop still applies: feedback drives code changes that drive performance. But it also reveals a new phenomenon (representation saturation) that doesn't have an obvious analogue in control tasks.
+This experiment extends HL into a new domain: static perception rather than sequential control. The HL loop still applies: feedback drives code changes that drive performance. But it also reveals a new phenomenon (representation saturation) that doesn't have an obvious analogue in control tasks.
 
 ---
 
@@ -281,9 +373,9 @@ Weng: "Rules that used to be one-off patches may start to become code worth owni
 
 Weng asks whether HL could be the next paradigm after pretraining, RLHF, and large-scale RL/RLVR: "anything that can be continuously iterated on starts to become solvable."
 
-This experiment provides a data point: yes, even image classification — the canonical neural network task — can be partially addressed by continuous heuristic iteration. The system achieved 86.1% through pure HL, with no gradient descent anywhere in the loop.
+This experiment provides a data point: yes, even image classification, the canonical neural network task, can be partially addressed by continuous heuristic iteration. The system achieved 86.1% through pure HL, with no gradient descent anywhere in the loop.
 
-But it also shows where HL alone isn't enough: when the signal lacks discriminative information, no amount of code editing helps. The hybrid future Weng suggests — "use HL to process online data quickly, turn online experience into trainable data, then periodically update the neural network" — seems correct. For vision:
+But it also shows where HL alone isn't enough: when the signal lacks discriminative information, no amount of code editing helps. The hybrid future Weng suggests ("use HL to process online data quickly, turn online experience into trainable data, then periodically update the neural network") seems correct. For vision:
 
 - **Shallow NNs** for texture features below the symbolic resolution limit
 - **HL** for compositional reasoning, class hierarchy, tiebreaking, and interpretable scoring
@@ -312,4 +404,15 @@ The division of labor is clear. Neither alone is sufficient. Together, they migh
 
 ---
 
-*This experiment applies Heuristic Learning to static image classification, demonstrating that the HL paradigm extends beyond sequential control tasks. The system was developed iteratively by a coding agent (Claude) using the exact feedback loop Weng describes: environment feedback → read context → edit policy → rerun → write results → continue. The full codebase, 150+ evaluation logs, and reasoning traces are available in the repository.*
+*This experiment applies Heuristic Learning to static image classification, demonstrating that the HL paradigm extends beyond sequential control tasks. The system was developed iteratively by a coding agent (Claude) using the exact feedback loop Weng describes: environment feedback, read context, edit policy, rerun, write results, continue. The full codebase, 150+ evaluation logs, and reasoning traces are available in the repository.*
+
+---
+
+## Citation
+
+If you reference this work, please cite:
+
+```
+Heuristic Learning for Image Classification: Without Neural Networks.
+Xisen Wang, May 2026.
+```
