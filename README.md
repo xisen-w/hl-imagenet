@@ -130,29 +130,7 @@ Phase 1 demonstrated that the HL loop *can* build a symbolic classifier, but the
 - Test set is touched only once at the very end
 - No threshold tuning against val or test images
 
-### Early results (9 HL iterations, 25-dimensional representation)
-
-| Metric | Train (2000 images) | Val (2000 images) |
-|--------|:---:|:---:|
-| **Top-1 accuracy** | **34.6%** | **33.4%** |
-| **Top-3 accuracy** | **70.8%** | **68.6%** |
-| Random baseline | 10% | 10% |
-| Train/val gap | — | 1.2pp |
-
-| Class | Train | Val |
-|-------|:---:|:---:|
-| king_penguin | 67.5% | 64.5% |
-| jellyfish | 66.0% | 65.5% |
-| banana | 65.0% | 58.0% |
-| school_bus | 53.0% | 57.5% |
-| golden_retriever | 34.0% | 27.5% |
-| mushroom | 25.0% | 22.0% |
-| orange | 16.5% | 16.5% |
-| sports_car | 10.5% | 11.5% |
-| brown_bear | 4.5% | 6.0% |
-| teapot | 4.5% | 5.0% |
-
-**Status**: In progress. 25-dimensional feature space (color histograms, LBP texture, spatial profiles, gradient direction). The train/val gap is healthy (1.2pp), confirming no overfitting. Hardest confusions: brown_bear ↔ golden_retriever (identical warm color), teapot ↔ king_penguin (both low-saturation, high-bw).
+**Status**: Classes selected, experiment not yet started.
 
 ---
 
