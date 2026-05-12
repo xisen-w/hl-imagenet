@@ -27,7 +27,7 @@ def score_node(node: ClassNode, graph: SceneGraph, cache: dict[str, FeatureValue
     supporting_score = _eval_feature_list(node.supporting_features, graph, cache)
     excluding_score = _eval_feature_list(node.excluding_features, graph, cache)
 
-    score = required_score * 0.6 + supporting_score * 0.3 - excluding_score * 0.2 - alt_penalty
+    score = required_score * 0.75 + supporting_score * 0.15 - excluding_score * 0.15 - alt_penalty
     return max(0.0, min(score, 1.0))
 
 
