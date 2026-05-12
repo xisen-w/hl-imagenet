@@ -1,4 +1,6 @@
-# HL-ImageNet
+# # HL-ImageNet: A Preliminary Heuristic-Learning Demo for Image Classification
+
+> This is not a standard ImageNet benchmark result yet. Phase 1 used a mixed exploratory setup with 4 real Tiny ImageNet classes and 6 synthetic classes, and the main 86.1% number is development-set accuracy after iterative tuning. Follow-up experiment is now WIP in Phase 2.
 
 **Heuristic Learning for Image Classification — Without Neural Networks**
 
