@@ -4,7 +4,7 @@
 
 ## Purpose
 
-Human-facing helper scripts for demos, evaluation, prediction, plotting, agent runs, dataset preparation, Phase 2 diagnostics, Phase 2 benchmark comparisons, and Phase 2 sample-level attribution.
+Human-facing helper scripts for demos, evaluation, prediction, plotting, agent runs, dataset preparation, Phase 2 diagnostics, Phase 2 benchmark comparisons, Phase 2 sample-level attribution, and Phase 2 candidate selection.
 
 ## S - Formal specification
 
@@ -19,6 +19,7 @@ This folder provides command surfaces that call into the `hlinet` package. Scrip
 - `run_phase2_diagnostics.py` calls `hlinet.eval.diagnostics`.
 - `run_phase2_benchmarks.py` calls `hlinet.eval.benchmark`.
 - `run_phase2_attribution.py` calls `hlinet.eval.attribution`.
+- `run_phase2_candidates.py` calls `hlinet.eval.candidates`.
 
 ## A - Artifacts
 
@@ -31,10 +32,11 @@ This folder provides command surfaces that call into the `hlinet` package. Scrip
 - `run_phase2_diagnostics.py`
 - `run_phase2_benchmarks.py`
 - `run_phase2_attribution.py`
+- `run_phase2_candidates.py`
 
 ## T - Theory or method basis
 
-Scripts are operational entry points. Diagnostic scripts analyze evidence artifacts; benchmark scripts compare transparent baselines against the current classifier; attribution scripts inspect per-sample prediction behavior. None of these should alter classifier runtime behavior.
+Scripts are operational entry points. Diagnostic scripts analyze evidence artifacts; benchmark scripts compare transparent baselines against the current classifier; attribution scripts inspect per-sample prediction behavior; candidate scripts rank future intervention candidates. None of these should alter classifier runtime behavior.
 
 ## I - Invariants
 
@@ -44,6 +46,7 @@ Scripts are operational entry points. Diagnostic scripts analyze evidence artifa
 - Diagnostic scripts must preserve non-claim boundaries and split labels.
 - Benchmark scripts must preserve train/validation/test boundaries.
 - Attribution scripts must preserve validation/test boundaries and must not imply classifier improvement.
+- Candidate-selection scripts must not imply classifier improvement or authorize blind validation tuning.
 
 ## E - Example
 
@@ -58,5 +61,9 @@ Run Phase 2 benchmarks:
 Run Phase 2 attribution:
 
     python scripts/run_phase2_attribution.py --data-root ".\data\phase2" --split val
+
+Run Phase 2 candidates:
+
+    python scripts/run_phase2_candidates.py
 
 <!-- RCC-MINI-README:END -->

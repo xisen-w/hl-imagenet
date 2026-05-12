@@ -4,26 +4,28 @@
 
 ## Purpose
 
-Evaluation, diagnostics, benchmark comparison, and sample-level attribution surface for HL-ImageNet.
+Evaluation, diagnostics, benchmark comparison, sample-level attribution, and candidate-selection surface for HL-ImageNet.
 
 ## S - Formal specification
 
-This folder defines how images are loaded, predictions are scored, metrics are computed, evaluation reports are emitted, Phase 2 logs are diagnosed, transparent baselines are compared, and individual validation samples are attributed.
+This folder defines how images are loaded, predictions are scored, metrics are computed, evaluation reports are emitted, Phase 2 logs are diagnosed, transparent baselines are compared, individual validation samples are attributed, and future classifier-change candidates are ranked.
 
-Diagnostics read evaluation logs. Benchmarks compare models. Attribution reads the local image split and emits per-sample traces. None of these layers change classifier behavior.
+Diagnostics read evaluation logs. Benchmarks compare models. Attribution reads the local image split and emits per-sample traces. Candidate selection reads diagnostics, benchmarks, and attribution to rank possible future interventions. None of these layers change classifier behavior.
 
 ## H - Hooks and integration edges
 
 - `dataset.py` loads Phase 1 and Phase 2 samples.
 - `metrics.py` records accuracy, top-k behavior, confusion, latency, and feature reuse.
 - `runner.py` orchestrates evaluation and writes logs.
-- `diagnostics.py` reads Phase 2 eval JSON reports and emits diagnostic JSON/Markdown artifacts.
-- `baselines.py` defines random, majority-class, color-centroid, image-statistics centroid, and handcrafted-stat kNN baselines.
-- `benchmark.py` fits baselines on train and compares them against the current HL classifier on the requested split.
+- `diagnostics.py` reads Phase 2 eval JSON reports and emits diagnostic artifacts.
+- `baselines.py` defines transparent non-neural baselines.
+- `benchmark.py` compares baselines against the current HL classifier.
 - `attribution.py` emits per-sample JSON/CSV/Markdown attribution traces.
+- `candidates.py` emits candidate-selection plans from diagnostics, benchmarks, and attribution.
 - `scripts/run_phase2_diagnostics.py` runs diagnostics.
 - `scripts/run_phase2_benchmarks.py` runs benchmark comparisons.
 - `scripts/run_phase2_attribution.py` runs sample-level attribution.
+- `scripts/run_phase2_candidates.py` runs candidate selection.
 
 ## A - Artifacts
 
@@ -34,14 +36,16 @@ Diagnostics read evaluation logs. Benchmarks compare models. Attribution reads t
 - `baselines.py`
 - `benchmark.py`
 - `attribution.py`
+- `candidates.py`
 - generated evaluation reports under `logs/`
 - generated diagnostics under `logs/phase2/diagnostics/`
 - generated benchmarks under `logs/phase2/benchmarks/`
 - generated attribution traces under `logs/phase2/attribution/`
+- generated candidate plans under `logs/phase2/candidates/`
 
 ## T - Theory or method basis
 
-Evaluation methodology is the claim boundary. Diagnostics expose aggregate failure geometry. Benchmarks compare the classifier against transparent baselines. Attribution links aggregate failures back to individual images, activated features, proof traces, collapse paths, and baseline-agreement flags.
+Evaluation methodology is the claim boundary. Diagnostics expose aggregate failure geometry. Benchmarks compare the classifier against transparent baselines. Attribution links aggregate failures back to individual images. Candidate selection decides what deserves inspection before any classifier behavior changes.
 
 ## I - Invariants
 
@@ -50,9 +54,11 @@ Evaluation methodology is the claim boundary. Diagnostics expose aggregate failu
 - Diagnostics do not change classifier behavior.
 - Benchmarks do not change classifier behavior.
 - Attribution does not change classifier behavior.
+- Candidate selection does not change classifier behavior.
 - Diagnostics do not prove classifier correctness.
 - Benchmarks do not prove final ImageNet performance.
 - Attribution does not prove classifier correctness.
+- Candidate selection does not prove classifier correctness.
 - Baselines must fit only on train.
 - Validation results are not final test results.
 - Evaluation code changes affect public claims.
@@ -74,5 +80,9 @@ Run Phase 2 benchmarks:
 Run Phase 2 attribution:
 
     python scripts/run_phase2_attribution.py --data-root ".\data\phase2" --split val
+
+Run Phase 2 candidate selection:
+
+    python scripts/run_phase2_candidates.py
 
 <!-- RCC-MINI-README:END -->

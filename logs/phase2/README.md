@@ -4,11 +4,11 @@
 
 ## Purpose
 
-Phase 2 evaluation logs, derived diagnostic artifacts, benchmark-comparison artifacts, and sample-level attribution artifacts for the split-aware 10-real-class Tiny ImageNet experiment.
+Phase 2 evaluation logs, derived diagnostic artifacts, benchmark-comparison artifacts, sample-level attribution artifacts, and candidate-selection artifacts for the split-aware 10-real-class Tiny ImageNet experiment.
 
 ## S - Formal specification
 
-This folder stores Phase 2 evaluation JSON/Markdown outputs, Phase 2.2 diagnostic reports, Phase 2.3 benchmark reports, and Phase 2.4 sample-level attribution reports.
+This folder stores Phase 2 evaluation JSON/Markdown outputs, Phase 2.2 diagnostic reports, Phase 2.3 benchmark reports, Phase 2.4 sample-level attribution reports, and Phase 2.5 candidate-selection plans.
 
 ## H - Hooks and integration edges
 
@@ -16,6 +16,7 @@ This folder stores Phase 2 evaluation JSON/Markdown outputs, Phase 2.2 diagnosti
 - `hlinet/eval/diagnostics.py` reads `eval_phase2*.json` files and writes diagnostics.
 - `hlinet/eval/benchmark.py` writes benchmark reports into `logs/phase2/benchmarks`.
 - `hlinet/eval/attribution.py` writes attribution reports into `logs/phase2/attribution`.
+- `hlinet/eval/candidates.py` writes candidate plans into `logs/phase2/candidates`.
 - README and architecture docs may summarize these outputs, but should not strengthen claims beyond the evidence.
 
 ## A - Artifacts
@@ -29,10 +30,12 @@ This folder stores Phase 2 evaluation JSON/Markdown outputs, Phase 2.2 diagnosti
 - `attribution/latest_phase2_attribution.json`
 - `attribution/latest_phase2_attribution.csv`
 - `attribution/latest_phase2_attribution.md`
+- `candidates/latest_phase2_candidate_plan.json`
+- `candidates/latest_phase2_candidate_plan.md`
 
 ## T - Theory or method basis
 
-Phase 2 is the split-aware evidence path for the symbolic classifier. Diagnostics expose failure geometry, benchmarks compare against baselines, and attribution shows individual validation rows behind the aggregate results.
+Phase 2 is the split-aware evidence path for the symbolic classifier. Diagnostics expose failure geometry, benchmarks compare against baselines, attribution shows individual validation rows, and candidate selection ranks future intervention candidates before classifier behavior changes.
 
 ## I - Invariants
 
@@ -41,6 +44,7 @@ Phase 2 is the split-aware evidence path for the symbolic classifier. Diagnostic
 - Do not treat diagnostics as classifier improvements.
 - Do not treat benchmarks as classifier improvements.
 - Do not treat attribution as classifier improvement or correctness proof.
+- Do not treat candidate selection as classifier improvement or correctness proof.
 - Do not treat top-3 rescue as top-1 success.
 - Do not promote validation results into final benchmark claims.
 - Do not commit local Tiny ImageNet image data.
@@ -58,5 +62,9 @@ Generate benchmark reports:
 Generate attribution reports:
 
     python scripts/run_phase2_attribution.py --data-root ".\data\phase2" --split val
+
+Generate candidate plans:
+
+    python scripts/run_phase2_candidates.py
 
 <!-- RCC-MINI-README:END -->
