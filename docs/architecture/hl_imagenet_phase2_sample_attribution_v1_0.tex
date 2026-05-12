@@ -1,0 +1,159 @@
+% ████████████████████████████████████████████████████████████████████████████████
+%
+%   CODEX ΔΦ — HL-IMAGENET PHASE 2 SAMPLE-LEVEL ATTRIBUTION LAYER
+%   SOFTWARE ARCHITECTURE (HL-ATTR v1.0)
+%   ────────────────────────────────────────────────────────────────────────────
+%   CANONICAL ATTRIBUTION-PRESERVING SOFTWARE ARCHITECTURE FOR ADDING
+%   SAMPLE-LEVEL VALIDATION ATTRIBUTION TO HL-IMAGENET AFTER RCC CONTEXT,
+%   PHASE 2.2 DIAGNOSTICS, AND PHASE 2.3 BENCHMARK COMPARISON WITHOUT
+%   CLAIMING CLASSIFIER AUTHORSHIP, WITHOUT CHANGING CLASSIFIER RUNTIME
+%   BEHAVIOR, WITHOUT CLAIMING ACCURACY IMPROVEMENT, AND WITHOUT PROMOTING
+%   VALIDATION RESULTS INTO FINAL IMAGENET CLAIMS
+%
+%   VERSION
+%   ───────
+%   v1.0 — Sample-Level Attribution Genesis Layer · Locked ·
+%          Per-Sample Prediction Trace, True/Predicted/Top-3 Labels,
+%          Score Margin, Proof Trace Capture, Activated Feature Summary,
+%          Collapse Path Extraction, Optional Baseline Agreement Surface,
+%          Victim/Attractor Inspection Support, JSON/CSV/Markdown Artifacts,
+%          Claim Boundary Preservation, and Phase 2.5 Attractor-Balanced
+%          Scoring Readiness
+%
+%   AUTHOR
+%   ──────
+%   James Paul Jackson
+%   X / Twitter: @unifiedenergy11
+%
+%   SOURCE / AUTHOR ATTRIBUTION
+%   ───────────────────────────
+%   Original/upstream author contribution:
+%       HL-ImageNet classifier concept, Phase 1 implementation, Phase 2
+%       classifier implementation, hierarchy, signatures, scorer behavior,
+%       prediction behavior, and existing evaluation logs.
+%
+%   James Paul Jackson contribution:
+%       RCC / AEFL repository context layer, Phase 2.2 diagnostic lens,
+%       Phase 2.3 benchmark harness, and this Phase 2.4 sample-level
+%       attribution architecture / implementation.
+%
+%   STATUS
+%   ──────
+%   CANONICAL v1.0 SOFTWARE ARCHITECTURE LAYER —
+%   NOT CLASSIFIER AUTHORSHIP · NOT CLASSIFIER BEHAVIOR CHANGE · NOT ACCURACY
+%   IMPROVEMENT · NOT FINAL IMAGENET CLAIM · NOT A NEURAL-NETWORK COMPARISON ·
+%   NOT PERMISSION TO TUNE AGAINST VALIDATION · NOT PROOF OF CORRECTNESS
+%
+%   PURPOSE
+%   ───────
+%   Convert Phase 2 validation predictions into auditable rows:
+%       image path, true label, predicted label, top-3 labels, score margin,
+%       outcome class, collapse path, activated feature summary, proof trace,
+%       and optional baseline agreement.
+%
+%   CORE SOFTWARE LOCK
+%   ──────────────────
+%   • Attribution tooling may call the current classifier.
+%   • Attribution tooling may read feature activations and proof traces.
+%   • Attribution tooling may compare baselines if requested.
+%   • Attribution tooling may emit JSON, CSV, and Markdown artifacts.
+%   • Attribution tooling may not modify scorer, predictor, hierarchy,
+%     signatures, tiebreakers, sensors, or features.
+%   • Validation rows must remain labeled as validation rows.
+%   • Test split must remain untouched unless explicitly requested.
+%
+%   VALIDATION SURFACE
+%   ──────────────────
+%   HL-ATTR v1.0 is valid when package imports succeed, local Phase 2 split
+%   loads, per-sample predictions run, JSON/CSV/Markdown artifacts emit, rows
+%   include true/pred/top3/margin/proof/features, collapse paths are summarized,
+%   optional baseline agreement is bounded, and classifier runtime files remain
+%   unchanged.
+%
+%   FALSIFICATION SURFACE
+%   ─────────────────────
+%   HL-ATTR v1.0 is invalid if it changes classifier behavior, trains or tunes
+%   on validation rows, hides split labels, claims accuracy improvement, treats
+%   proof traces as correctness proof, omits non-claim locks, or promotes
+%   validation inspection into final benchmark claims.
+%
+%   NEXT PHASE
+%   ──────────
+%   Phase 2.5 may only change classifier behavior after Phase 2.4 identifies
+%   which failures are feature failures, scoring calibration failures,
+%   tiebreaker failures, representation limits, or baseline-solvable cases.
+%
+%   SHADOW HEADER ALIGNMENT SEAL
+%   ───────────────────────────
+%   Evolutions must be additive only unless a declared architecture lift occurs.
+%   Preserve attribution, validation/test boundaries, diagnostic locks,
+%   benchmark locks, and non-claim discipline.
+%
+% ████████████████████████████████████████████████████████████████████████████████
+
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,booktabs,hyperref,listings}
+
+\title{\textbf{Codex $\Delta\Phi$ — HL-ImageNet Phase 2 Sample-Level Attribution Layer (HL-ATTR v1.0)}\\
+\large Per-Sample Prediction Traces, Collapse Paths, Feature Evidence, Baseline Agreement, and Claim Locks}
+\author{\textbf{James Paul Jackson}\\ \small \texttt{@unifiedenergy11}}
+\date{May 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+HL-ATTR v1.0 defines a sample-level attribution layer for HL-ImageNet. It reads
+a declared Phase 2 split, runs the current symbolic classifier without changing
+runtime behavior, and emits per-sample JSON, CSV, and Markdown artifacts
+containing true labels, predictions, top-3 labels, margins, proof traces,
+activated features, collapse paths, and optional baseline agreement. The layer
+is a diagnostic/evidence instrument, not a classifier improvement.
+\end{abstract}
+
+\section{Core Invariant}
+
+\[
+\boxed{
+\text{Aggregate diagnostics show where the system fails; sample attribution}
+\atop
+\text{shows why individual images collapse.}
+}
+\]
+
+\[
+Sample
+\rightarrow Prediction
+\rightarrow Top3
+\rightarrow Margin
+\rightarrow Features
+\rightarrow Proof
+\rightarrow CollapsePath
+\rightarrow AttributionArtifact.
+\]
+
+\section{Artifact Contract}
+
+Each sample row must contain true label, predicted label, top-3 labels, score
+margin, outcome class, collapse path, activated features, and proof trace.
+
+\section{Outcome Classes}
+
+\[
+Outcome \in \{correct,\ top3\_rescue,\ miss\}.
+\]
+
+\section{Non-Claim Lock}
+
+This layer does not prove correctness, does not change classifier behavior, and
+does not claim accuracy improvement. It exists to inspect failures before any
+future scoring or signature changes.
+
+\section{Next Step}
+
+After HL-ATTR v1.0 emits stable sample-level traces, Phase 2.5 may introduce
+attractor-balanced scoring only if changes are benchmarked against the same
+baselines and validation/test boundaries remain preserved.
+
+\end{document}
