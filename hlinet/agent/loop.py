@@ -2,18 +2,16 @@
 
 from __future__ import annotations
 
-import json
-import sys
 from datetime import datetime
 from pathlib import Path
 
-from hlinet.agent.analyzer import analyze_errors, format_analysis
+from hlinet.agent.analyzer import analyze_errors
 from hlinet.agent.proposer import build_proposal_prompt, save_generated_feature, SYSTEM_PROMPT
 from hlinet.agent.tester import test_feature
-from hlinet.eval.dataset import load_dataset, PHASE1_CLASSES
+from hlinet.eval.dataset import load_dataset
 from hlinet.eval.runner import run_evaluation
 
-LOGS_DIR = Path(__file__).parent.parent.parent / "logs"
+LOGS_DIR = Path(__file__).parent.parent.parent / "logs" / "phase2"
 
 
 def run_agent_loop(
@@ -47,7 +45,7 @@ def run_agent_loop(
         # Step 1: Evaluate
         if verbose:
             print("\n[1/4] Evaluating current system...")
-        eval_result = run_evaluation(data_dir=data_dir, max_per_class=15, verbose=False)
+        eval_result = run_evaluation(data_dir=data_dir, max_per_class=15, verbose=False, tag="phase2_agent")
         results_history.append(eval_result.to_dict())
 
         log_lines.append(f"\n## Iteration {iteration + 1}")

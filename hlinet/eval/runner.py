@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import sys
 import time
 from datetime import datetime
 from pathlib import Path
@@ -14,7 +13,12 @@ from hlinet.classifier.predict import predict
 from hlinet.eval.dataset import load_dataset, PHASE1_CLASSES
 from hlinet.eval.metrics import EvalResult
 
-LOGS_DIR = Path(__file__).parent.parent.parent / "logs"
+LOGS_ROOT = Path(__file__).parent.parent.parent / "logs"
+
+
+def _logs_dir_for_tag(tag: str) -> Path:
+    """Route reports into phase-specific log folders."""
+    return LOGS_ROOT / "phase2" if tag.startswith("phase2") else LOGS_ROOT / "phase1"
 
 
 def run_evaluation(
@@ -58,9 +62,10 @@ def run_evaluation(
 
 def save_report(result: EvalResult, tag: str = "phase1") -> Path:
     """Save evaluation report to logs directory."""
-    LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    logs_dir = _logs_dir_for_tag(tag)
+    logs_dir.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    report_path = LOGS_DIR / f"eval_{tag}_{timestamp}.json"
+    report_path = logs_dir / f"eval_{tag}_{timestamp}.json"
 
     report = result.to_dict()
     report["tag"] = tag
@@ -70,7 +75,7 @@ def save_report(result: EvalResult, tag: str = "phase1") -> Path:
         json.dump(report, f, indent=2)
 
     # Also save a human-readable markdown log
-    md_path = LOGS_DIR / f"eval_{tag}_{timestamp}.md"
+    md_path = logs_dir / f"eval_{tag}_{timestamp}.md"
     with open(md_path, "w") as f:
         f.write(f"# Eval Run: {timestamp}\n\n")
         f.write(f"**Tag:** {tag}\n")
@@ -115,6 +120,7 @@ def main():
         data_dir=args.data_dir,
         max_per_class=args.max_per_class,
         verbose=not args.quiet,
+        auto_save=False,
     )
 
     print()

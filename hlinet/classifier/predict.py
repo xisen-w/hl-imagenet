@@ -9,7 +9,7 @@ import cv2
 import numpy as np
 
 from hlinet.classifier.hierarchy import ClassNode, build_phase1_hierarchy
-from hlinet.classifier.scorer import score_gate, score_node
+from hlinet.classifier.scorer import score_node
 from hlinet.classifier.tiebreaker import resolve_tie
 from hlinet.scene.builder import SceneGraphBuilder
 from hlinet.types import FeatureValue, Prediction, SceneGraph

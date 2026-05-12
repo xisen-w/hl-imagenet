@@ -3,3 +3,4 @@
 from hlinet.features.compounds import relational
 from hlinet.features.compounds import spatial_attention
 from hlinet.features.compounds import meta_features
+from hlinet.features.compounds import phase2_signatures

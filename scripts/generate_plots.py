@@ -24,7 +24,7 @@ plt.rcParams.update({
     'font.family': 'sans-serif',
 })
 
-LOGS_DIR = Path(__file__).parent.parent / "logs"
+LOGS_DIR = Path(__file__).parent.parent / "logs" / "phase1"
 PLOTS_DIR = Path(__file__).parent.parent / "docs" / "plots"
 PLOTS_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -33,6 +33,12 @@ def load_all_evals():
     """Load all JSON eval logs, sorted chronologically."""
     results = []
     for f in sorted(LOGS_DIR.glob("*.json")):
+        if not (
+            f.name.startswith("eval_phase1_")
+            or f.name.startswith("eval_baseline_")
+            or f.name.startswith("eval_iter")
+        ):
+            continue
         try:
             data = json.loads(f.read_text())
             ts_str = f.stem.replace("eval_phase1_", "").replace("eval_baseline_", "").replace("eval_iter1_", "").replace("eval_iter2_", "").replace("eval_iter3_", "").replace("eval_iter4_", "").replace("eval_iter5_", "").replace("eval_iter6_", "")

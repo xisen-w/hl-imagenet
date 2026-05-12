@@ -7,6 +7,12 @@ import random
 from dataclasses import dataclass
 from pathlib import Path
 
+PHASE2_CLASSES = [
+    "golden_retriever", "mushroom", "teapot", "school_bus", "banana",
+    "orange", "brown_bear", "king_penguin", "jellyfish", "sports_car",
+]
+
+# Kept for archived Phase 1 analysis and plot generation.
 PHASE1_CLASSES = [
     "zebra", "school_bus", "golden_retriever", "bicycle",
     "mushroom", "teapot", "piano", "eagle", "laptop", "banana",
@@ -30,10 +36,10 @@ def load_dataset(
     """Load image samples from the dataset directory.
 
     Expected structure:
-        data/imagenet_10/<class_name>/<image_files>
+        data/phase2/<split>/<class_name>/<image_files>
     """
-    data_dir = data_dir or DATA_DIR / "imagenet_10"
-    classes = classes or PHASE1_CLASSES
+    data_dir = data_dir or DATA_DIR / "phase2" / split
+    classes = classes or PHASE2_CLASSES
 
     samples = []
     for cls in classes:
@@ -64,8 +70,15 @@ def load_splits(data_dir: Path | None = None) -> dict[str, list[Sample]]:
             for split_name, samples in split_data.items()
         }
 
-    # Default: load all and split 70/15/15
-    all_samples = load_dataset(data_dir / "imagenet_10")
+    phase2_root = data_dir / "phase2"
+    if phase2_root.exists():
+        return {
+            split_name: load_dataset(phase2_root / split_name, classes=PHASE2_CLASSES)
+            for split_name in ("train", "val", "test")
+        }
+
+    # Legacy fallback for Phase 1-style flat data directories.
+    all_samples = load_dataset(data_dir / "imagenet_10", classes=PHASE1_CLASSES)
     random.seed(42)
     random.shuffle(all_samples)
 

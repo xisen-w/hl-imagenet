@@ -1,6 +1,6 @@
 # HL-ImageNet
 
-**Heuristic Learning for Image Classification: 86.1% on ImageNet Without Neural Networks**
+**Heuristic Learning for Image Classification — Without Neural Networks**
 
 A coding agent (Claude) iteratively built a purely symbolic image classifier through 248 evaluation iterations across 11 sessions. No neural networks, no gradient descent, no backpropagation. The system uses classical computer vision (OpenCV), hand-crafted features, and symbolic scoring rules.
 
@@ -10,37 +10,125 @@ This is an application of Jiayi Weng's [Heuristic Learning](https://trinkle23897
 
 ## Results
 
+### Phase 1 (completed): Development-set accuracy
+
 | Metric | Value |
 |--------|-------|
-| Top-1 accuracy | **86.1%** |
-| Top-3 accuracy | **92.2%** |
-| Classes | 10 (golden retriever, mushroom, teapot, school bus, banana, bicycle, eagle, laptop, piano, zebra) |
+| Dev-set top-1 (4 hard classes) | **84%** (168/200) |
+| Dev-set top-1 (all 10 incl. synthetic) | **86.1%** (198/230) |
+| Validation folder (4 hard classes) | **54%** (216/400) |
+| Non-overlapping validation subset | **51.4%** (186/362) |
+| Hard classes | golden retriever, mushroom, teapot, school bus |
 | Resolution | 64x64 (Tiny ImageNet) |
-| Test images | 230 (50 real per hard class, 5 synthetic per easy class) |
 | Inference time | ~25ms per image (M-series Mac) |
 
-### Per-class accuracy
+> **Important**: The 86.1% was measured on the same 230 images used during development. All ~50 thresholds were tuned against these images. A later 400-image validation folder scored 54%, but exact file-hash checking found 38 images overlapping with the development set. On the stricter non-overlapping subset, accuracy is 51.4% (186/362). See [Evaluation Methodology](#evaluation-methodology) for full details.
 
-| Class | Accuracy | Notes |
-|-------|----------|-------|
-| banana | 100% | Synthetic, 5 images |
-| bicycle | 100% | Synthetic, 5 images |
-| eagle | 100% | Synthetic, 5 images |
-| laptop | 100% | Synthetic, 5 images |
-| piano | 100% | Synthetic, 5 images |
-| zebra | 100% | Synthetic, 5 images |
-| mushroom | 88% | 44/50 real images |
-| school bus | 84% | 42/50 real images |
-| golden retriever | 82% | 41/50 real images |
-| teapot | 82% | 41/50 real images |
+### Per-class accuracy (dev set)
+
+| Class | Dev Accuracy | Notes |
+|-------|:---:|-------|
+| mushroom | 88% (44/50) | Real Tiny ImageNet images |
+| school bus | 84% (42/50) | Real Tiny ImageNet images |
+| golden retriever | 82% (41/50) | Real Tiny ImageNet images |
+| teapot | 82% (41/50) | Real Tiny ImageNet images |
+| banana | 100% (5/5) | Synthetic (yellow ellipse on grey noise) |
+| bicycle | 100% (5/5) | Synthetic |
+| eagle | 100% (5/5) | Synthetic |
+| laptop | 100% (5/5) | Synthetic |
+| piano | 100% (5/5) | Synthetic |
+| zebra | 100% (5/5) | Synthetic |
+
+### Per-class accuracy (400-image validation folder)
+
+| Class | Val Accuracy | Drop from dev |
+|-------|:---:|:---:|
+| school bus | 62% (62/100) | -22pp |
+| golden retriever | 56% (56/100) | -26pp |
+| teapot | 53% (53/100) | -29pp |
+| mushroom | 45% (45/100) | -43pp |
 
 ### Accuracy trajectory
 
 ![Accuracy Trajectory](docs/plots/01_accuracy_trajectory.png)
 
-From 12.7% (random baseline) to 86.1% over 248 iterations. See `docs/plots/` for all 8 visualizations.
+From 12.7% (random baseline) to 86.1% (dev set) over 248 iterations. See `docs/plots/` for all 8 visualizations.
 
 For a deeper analysis of the critical transitions, plateau-breaking moments, representation saturation ceiling, and how this maps onto Weng's HL framework, see the [full blog post](docs/blog.md).
+
+---
+
+## Evaluation Methodology
+
+### How the 86.1% was computed
+
+The 230-image evaluation set consists of:
+- **4 hard classes**: 50 real Tiny ImageNet images each (images 0–49 from each class's 500 training images)
+- **6 easy classes**: 5 AI-generated synthetic images each (e.g., the "banana" images are yellow ellipses on grey noise — essentially trivial)
+
+All 248 iterations of the HL loop tuned thresholds against these same 230 images. This makes the 86.1% a **development-set accuracy**, not a generalization metric.
+
+### Validation results
+
+We evaluated the final classifier (no code changes) on a 400-image Tiny ImageNet validation folder for the 4 hard classes:
+
+- **54% overall** (216/400) on the 4 hard classes
+- Exact file-hash checking found **38/400 images overlapping** with the development set
+- On the stricter non-overlapping subset: **51.4%** (186/362)
+- Clean 4-class random baseline: **25%**, so the validation result is about **2.1x random**
+- Top-3 accuracy: 87.7%
+- Largest drop: mushroom (88% → 45%), due to surgically tuned conjunction thresholds
+
+### What's available in Tiny ImageNet
+
+| Class | Total available | Used for dev | Used for val | Still unused |
+|-------|:-:|:-:|:-:|:-:|
+| golden_retriever | 500 train + 50 val | 50 | 100 | 400 |
+| mushroom | 500 train + 50 val | 50 | 100 | 400 |
+| teapot | 500 train + 50 val | 50 | 100 | 400 |
+| school_bus | 500 train + 50 val | 50 | 100 | 400 |
+| banana | 500 train + 50 val | 0 (used synthetic) | 0 | 550 |
+
+---
+
+## Phase 2: Proper Train/Val Split (In Progress)
+
+Phase 1 demonstrated that the HL loop *can* build a symbolic classifier, but the evaluation was on the tuning set. Phase 2 will use a proper split with all real images.
+
+### 10 classes (all real Tiny ImageNet)
+
+| # | Class | wnid | Confusable with |
+|---|-------|------|-----------------|
+| 1 | golden retriever | n02099601 | brown bear, mushroom, teapot |
+| 2 | mushroom | n07734744 | golden retriever, teapot |
+| 3 | teapot | n04398044 | golden retriever, mushroom |
+| 4 | school bus | n04146614 | banana (both yellow) |
+| 5 | banana | n07753592 | orange, school bus |
+| 6 | orange | n07747607 | banana |
+| 7 | brown bear | n02132136 | golden retriever |
+| 8 | king penguin | n02056570 | — |
+| 9 | jellyfish | n01910747 | — |
+| 10 | sports car | n04285008 | — |
+
+### Split (per class, 500 Tiny ImageNet train images available)
+
+| Split | Images | Source | Purpose |
+|-------|:---:|--------|---------|
+| **Train** | 200 | images 0–199 | HL loop tuning + threshold selection |
+| **Val** | 200 | images 200–399 | Reported during development |
+| **Test** | 100 | images 400–499 | Looked at only once at the end |
+| **External test** | 50 | official Tiny ImageNet val | Final external validation |
+
+- **Total**: 2,000 train / 2,000 val / 1,000 test / 500 external = 5,500 images
+
+### Rules
+
+- The HL loop only looks at train-set errors for proposing fixes
+- Val accuracy is the reported generalization metric
+- Test set is touched only once at the very end
+- No threshold tuning against val or test images
+
+**Status**: Classes selected, experiment not yet started.
 
 ---
 
@@ -147,7 +235,9 @@ hl-image-net/
 │   ├── generate_plots.py  # Generate all plots
 │   └── ...
 ├── data/imagenet_10/      # 10-class dataset (not in repo)
-├── logs/                  # 248 eval logs (JSON + markdown)
+├── logs/
+│   ├── phase1/            # Phase 1 eval logs, validation logs, reasoning snapshots
+│   └── phase2/            # Empty staging folder for the next split-clean experiment
 └── docs/
     ├── blog.md            # Full writeup
     ├── result1.md         # Results analysis + critical transitions
@@ -179,9 +269,12 @@ python scripts/predict_image.py path/to/image.jpg
 - **Estimated API cost**: ~$100-300 in LLM inference (exact figure TBD)
 - **Coding agent**: Claude (Anthropic)
 
-### Honesty note
+### Limitations and honesty notes
 
-The system does store two histogram prototypes (`prototypes.npz`) computed from training data for one tiebreaker, and all ~50 thresholds were tuned against the eval set. "Zero learned parameters" would be misleading. But there is no neural network, no gradient descent, and no backpropagation anywhere in the system.
+1. **Not a held-out accuracy**: The 86.1% is on the development set (same images used for tuning). The 400-image validation folder scored 54%, and the non-overlapping subset scored 51.4%. See [Evaluation Methodology](#evaluation-methodology).
+2. **Synthetic easy classes**: 6 of 10 classes used trivial AI-generated images (5 each). These don't constitute a meaningful evaluation target. However, they did serve a design role: the system had to learn *not* to predict zebra on golden retriever images, *not* to predict piano on school bus images, etc. The excluding features and negative-class pressure that shaped the classifier's decision boundaries came from having these classes as scoring alternatives during development. The evaluation claim should be read as 4-class; the system architecture is genuinely 10-class.
+3. **Learned components**: The system stores two histogram prototypes (`prototypes.npz`) and all ~50 thresholds were tuned against the dev set. "Zero learned parameters" would be misleading. But there is no neural network, no gradient descent, and no backpropagation.
+4. **What Phase 1 demonstrated**: The HL loop works — confusion-driven iteration, feature invention, tiebreaker design, regression testing, and representation saturation are all real phenomena. The trajectory from 12.7% to 84% on the hard classes shows genuine iterative improvement. The analysis of plateau-breaking moments, coupling complexity, and the ceiling remains valid regardless of the eval methodology issues.
 
 ---
 

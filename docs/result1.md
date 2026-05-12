@@ -2,7 +2,9 @@
 
 ## Accuracy Trajectory
 
-From 12.7% (random baseline) to 86.1% (final) over 248 evaluation iterations across ~20 wall-clock hours.
+From 12.7% (random baseline) to 86.1% on the Phase 1 development set over 248 evaluation iterations across ~20 wall-clock hours.
+
+Methodology note: this is a development-set trajectory, not a held-out benchmark. The 230-image set mixed 4 real Tiny ImageNet classes (50 each) with 6 synthetic placeholder classes (5 each). On the 4 real classes alone, final dev accuracy was 84%; the later validation folder scored 54%, or 51.4% after exact duplicate removal.
 
 See `docs/plots/` for all visualizations.
 
@@ -72,7 +74,7 @@ For golden_retriever: added `golden_fur_in_nature` as OR-alternative to `golden_
 
 ---
 
-### Final Ceiling: 86.1% (representation saturation)
+### Final Dev-Set Ceiling: 86.1% (representation saturation)
 **Why no further progress**: The remaining 32 errors are dog/mushroom/teapot images where all measurable pixel-level features overlap:
 - Laplacian variance: overlapping (7138 vs 12351 vs 8315, all with huge std)
 - Gabor isotropy: identical (0.8 +/- 0.0)
@@ -119,7 +121,7 @@ Based on 11 coding sessions, each involving Claude (Opus-class) as the HL agent:
 - Compare to: training a CNN on 230 images would cost <$1 in GPU time, but would require a human ML engineer's time to design, tune, and iterate
 
 ### Cost per accuracy point gained:
-- 73.4 percentage points gained (12.7% to 86.1%)
+- 73.4 development-set percentage points gained (12.7% to 86.1%)
 - ~$177 / 73.4 = **~$2.41 per accuracy point**
 - First 50 points: ~$80 (fast, structural changes)
 - Last 23 points: ~$97 (slow, surgical fixes, many reverts)

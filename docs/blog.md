@@ -1,4 +1,4 @@
-# Heuristic Learning for Image Classification: 86.1% on ImageNet Without Neural Networks
+# Heuristic Learning for Image Classification: A Symbolic Phase 1 Without Neural Networks
 
 *A coding agent maintains a symbolic visual system that keeps improving: no gradients, no backpropagation, no forgetting.*
 
@@ -30,7 +30,27 @@ run evaluation → analyze confusion → propose feature/fix → test for regres
 
 Over 11 sessions and 248 evaluation runs, the system grew from a skeleton into a 2500-line Heuristic System containing 40 registered features, 22 pairwise tiebreaker functions, a hierarchical class taxonomy, regression-tested scoring rules, and complete experiment logs.
 
-**Result**: **86.1% top-1 accuracy, 92.2% top-3**. The original design target was >50%.
+**Result**: **86.1% top-1 accuracy** on the 230-image development set (see methodology note below). The original design target was >50%.
+
+### Methodology Note: How the 86.1% Was Computed
+
+Full transparency on the evaluation:
+
+The 86.1% (198/230) was measured on the **same 230 images used during development**. All thresholds were tuned against this set. This is a development-set accuracy, not a held-out validation accuracy.
+
+The 230-image set breaks down as:
+- **4 "hard" classes** (golden retriever, mushroom, teapot, school bus): 50 real Tiny ImageNet images each = 200 images. These scored **84% (168/200)** collectively.
+- **6 "easy" classes** (banana, bicycle, eagle, laptop, piano, zebra): 5 synthetic (AI-generated) images each = 30 images. These scored **100% (30/30)** — but these are trivial: the banana images are identical yellow ellipses on grey noise, and the other synthetics are similarly artificial.
+
+The 6 easy classes inflate the headline number from 84% to 86.1%. On a strict reading, this is a **4-class classifier at 84% on its own tuning set**.
+
+However, the synthetic classes were not pure decoration — they served as negative-class scaffolding. The system's excluding features (e.g., `striped_texture` penalizing teapot, `keyboard_pattern` penalizing golden retriever, `wheel_like` penalizing mushroom) were developed precisely because these classes existed as scoring alternatives. The decision boundary shaping that comes from 10-class competition is architecturally meaningful even when 6 of those classes have trivial evaluation images.
+
+When we ran the classifier (unchanged) on a **400-image validation folder** for the 4 real classes, the accuracy dropped to **54%**. Exact file-hash checking later found that 38 of those 400 images overlapped with the development set. On the stricter non-overlapping subset, accuracy was **51.4%** (186/362). Since this validation subset has 4 classes, the clean random baseline is **25%**, so the validation result is about **2.1x random**. The gap reflects threshold overfitting to the 50 development images per class.
+
+**What Phase 1 demonstrated regardless**: The HL loop itself works. The trajectory from 12.7% to 84% on hard classes shows genuine iterative improvement through confusion-driven feature invention. The analysis of plateau-breaking moments, coupling complexity, representation saturation, and the single-swap constraint remains valid. Phase 1 is a proof-of-concept for the methodology; Phase 2 is the proper evaluation.
+
+We are currently running a Phase 2 experiment with a proper train/val split to get honest generalization numbers. See the repository README for updates.
 
 ---
 
@@ -309,8 +329,9 @@ Weng wrote: *"I cannot imagine an agent writing pure Python code, without a neur
 
 At full ImageNet scale (1000 classes, 224x224), this is likely true. But the boundary is more nuanced than "impossible":
 
-- **10 classes, 64x64**: 86.1%, well within reach of pure HL
-- **10 classes, 128x128**: likely 92%+ (resolution removes the saturation ceiling)
+- **4 classes, 64x64, dev set**: 84% (tuning set), 51.4-54% on validation depending on whether duplicate validation images are excluded.
+- **4 classes, 64x64, with proper split**: Phase 2 in progress — expected to close the gap significantly since the HL loop will tune on train and report on val.
+- **10+ classes, 128x128**: likely much higher (resolution removes the saturation ceiling)
 - **50 classes**: unknown, the feature library has 5.7 classes per feature reuse on average, suggesting some room to grow
 - **1000 classes**: almost certainly requires hybrid (HL for structure + shallow NN for texture)
 
@@ -343,7 +364,7 @@ This matches Weng's hypothesis: "Clearer feedback increases the coupling complex
 | Atari Breakout | Codex policy | 864/864 (max) | Loop detection, regression tests, video replay |
 | MuJoCo Ant | Codex CPG+MPC | 6146 | Module decomposition, rhythmic + residual |
 | Atari57 median | Codex batch | HNS 0.83 | Scalable HL workflow |
-| **ImageNet 10-class** | **Claude classifier** | **86.1% top-1** | **Feature invention, confusion-driven update, representation saturation** |
+| **Tiny ImageNet Phase 1** | **Claude classifier** | **84% dev on 4 real classes; 51.4-54% validation** | **Feature invention, confusion-driven update, representation saturation** |
 
 This experiment extends HL into a new domain: static perception rather than sequential control. The HL loop still applies: feedback drives code changes that drive performance. But it also reveals a new phenomenon (representation saturation) that doesn't have an obvious analogue in control tasks.
 
@@ -365,7 +386,7 @@ By Session 11, the system was at the edge of what targeted fixes could achieve w
 
 ### 4. Local corrections scale; global optimizations don't
 
-Weng: "Rules that used to be one-off patches may start to become code worth owning for the long term." This experiment confirms it. Each tiebreaker condition is a "one-off patch" that permanently improves the system. The aggregate of 50+ such patches is 86.1% accuracy.
+Weng: "Rules that used to be one-off patches may start to become code worth owning for the long term." This experiment confirms it. Each tiebreaker condition is a "one-off patch" that permanently improves the system. The aggregate of 50+ such patches produced the final Phase 1 development-set result.
 
 ---
 
@@ -373,7 +394,7 @@ Weng: "Rules that used to be one-off patches may start to become code worth owni
 
 Weng asks whether HL could be the next paradigm after pretraining, RLHF, and large-scale RL/RLVR: "anything that can be continuously iterated on starts to become solvable."
 
-This experiment provides a data point: yes, even image classification, the canonical neural network task, can be partially addressed by continuous heuristic iteration. The system achieved 86.1% through pure HL, with no gradient descent anywhere in the loop.
+This experiment provides a data point: yes, even image classification, the canonical neural network task, can be partially addressed by continuous heuristic iteration. The system reached its Phase 1 development-set result through pure HL, with no gradient descent anywhere in the loop.
 
 But it also shows where HL alone isn't enough: when the signal lacks discriminative information, no amount of code editing helps. The hybrid future Weng suggests ("use HL to process online data quickly, turn online experience into trainable data, then periodically update the neural network") seems correct. For vision:
 

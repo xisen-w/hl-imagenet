@@ -2,13 +2,14 @@
 
 **Date**: 2026-05-10
 **Duration**: 11 sessions over 2 days (2026-05-09 to 2026-05-10)
-**Final Accuracy**: 86.1% top-1, 92.2% top-3 on 230 images (10 classes)
+**Final Phase 1 dev accuracy**: 86.1% top-1, 92.2% top-3 on 230 images (4 real classes + 6 synthetic placeholder classes)
+**Validation note**: The 4-real-class validation folder scored 54% (216/400), or 51.4% (186/362) after exact duplicate removal.
 
 ---
 
 ## 1. Executive Summary
 
-We built a fully symbolic image classifier — no neural networks, no learned weights — that achieves **86.1% top-1 accuracy** on a 10-class ImageNet subset at 64x64 resolution. The system uses classical computer vision (OpenCV), hand-crafted features, a hierarchical class taxonomy, and pairwise tiebreakers to classify images through interpretable proof traces.
+We built a fully symbolic image classifier — no neural networks, no learned weights — that achieves **86.1% top-1 development-set accuracy** on a 230-image Phase 1 subset at 64x64 resolution. The real-image portion was 4 Tiny ImageNet classes at 84% dev accuracy; the remaining 6 classes were small synthetic placeholders. The system uses classical computer vision (OpenCV), hand-crafted features, a hierarchical class taxonomy, and pairwise tiebreakers to classify images through interpretable proof traces.
 
 The original Phase 1 success criterion was **>50% accuracy**. We exceeded it by 36 percentage points.
 
@@ -234,7 +235,7 @@ This is the symbolic equivalent of a neural network's capacity limit, but it man
 
 | Design Goal | Status | Notes |
 |-------------|--------|-------|
-| >50% accuracy on 10 classes | **Exceeded** (86.1%) | 36pp above target |
+| >50% development-set accuracy | **Exceeded** (86.1%) | Phase 1 dev-set metric; not held-out generalization |
 | Interpretable proof traces | **Achieved** | Every prediction has evidence chain |
 | Compositional feature reuse | **Achieved** | Average 8.4 classes per feature |
 | Error-driven feature invention | **Achieved** | All features invented by analyzing confusion patterns |
@@ -301,7 +302,7 @@ hl-imagenet/
 
 ## 11. Conclusion
 
-HL-ImageNet Phase 1 demonstrates that a purely symbolic visual system — with no neural components, no learned weights, and full interpretability — can achieve competitive accuracy on a restricted image classification task. The 86.1% result on 10 classes significantly exceeds the 50% design target and provides a rigorous baseline for scaling experiments.
+HL-ImageNet Phase 1 demonstrates that a purely symbolic visual system — with no neural components, no learned weights, and full interpretability — can be iteratively improved on a restricted image classification task. The 86.1% development-set result significantly exceeds the 50% design target, while the 51.4-54% validation result shows why Phase 2 needs a clean split from the start.
 
 The key scientific finding is the **representation saturation phenomenon**: at a fixed spatial resolution, there exists a hard ceiling where all measurable properties of the signal have been captured by the symbolic feature library, and further features cannot improve discrimination. This ceiling is resolution-dependent, not architecture-dependent — increasing resolution would shift it upward.
 
