@@ -1,0 +1,24 @@
+"""Run the HL-ImageNet Phase 2 benchmark harness.
+
+Local-safe runner:
+- Adds repository root to sys.path before importing hlinet.
+- Runs transparent non-neural baselines plus the current HL classifier.
+- Does not change classifier behavior.
+"""
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from hlinet.eval.benchmark import main
+
+
+if __name__ == "__main__":
+    main()
