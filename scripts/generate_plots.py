@@ -214,14 +214,14 @@ def plot_plateau_analysis(evals):
 
     # Annotate effort per 10% gain
     milestones_effort = [
-        (20, "10→20%: ~5 iters"),
-        (30, "20→30%: ~15 iters"),
-        (40, "30→40%: ~25 iters"),
-        (50, "40→50%: ~30 iters"),
-        (60, "50→60%: ~15 iters"),
-        (70, "60→70%: ~20 iters"),
-        (80, "70→80%: ~30 iters"),
-        (86, "80→86%: ~40 iters"),
+        (20, "10→20%: 1 iter"),
+        (30, "20→30%: 19 iters"),
+        (40, "30→40%: 27 iters"),
+        (50, "40→50%: 45 iters"),
+        (60, "50→60%: 40 iters"),
+        (70, "60→70%: 44 iters"),
+        (80, "70→80%: 36 iters"),
+        (86, "80→86%: 34 iters"),
     ]
 
     for acc, label in milestones_effort:
@@ -430,7 +430,7 @@ def plot_summary_infographic():
 
     # Panel 2: Iterations count
     ax = axes[0, 1]
-    ax.text(0.5, 0.5, "200+", ha='center', va='center', fontsize=48, fontweight='bold', color='#4A90D9',
+    ax.text(0.5, 0.5, "248", ha='center', va='center', fontsize=48, fontweight='bold', color='#4A90D9',
             transform=ax.transAxes)
     ax.text(0.5, 0.25, "evaluation iterations", ha='center', va='center', fontsize=14,
             transform=ax.transAxes, color='#666')
@@ -444,7 +444,7 @@ def plot_summary_infographic():
     # Panel 3: System complexity
     ax = axes[0, 2]
     metrics = ['Lines of Code', 'Features', 'Tiebreakers', 'Thresholds', 'Classes Solved']
-    values = [2500, 30, 17, 50, 10]
+    values = [5000, 40, 22, 50, 10]
     bars = ax.barh(metrics, values, color=['#4A90D9', '#4CAF50', '#FF9800', '#9C27B0', '#F44336'])
     ax.set_xlabel("Count")
     ax.set_title("System Complexity")
@@ -465,7 +465,7 @@ def plot_summary_infographic():
     # Panel 5: Error budget breakdown
     ax = axes[1, 1]
     error_cats = ['Dog→Other', 'Other→Dog', 'Mush/Tea\nconfusion', 'Bus errors', 'Other']
-    error_counts = [8, 10, 6, 8, 0]
+    error_counts = [9, 12, 3, 8, 0]
     ax.bar(error_cats, error_counts, color='#FF5252', alpha=0.8)
     ax.set_ylabel("Remaining Errors (out of 230)")
     ax.set_title(f"Error Budget: {sum(error_counts)} errors remain")
