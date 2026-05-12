@@ -10,7 +10,7 @@ from pathlib import Path
 import cv2
 
 from hlinet.classifier.predict import predict
-from hlinet.eval.dataset import load_dataset, PHASE1_CLASSES
+from hlinet.eval.dataset import load_dataset, PHASE2_CLASSES
 from hlinet.eval.metrics import EvalResult
 
 LOGS_ROOT = Path(__file__).parent.parent.parent / "logs"
@@ -30,7 +30,7 @@ def run_evaluation(
     tag: str = "phase1",
 ) -> EvalResult:
     """Run full evaluation on the dataset. Always saves a log unless auto_save=False."""
-    classes = classes or PHASE1_CLASSES
+    classes = classes or PHASE2_CLASSES
     samples = load_dataset(data_dir=data_dir, classes=classes, max_per_class=max_per_class)
 
     if not samples:
@@ -113,7 +113,7 @@ def main():
     args = parser.parse_args()
 
     print("Running HL-Image-Net evaluation...")
-    print(f"Classes: {PHASE1_CLASSES}")
+    print(f"Classes: {PHASE2_CLASSES}")
     print()
 
     result = run_evaluation(
