@@ -1,0 +1,438 @@
+{
+  "schema": "hl_imagenet_phase2_diagnostic_lens_v1",
+  "generated_at": "2026-05-12T10:36:15",
+  "source_report": "logs\\phase2\\eval_phase2_iter9_val_2026-05-12_14-37-05.json",
+  "source_tag": "phase2_iter9_val",
+  "n_samples": 2000,
+  "top1_accuracy": 0.334,
+  "top3_accuracy": 0.6865,
+  "top3_rescue_gap": 0.3525,
+  "mean_latency_ms": 89.85580861568451,
+  "classes": [
+    "banana",
+    "brown_bear",
+    "golden_retriever",
+    "jellyfish",
+    "king_penguin",
+    "mushroom",
+    "orange",
+    "school_bus",
+    "sports_car",
+    "teapot"
+  ],
+  "per_class": {
+    "banana": {
+      "true_total": 200,
+      "pred_total": 532,
+      "correct": 116,
+      "false_negative": 84,
+      "false_positive": 416,
+      "recall": 0.58,
+      "precision": 0.21804511278195488,
+      "victim_score": 0.42,
+      "attractor_score": 0.7819548872180451
+    },
+    "brown_bear": {
+      "true_total": 200,
+      "pred_total": 28,
+      "correct": 12,
+      "false_negative": 188,
+      "false_positive": 16,
+      "recall": 0.06,
+      "precision": 0.42857142857142855,
+      "victim_score": 0.94,
+      "attractor_score": 0.5714285714285714
+    },
+    "golden_retriever": {
+      "true_total": 200,
+      "pred_total": 300,
+      "correct": 55,
+      "false_negative": 145,
+      "false_positive": 245,
+      "recall": 0.275,
+      "precision": 0.18333333333333332,
+      "victim_score": 0.725,
+      "attractor_score": 0.8166666666666667
+    },
+    "jellyfish": {
+      "true_total": 200,
+      "pred_total": 163,
+      "correct": 131,
+      "false_negative": 69,
+      "false_positive": 32,
+      "recall": 0.655,
+      "precision": 0.803680981595092,
+      "victim_score": 0.345,
+      "attractor_score": 0.19631901840490798
+    },
+    "king_penguin": {
+      "true_total": 200,
+      "pred_total": 518,
+      "correct": 129,
+      "false_negative": 71,
+      "false_positive": 389,
+      "recall": 0.645,
+      "precision": 0.24903474903474904,
+      "victim_score": 0.355,
+      "attractor_score": 0.750965250965251
+    },
+    "mushroom": {
+      "true_total": 200,
+      "pred_total": 110,
+      "correct": 44,
+      "false_negative": 156,
+      "false_positive": 66,
+      "recall": 0.22,
+      "precision": 0.4,
+      "victim_score": 0.78,
+      "attractor_score": 0.6
+    },
+    "orange": {
+      "true_total": 200,
+      "pred_total": 45,
+      "correct": 33,
+      "false_negative": 167,
+      "false_positive": 12,
+      "recall": 0.165,
+      "precision": 0.7333333333333333,
+      "victim_score": 0.835,
+      "attractor_score": 0.26666666666666666
+    },
+    "school_bus": {
+      "true_total": 200,
+      "pred_total": 187,
+      "correct": 115,
+      "false_negative": 85,
+      "false_positive": 72,
+      "recall": 0.575,
+      "precision": 0.6149732620320856,
+      "victim_score": 0.425,
+      "attractor_score": 0.3850267379679144
+    },
+    "sports_car": {
+      "true_total": 200,
+      "pred_total": 50,
+      "correct": 23,
+      "false_negative": 177,
+      "false_positive": 27,
+      "recall": 0.115,
+      "precision": 0.46,
+      "victim_score": 0.885,
+      "attractor_score": 0.54
+    },
+    "teapot": {
+      "true_total": 200,
+      "pred_total": 67,
+      "correct": 10,
+      "false_negative": 190,
+      "false_positive": 57,
+      "recall": 0.05,
+      "precision": 0.14925373134328357,
+      "victim_score": 0.95,
+      "attractor_score": 0.8507462686567164
+    }
+  },
+  "top_confusion_gravity_wells": [
+    {
+      "true": "sports_car",
+      "pred": "king_penguin",
+      "count": 113
+    },
+    {
+      "true": "orange",
+      "pred": "banana",
+      "count": 83
+    },
+    {
+      "true": "golden_retriever",
+      "pred": "banana",
+      "count": 82
+    },
+    {
+      "true": "teapot",
+      "pred": "king_penguin",
+      "count": 72
+    },
+    {
+      "true": "brown_bear",
+      "pred": "banana",
+      "count": 70
+    },
+    {
+      "true": "mushroom",
+      "pred": "banana",
+      "count": 67
+    },
+    {
+      "true": "orange",
+      "pred": "golden_retriever",
+      "count": 61
+    },
+    {
+      "true": "brown_bear",
+      "pred": "king_penguin",
+      "count": 58
+    },
+    {
+      "true": "teapot",
+      "pred": "golden_retriever",
+      "count": 50
+    },
+    {
+      "true": "teapot",
+      "pred": "banana",
+      "count": 43
+    },
+    {
+      "true": "mushroom",
+      "pred": "king_penguin",
+      "count": 35
+    },
+    {
+      "true": "golden_retriever",
+      "pred": "king_penguin",
+      "count": 34
+    },
+    {
+      "true": "brown_bear",
+      "pred": "golden_retriever",
+      "count": 32
+    },
+    {
+      "true": "jellyfish",
+      "pred": "king_penguin",
+      "count": 32
+    },
+    {
+      "true": "king_penguin",
+      "pred": "banana",
+      "count": 30
+    }
+  ],
+  "top_attractors": [
+    {
+      "class": "banana",
+      "pred_total": 532,
+      "false_positive": 416,
+      "attractor_score": 0.7819548872180451,
+      "precision": 0.21804511278195488
+    },
+    {
+      "class": "king_penguin",
+      "pred_total": 518,
+      "false_positive": 389,
+      "attractor_score": 0.750965250965251,
+      "precision": 0.24903474903474904
+    },
+    {
+      "class": "golden_retriever",
+      "pred_total": 300,
+      "false_positive": 245,
+      "attractor_score": 0.8166666666666667,
+      "precision": 0.18333333333333332
+    },
+    {
+      "class": "school_bus",
+      "pred_total": 187,
+      "false_positive": 72,
+      "attractor_score": 0.3850267379679144,
+      "precision": 0.6149732620320856
+    },
+    {
+      "class": "mushroom",
+      "pred_total": 110,
+      "false_positive": 66,
+      "attractor_score": 0.6,
+      "precision": 0.4
+    },
+    {
+      "class": "teapot",
+      "pred_total": 67,
+      "false_positive": 57,
+      "attractor_score": 0.8507462686567164,
+      "precision": 0.14925373134328357
+    },
+    {
+      "class": "jellyfish",
+      "pred_total": 163,
+      "false_positive": 32,
+      "attractor_score": 0.19631901840490798,
+      "precision": 0.803680981595092
+    },
+    {
+      "class": "sports_car",
+      "pred_total": 50,
+      "false_positive": 27,
+      "attractor_score": 0.54,
+      "precision": 0.46
+    },
+    {
+      "class": "brown_bear",
+      "pred_total": 28,
+      "false_positive": 16,
+      "attractor_score": 0.5714285714285714,
+      "precision": 0.42857142857142855
+    },
+    {
+      "class": "orange",
+      "pred_total": 45,
+      "false_positive": 12,
+      "attractor_score": 0.26666666666666666,
+      "precision": 0.7333333333333333
+    }
+  ],
+  "top_victims": [
+    {
+      "class": "teapot",
+      "true_total": 200,
+      "false_negative": 190,
+      "victim_score": 0.95,
+      "recall": 0.05
+    },
+    {
+      "class": "brown_bear",
+      "true_total": 200,
+      "false_negative": 188,
+      "victim_score": 0.94,
+      "recall": 0.06
+    },
+    {
+      "class": "sports_car",
+      "true_total": 200,
+      "false_negative": 177,
+      "victim_score": 0.885,
+      "recall": 0.115
+    },
+    {
+      "class": "orange",
+      "true_total": 200,
+      "false_negative": 167,
+      "victim_score": 0.835,
+      "recall": 0.165
+    },
+    {
+      "class": "mushroom",
+      "true_total": 200,
+      "false_negative": 156,
+      "victim_score": 0.78,
+      "recall": 0.22
+    },
+    {
+      "class": "golden_retriever",
+      "true_total": 200,
+      "false_negative": 145,
+      "victim_score": 0.725,
+      "recall": 0.275
+    },
+    {
+      "class": "school_bus",
+      "true_total": 200,
+      "false_negative": 85,
+      "victim_score": 0.425,
+      "recall": 0.575
+    },
+    {
+      "class": "banana",
+      "true_total": 200,
+      "false_negative": 84,
+      "victim_score": 0.42,
+      "recall": 0.58
+    },
+    {
+      "class": "king_penguin",
+      "true_total": 200,
+      "false_negative": 71,
+      "victim_score": 0.355,
+      "recall": 0.645
+    },
+    {
+      "class": "jellyfish",
+      "true_total": 200,
+      "false_negative": 69,
+      "victim_score": 0.345,
+      "recall": 0.655
+    }
+  ],
+  "high_reuse_features": [
+    {
+      "feature": "phase2_golden_retriever_signature",
+      "class_count": 10
+    },
+    {
+      "feature": "golden_fur_in_nature",
+      "class_count": 10
+    },
+    {
+      "feature": "quadruped_like",
+      "class_count": 10
+    },
+    {
+      "feature": "phase2_jellyfish_signature",
+      "class_count": 10
+    },
+    {
+      "feature": "phase2_mushroom_signature",
+      "class_count": 10
+    },
+    {
+      "feature": "blob_textured_interior",
+      "class_count": 10
+    },
+    {
+      "feature": "phase2_teapot_signature",
+      "class_count": 10
+    },
+    {
+      "feature": "distinct_background",
+      "class_count": 10
+    },
+    {
+      "feature": "phase2_school_bus_signature",
+      "class_count": 10
+    },
+    {
+      "feature": "horizontal_window_pattern",
+      "class_count": 10
+    },
+    {
+      "feature": "yellow_body_with_sky",
+      "class_count": 10
+    },
+    {
+      "feature": "phase2_banana_signature",
+      "class_count": 10
+    },
+    {
+      "feature": "phase2_brown_bear_signature",
+      "class_count": 10
+    },
+    {
+      "feature": "phase2_king_penguin_signature",
+      "class_count": 10
+    },
+    {
+      "feature": "bilateral_symmetry",
+      "class_count": 10
+    }
+  ],
+  "warnings": [
+    "Low-recall victim classes detected: brown_bear, sports_car, teapot",
+    "False-positive attractor classes detected: banana, king_penguin, golden_retriever, school_bus, mushroom, teapot, sports_car",
+    "Large top-3 rescue gap detected; true class may often be near the decision surface but lose top-1.",
+    "High feature-reuse counts detected; current feature_reuse may reflect global cache activation rather than class-specific dependence."
+  ],
+  "recommendations": [
+    "Do not change classifier behavior until attractor and victim classes are inspected.",
+    "Inspect top confusion gravity wells before adding new signatures.",
+    "Treat feature_reuse as a coarse warning until sample-level/class-node attribution exists.",
+    "Preserve train/validation/test labels when summarizing results.",
+    "Consider future attractor-balanced scoring only after reviewing false-positive attractors.",
+    "Prioritize victim-class analysis for: brown_bear, sports_car, teapot"
+  ],
+  "non_claim_lock": [
+    "This diagnostic does not prove classifier correctness.",
+    "This diagnostic does not change classifier behavior.",
+    "This diagnostic does not claim RCC improved classifier accuracy.",
+    "This diagnostic should guide inspection before Phase 2.3 scoring or signature changes."
+  ]
+}
