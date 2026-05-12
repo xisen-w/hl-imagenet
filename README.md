@@ -1,6 +1,6 @@
 # HL-ImageNet: A Preliminary Heuristic-Learning Demo for Image Classification
 
-> This is not a standard ImageNet benchmark result. Phase 1 used a mixed exploratory setup with 4 real Tiny ImageNet classes and 6 synthetic classes, and the main 86.1% number is development-set accuracy after iterative tuning. Phase 2 now includes split-aware validation diagnostics and a benchmark harness against transparent non-neural baselines. Current Phase 2 validation shows the HL symbolic classifier above random and majority baselines, but below simple handcrafted feature baselines.
+> This is not a standard ImageNet benchmark result. Phase 1 used a mixed exploratory setup with 4 real Tiny ImageNet classes and 6 synthetic classes, and the main 86.1% number is development-set accuracy after iterative tuning. Phase 2 now includes split-aware validation diagnostics, benchmark comparisons against transparent non-neural baselines, and sample-level attribution traces. Current Phase 2 validation shows the HL symbolic classifier above random and majority baselines, below simple handcrafted feature baselines, and highly structured around false-positive attractors and victim classes.
 
 **Heuristic Learning for Image Classification — Without Neural Networks**
 
@@ -54,6 +54,47 @@ Run the benchmark harness:
     python scripts/run_phase2_benchmarks.py --data-root ".\data\phase2" --split val
 
 The local Tiny ImageNet image split is intentionally not committed. The benchmark harness and generated benchmark artifacts are committed; `data/` remains ignored.
+
+
+### Phase 2.4: Sample-level attribution layer
+
+Phase 2.4 adds a sample-level attribution layer that turns every Phase 2 validation prediction into an auditable row with true label, predicted label, top-3 labels, score margin, outcome class, collapse path, activated feature summary, proof trace, and optional baseline agreement.
+
+Attribution artifacts:
+
+- `logs/phase2/attribution/latest_phase2_attribution.md`
+- `logs/phase2/attribution/latest_phase2_attribution.json`
+- `logs/phase2/attribution/latest_phase2_attribution.csv`
+
+Current full validation attribution summary:
+
+| Metric | Value |
+|---|---:|
+| Validation samples | 2,000 |
+| Correct | 668 |
+| Top-3 rescue | 705 |
+| Miss | 627 |
+| Top-1 accuracy | 33.4% |
+| Top-3 accuracy | 68.6% |
+| Baseline-right / HL-wrong samples | 817 |
+| HL-right / all-baselines-wrong samples | 68 |
+
+Top collapse paths:
+
+| Collapse path | Count |
+|---|---:|
+| sports_car → king_penguin | 113 |
+| orange → banana | 83 |
+| golden_retriever → banana | 82 |
+| teapot → king_penguin | 72 |
+| brown_bear → banana | 70 |
+| mushroom → banana | 67 |
+
+> **Attribution boundary**: This layer does not change classifier behavior and does not claim accuracy improvement. It exists to inspect individual failures before any future Phase 2.5 scoring or signature changes. Proof traces explain model behavior; they do not prove correctness.
+
+Run the attribution layer:
+
+    python scripts/run_phase2_attribution.py --data-root ".\data\phase2" --split val
 
 ### Per-class accuracy (dev set)
 
@@ -159,7 +200,7 @@ Phase 1 demonstrated that the HL loop *can* build a symbolic classifier, but the
 - Test set is touched only once at the very end
 - No threshold tuning against val or test images
 
-**Status**: Phase 2 exploratory classifier work has started upstream. The current repo includes Phase 2 class signatures, a flat 10-class hierarchy, soft scoring, Phase 2 evaluation logs, and a Phase 2.2 diagnostic lens.
+**Status**: Phase 2 exploratory classifier work has started upstream. The current repo includes Phase 2 class signatures, a flat 10-class hierarchy, soft scoring, Phase 2 evaluation logs, a Phase 2.2 diagnostic lens, a Phase 2.3 benchmark harness, and a Phase 2.4 sample-level attribution layer.
 
 Current diagnostic snapshot from logs/phase2/diagnostics/latest_phase2_diagnostic.md:
 
@@ -271,7 +312,7 @@ hl-image-net/
 │   │   └── concepts/      #   high-level concept detectors
 │   ├── classifier/        # Scorer, hierarchy, tiebreaker (22 functions), prediction
 │   ├── proof/             # Proof trace generator
-│   ├── eval/              # Dataset loader, metrics, evaluation runner, diagnostics, benchmarks
+│   ├── eval/              # Dataset loader, metrics, evaluation runner, diagnostics, benchmarks, attribution
 │   ├── agent/             # HL loop: analyzer, proposer, tester
 │   └── algebra/           # Visual concept algebra operators + router
 ├── scripts/
@@ -283,7 +324,7 @@ hl-image-net/
 ├── data/imagenet_10/      # 10-class dataset (not in repo)
 ├── logs/
 │   ├── phase1/            # Phase 1 eval logs, validation logs, reasoning snapshots
-│   └── phase2/            # Phase 2 eval logs, diagnostic artifacts, benchmark artifacts
+│   └── phase2/            # Phase 2 eval logs, diagnostic artifacts, benchmark artifacts, attribution artifacts
 └── docs/
     ├── blog.md            # Full writeup
     ├── result1.md         # Results analysis + critical transitions
@@ -322,6 +363,7 @@ python scripts/predict_image.py path/to/image.jpg
 3. **Learned components**: The system stores two histogram prototypes (`prototypes.npz`) and all ~50 thresholds were tuned against the dev set. "Zero learned parameters" would be misleading. But there is no neural network, no gradient descent, and no backpropagation.
 4. **What Phase 1 demonstrated**: The HL loop works — confusion-driven iteration, feature invention, tiebreaker design, regression testing, and representation saturation are all real phenomena. The trajectory from 12.7% to 84% on the hard classes shows genuine iterative improvement. The analysis of plateau-breaking moments, coupling complexity, and the ceiling remains valid regardless of the eval methodology issues.
 5. **Phase 2 benchmark boundary**: The Phase 2.3 benchmark harness compares the current HL symbolic classifier against transparent non-neural baselines on the same validation split. Current results show HL above random and majority baselines, but below simple handcrafted non-neural baselines. This is benchmark discipline, not an accuracy-improvement claim.
+6. **Phase 2 attribution boundary**: The Phase 2.4 attribution layer explains individual validation predictions and collapse paths. It does not change classifier behavior, prove correctness, or improve accuracy by itself.
 
 ---
 
@@ -364,8 +406,8 @@ Current repository context:
 - Repository: hl-imagenet
 - Purpose: heuristic-learning image classification demo without neural networks.
 - Primary package: hlinet.
-- Primary docs: README.md, docs/blog.md, docs/result1.md, docs/experiment_report.md, docs/design.md, docs/architecture/hl_imagenet_rcc_phase2_diagnostic_lens_v1_0.tex, docs/architecture/hl_imagenet_phase2_benchmark_harness_v1_0.tex.
-- Primary scripts: scripts/run_eval.py, scripts/predict_image.py, scripts/generate_plots.py, scripts/demo.py, scripts/run_phase2_diagnostics.py, scripts/run_phase2_benchmarks.py.
+- Primary docs: README.md, docs/blog.md, docs/result1.md, docs/experiment_report.md, docs/design.md, docs/architecture/hl_imagenet_rcc_phase2_diagnostic_lens_v1_0.tex, docs/architecture/hl_imagenet_phase2_benchmark_harness_v1_0.tex, docs/architecture/hl_imagenet_phase2_sample_attribution_v1_0.tex.
+- Primary scripts: scripts/run_eval.py, scripts/predict_image.py, scripts/generate_plots.py, scripts/demo.py, scripts/run_phase2_diagnostics.py, scripts/run_phase2_benchmarks.py, scripts/run_phase2_attribution.py.
 - Phase 1 claim boundary: 86.1 percent is development-set accuracy after iterative tuning.
 - Phase 1 hard-class boundary: 84 percent is development-set accuracy on the 4 real hard classes.
 - Validation-folder result: 54 percent on 4 hard classes.
@@ -375,6 +417,7 @@ Current repository context:
 - No source behavior is changed by the RCC layer.
 - Phase 2.2 diagnostic lens is analysis-only: it reads existing Phase 2 logs and emits diagnostic artifacts without changing classifier behavior.
 - Phase 2.3 benchmark harness is comparison-only: it evaluates the current HL classifier against transparent non-neural baselines without changing classifier behavior.
+- Phase 2.4 attribution layer is inspection-only: it emits per-sample validation traces, collapse paths, proof traces, and baseline-agreement flags without changing classifier behavior.
 
 AI agents must update this section only when repository purpose, evaluation claims, command surface, package structure, or phase status changes.
 
@@ -414,12 +457,12 @@ AI agents should reconstruct repository context through bounded README surfaces 
 - hlinet/features: symbolic feature predicates.
 - hlinet/classifier: scoring, tiebreakers, prototypes, and prediction behavior.
 - hlinet/proof: proof trace rendering.
-- hlinet/eval: dataset loading, metrics, evaluation execution, Phase 2 diagnostic analysis, and Phase 2 benchmark comparisons.
+- hlinet/eval: dataset loading, metrics, evaluation execution, Phase 2 diagnostic analysis, Phase 2 benchmark comparisons, and Phase 2 sample-level attribution.
 - hlinet/agent: heuristic-learning loop mechanics.
 - hlinet/algebra: visual concept algebra operators and routing helpers.
-- scripts: human-facing commands, including Phase 2 diagnostics and Phase 2 benchmarks.
+- scripts: human-facing commands, including Phase 2 diagnostics, Phase 2 benchmarks, and Phase 2 attribution.
 - docs: explanation, reports, plots, design notes, and architecture locks.
-- logs: generated run records, historical reasoning snapshots, Phase 2 eval logs, diagnostic artifacts, and benchmark artifacts.
+- logs: generated run records, historical reasoning snapshots, Phase 2 eval logs, diagnostic artifacts, benchmark artifacts, and attribution artifacts.
 
 ## AI non-claim lock
 
@@ -435,10 +478,11 @@ Never claim or imply:
 - RCC documentation proves source correctness.
 - Phase 2 diagnostics prove classifier correctness or imply classifier improvement.
 - Phase 2 benchmarks prove final ImageNet performance or imply classifier improvement.
+- Phase 2 attribution proves classifier correctness or implies classifier improvement.
 
 ## AI interpretation of current evidence
 
-HL-ImageNet is a preliminary heuristic-learning demo showing that a coding agent can iteratively maintain a symbolic image classifier using classical vision features, scoring rules, tiebreakers, logs, and proof traces. Phase 1 demonstrates confusion-driven improvement and representation-saturation behavior, but its headline accuracy is development-set accuracy, not a clean held-out benchmark. Phase 2 exploratory classifier work is now present upstream. The Phase 2.2 diagnostic lens exposes validation failure geometry from existing logs, and the Phase 2.3 benchmark harness compares the current HL classifier against transparent non-neural baselines. The stricter validation numbers, diagnostic non-claim boundaries, and benchmark non-claim boundaries must remain visible whenever results are summarized.
+HL-ImageNet is a preliminary heuristic-learning demo showing that a coding agent can iteratively maintain a symbolic image classifier using classical vision features, scoring rules, tiebreakers, logs, and proof traces. Phase 1 demonstrates confusion-driven improvement and representation-saturation behavior, but its headline accuracy is development-set accuracy, not a clean held-out benchmark. Phase 2 exploratory classifier work is now present upstream. The Phase 2.2 diagnostic lens exposes validation failure geometry from existing logs, the Phase 2.3 benchmark harness compares the current HL classifier against transparent non-neural baselines, and the Phase 2.4 attribution layer emits per-sample validation traces for inspecting collapse paths and feature activation. The stricter validation numbers, diagnostic non-claim boundaries, and benchmark non-claim boundaries must remain visible whenever results are summarized.
 
 ## Required local verification
 
@@ -463,6 +507,6 @@ When adding a new major folder, create a mini README with Purpose, S, H, A, T, I
 
 ## Final AI warning
 
-This repository is strongest when claim boundaries stay visible. Do not optimize documentation to sound stronger than the evidence. Preserve the development-set versus validation-set distinction, the synthetic-class caveat, the Phase 2 split labels, the diagnostic non-claim boundary, the benchmark non-claim boundary, and the fact that RCC improves navigation rather than proving code correctness.
+This repository is strongest when claim boundaries stay visible. Do not optimize documentation to sound stronger than the evidence. Preserve the development-set versus validation-set distinction, the synthetic-class caveat, the Phase 2 split labels, the diagnostic non-claim boundary, the benchmark non-claim boundary, the attribution non-claim boundary, and the fact that RCC improves navigation rather than proving code correctness.
 
 <!-- RCC-AI-README:END -->
