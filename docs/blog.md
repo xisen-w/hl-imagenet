@@ -1,6 +1,6 @@
 # Heuristic Learning for Image Classification: 86.1% on ImageNet Without Neural Networks
 
-*A coding agent maintains a symbolic visual system that keeps improving: no gradients, no training, no forgetting.*
+*A coding agent maintains a symbolic visual system that keeps improving: no gradients, no backpropagation, no forgetting.*
 
 ---
 
@@ -20,7 +20,7 @@ I decided to test that boundary directly.
 
 **Task**: Classify 64x64 ImageNet images into 10 classes: golden retriever, mushroom, teapot, school bus, banana, bicycle, eagle, laptop, piano, zebra.
 
-**Method**: A coding agent (Claude) iteratively builds and maintains a purely symbolic image classification system. No neural networks. No learned weights. No embeddings. Only classical computer vision (OpenCV), hand-crafted features, and symbolic scoring rules.
+**Method**: A coding agent (Claude) iteratively builds and maintains a purely symbolic image classification system. No neural networks. No embeddings. Only classical computer vision (OpenCV), hand-crafted features, and symbolic scoring rules. (The system does store two histogram prototypes computed from training data for one tiebreaker, and all thresholds were tuned against the eval set, so "no learned parameters" would be misleading. But there is no gradient descent, no backpropagation, and no weight matrix anywhere.)
 
 **Process**: The exact HL loop Weng describes:
 
@@ -28,7 +28,7 @@ I decided to test that boundary directly.
 run evaluation → analyze confusion → propose feature/fix → test for regressions → deploy → repeat
 ```
 
-Over 11 sessions and 150+ evaluation runs, the system grew from a skeleton into a 2500-line Heuristic System containing 30 registered features, 17 pairwise tiebreaker functions, a hierarchical class taxonomy, regression-tested scoring rules, and complete experiment logs.
+Over 11 sessions and 248 evaluation runs, the system grew from a skeleton into a 2500-line Heuristic System containing 40 registered features, 22 pairwise tiebreaker functions, a hierarchical class taxonomy, regression-tested scoring rules, and complete experiment logs.
 
 **Result**: **86.1% top-1 accuracy, 92.2% top-3**. The original design target was >50%.
 
@@ -53,7 +53,7 @@ The object being maintained is not a model. It's a **Heuristic System** in Weng'
 
 Each session followed this pattern:
 
-1. **Run evaluation** (230 images, ~45ms each)
+1. **Run evaluation** (230 images, ~25ms each)
 2. **Analyze confusion** (which classes are confused? what are the score gaps?)
 3. **Diagnose specific errors** (read proof traces, measure pixel features on failing images)
 4. **Propose a fix** (new feature, tiebreaker condition, scoring adjustment)
@@ -70,10 +70,9 @@ This is exactly the HL feedback loop: environment feedback → coding agent read
 
 ```
 image (64x64 BGR)
-  → 7 classical vision sensors (Canny edges, contours, color regions,
-     texture patches, circles, segments, keypoints)
+  → 5 classical vision sensors (edges, color, texture, segmentation, shape)
   → ~30 symbolic atoms per image
-  → 30 registered features across 5 categories
+  → 40 registered features across 5 categories
   → hierarchical flat scorer
   → pairwise tiebreaker system
   → prediction with full proof trace
@@ -211,23 +210,24 @@ Tiebreaker: dog_vs_mushroom
 
 This is the hard case. The mushroom's brown cap fires `golden_brown_color` at 0.69, making golden_retriever score 0.724 as the base winner. But the tiebreaker detects: (1) directional gradient concentration (cap surface has oriented texture), (2) 38% green pixels (forest floor), (3) warm coverage 0.69 but with green context. The conjunction of all three signals triggers a swap.
 
-**A failure: teapot misclassified as golden_retriever:**
+**A failure: teapot_0027 misclassified as golden_retriever:**
 
 ```
-Prediction: golden_retriever (0.72)   [WRONG - true label: teapot]
-Runner-up: teapot (0.52)
+Prediction: golden_retriever (0.737)   [WRONG - true label: teapot]
+Runner-up: teapot (0.458)
 
 Evidence:
-  golden_brown_color: 0.95 (brass surface covers 67% of pixels)
-  organic_texture:    0.78 (14/25 patches with entropy > 2.0)
-Tiebreaker: dog_vs_teapot attempted
-  bg_contrast = 32 (< 40 threshold, no flip)
-  green_ratio = 0.02 (< 0.30, no flip)
-  -> no strong teapot signal, no dog counter-signal
-  -> stays golden_retriever [ERROR]
+  golden_brown_color:   1.00 (golden/brown coverage: 0.34)
+  golden_fur_in_nature: 0.97 (golden=0.31, green=0.01, var=7670)
+  large_warm_blob:      1.00 (dominance=0.91, coverage=0.39)
+  outdoor_animal_scene:  1.00 (nature=0.46, var=9156)
+  organic_texture:      0.79 (15 patches)
+Absent:
+  striped_texture: not detected
+  green_context: not detected
 ```
 
-The failure is readable too. The brass teapot's warm surface (hue 8-35, sat>40) covers 67% of pixels, which is indistinguishable from golden fur at this resolution. The tiebreaker checks background contrast (32, just below the 40 threshold for a flip) and green ratio (0.02, no nature context). Neither condition fires strongly enough to override. The system correctly identifies *why* it fails: brass and fur are the same color at 64x64, and the teapot lacks the green outdoor context that would confirm a dog.
+The failure is readable. The brass teapot's warm surface matches golden-brown hue at 34% coverage, and the warm blob covers 39% of the image with 0.91 dominance. The tiebreaker (dog_vs_teapot) checks for green outdoor context (0.01, far below the 0.30 threshold for a dog counter-signal) and background contrast (not strong enough to flip). The system correctly identifies *why* it fails: brass and fur share the same HSV range at 64x64, and this particular teapot lacks the distinct-object-on-background signature that would override.
 
 This level of transparency is impossible with neural networks. A ResNet achieving 95% on this task would give you a softmax vector. If it misclassifies a brass teapot as a dog, you get "dog: 0.73, teapot: 0.21" with no explanation of *what visual evidence* led to that decision.
 
@@ -311,7 +311,7 @@ At full ImageNet scale (1000 classes, 224x224), this is likely true. But the bou
 
 - **10 classes, 64x64**: 86.1%, well within reach of pure HL
 - **10 classes, 128x128**: likely 92%+ (resolution removes the saturation ceiling)
-- **50 classes**: unknown, the feature library has 8.4 classes per feature reuse, suggesting room to grow
+- **50 classes**: unknown, the feature library has 5.7 classes per feature reuse on average, suggesting some room to grow
 - **1000 classes**: almost certainly requires hybrid (HL for structure + shallow NN for texture)
 
 The experiment places a concrete stake in the ground: for a limited class space, Heuristic Learning achieves *meaningful* image classification, not toy-level, but legitimately competitive with neural baselines for the information available at this resolution.
@@ -322,7 +322,7 @@ The experiment places a concrete stake in the ground: for a limited class space,
 
 Weng defines coupling complexity as "the level of strategy complexity a coding agent can maintain." This experiment provides a concrete measurement:
 
-**The system**: 2500 lines of code, 30 features, 17 tiebreakers, ~50 interdependent thresholds across 10 classes.
+**The system**: ~5000 lines of code, 40 features, 22 tiebreakers, ~50 interdependent thresholds across 10 classes.
 
 **The failure mode**: by Session 11, every proposed fix risked regression somewhere. Adding a mushroom condition that catches 3 errors might flip 2 correct dogs. The coupling complexity was approaching the coding agent's maintenance capacity.
 
@@ -389,12 +389,13 @@ The division of labor is clear. Neither alone is sufficient. Together, they migh
 
 - **Language**: Python 3.11
 - **Dependencies**: OpenCV, NumPy, SciPy (no ML frameworks)
-- **Inference time**: ~45ms per image on M-series Mac
-- **Feature library**: 30 registered features, 17 pairwise tiebreakers
-- **Lines of code**: ~2500 (classifier + features + sensors + eval)
+- **Inference time**: ~25ms per image on M-series Mac
+- **Feature library**: 40 registered features, 22 pairwise tiebreakers
+- **Lines of code**: ~5000 total, ~3900 non-blank (classifier + features + sensors + eval)
 - **Development time**: ~20 hours across 11 sessions
-- **Total eval runs**: 150+ (each testing a hypothesis)
+- **Total eval runs**: 248 (each testing a hypothesis)
 - **Coding agent**: Claude (Anthropic), used for error-driven feature invention
+- **Estimated API cost**: ~$100-300 in LLM inference (exact figure TBD, will update with actual billing)
 
 ---
 
