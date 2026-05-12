@@ -1,6 +1,6 @@
 # HL-ImageNet: A Preliminary Heuristic-Learning Demo for Image Classification
 
-> This is not a standard ImageNet benchmark result yet. Phase 1 used a mixed exploratory setup with 4 real Tiny ImageNet classes and 6 synthetic classes, and the main 86.1% number is development-set accuracy after iterative tuning. Follow-up experiment is now WIP in Phase 2.
+> This is not a standard ImageNet benchmark result yet. Phase 1 used a mixed exploratory setup with 4 real Tiny ImageNet classes and 6 synthetic classes, and the main 86.1% number is development-set accuracy after iterative tuning. Phase 2 is now in exploratory split-aware development, and a Phase 2.2 diagnostic lens has been added to analyze validation failure geometry without changing classifier behavior.
 
 **Heuristic Learning for Image Classification — Without Neural Networks**
 
@@ -130,7 +130,21 @@ Phase 1 demonstrated that the HL loop *can* build a symbolic classifier, but the
 - Test set is touched only once at the very end
 - No threshold tuning against val or test images
 
-**Status**: Classes selected, experiment not yet started.
+**Status**: Phase 2 exploratory classifier work has started upstream. The current repo includes Phase 2 class signatures, a flat 10-class hierarchy, soft scoring, Phase 2 evaluation logs, and a Phase 2.2 diagnostic lens.
+
+Current diagnostic snapshot from logs/phase2/diagnostics/latest_phase2_diagnostic.md:
+
+| Metric | Value |
+|--------|-------|
+| Source report | logs/phase2/eval_phase2_iter9_val_2026-05-12_14-37-05.json |
+| Samples | 2,000 |
+| Top-1 accuracy | 33.4% |
+| Top-3 accuracy | 68.6% |
+| Top-3 rescue gap | 35.2 percentage points |
+| Major false-positive attractors | banana, king_penguin, golden_retriever |
+| Major victim classes | teapot, brown_bear, sports_car |
+
+> **Diagnostic boundary**: The Phase 2.2 diagnostic lens does not change classifier behavior and does not claim accuracy improvement. It turns existing Phase 2 evaluation logs into evidence artifacts showing attractor classes, victim classes, confusion gravity wells, and top-3 rescue gaps.
 
 ---
 
@@ -228,18 +242,19 @@ hl-image-net/
 │   │   └── concepts/      #   high-level concept detectors
 │   ├── classifier/        # Scorer, hierarchy, tiebreaker (22 functions), prediction
 │   ├── proof/             # Proof trace generator
-│   ├── eval/              # Dataset loader, metrics, evaluation runner
+│   ├── eval/              # Dataset loader, metrics, evaluation runner, diagnostics
 │   ├── agent/             # HL loop: analyzer, proposer, tester
 │   └── algebra/           # Visual concept algebra operators + router
 ├── scripts/
-│   ├── run_eval.py        # Run evaluation
-│   ├── predict_image.py   # Classify a single image
-│   ├── generate_plots.py  # Generate all plots
+│   ├── run_eval.py                # Run evaluation
+│   ├── predict_image.py           # Classify a single image
+│   ├── generate_plots.py          # Generate all plots
+│   ├── run_phase2_diagnostics.py  # Analyze Phase 2 eval logs
 │   └── ...
 ├── data/imagenet_10/      # 10-class dataset (not in repo)
 ├── logs/
 │   ├── phase1/            # Phase 1 eval logs, validation logs, reasoning snapshots
-│   └── phase2/            # Empty staging folder for the next split-clean experiment
+│   └── phase2/            # Phase 2 eval logs plus diagnostic lens artifacts
 └── docs/
     ├── blog.md            # Full writeup
     ├── result1.md         # Results analysis + critical transitions
@@ -319,15 +334,16 @@ Current repository context:
 - Repository: hl-imagenet
 - Purpose: heuristic-learning image classification demo without neural networks.
 - Primary package: hlinet.
-- Primary docs: README.md, docs/blog.md, docs/result1.md, docs/experiment_report.md, docs/design.md.
-- Primary scripts: scripts/run_eval.py, scripts/predict_image.py, scripts/generate_plots.py, scripts/demo.py.
+- Primary docs: README.md, docs/blog.md, docs/result1.md, docs/experiment_report.md, docs/design.md, docs/architecture/hl_imagenet_rcc_phase2_diagnostic_lens_v1_0.tex.
+- Primary scripts: scripts/run_eval.py, scripts/predict_image.py, scripts/generate_plots.py, scripts/demo.py, scripts/run_phase2_diagnostics.py.
 - Phase 1 claim boundary: 86.1 percent is development-set accuracy after iterative tuning.
 - Phase 1 hard-class boundary: 84 percent is development-set accuracy on the 4 real hard classes.
 - Validation-folder result: 54 percent on 4 hard classes.
 - Stricter non-overlapping validation subset: 51.4 percent.
-- Phase 2 is the proper train/validation/test split direction.
+- Phase 2 is the proper train/validation/test split direction, and upstream Phase 2 exploratory classifier work is now present.
 - RCC mode in this change: documentation-only context layer.
-- No source behavior is changed by this RCC layer.
+- No source behavior is changed by the RCC layer.
+- Phase 2.2 diagnostic lens is analysis-only: it reads existing Phase 2 logs and emits diagnostic artifacts without changing classifier behavior.
 
 AI agents must update this section only when repository purpose, evaluation claims, command surface, package structure, or phase status changes.
 
@@ -367,12 +383,12 @@ AI agents should reconstruct repository context through bounded README surfaces 
 - hlinet/features: symbolic feature predicates.
 - hlinet/classifier: scoring, tiebreakers, prototypes, and prediction behavior.
 - hlinet/proof: proof trace rendering.
-- hlinet/eval: dataset loading, metrics, and evaluation execution.
+- hlinet/eval: dataset loading, metrics, evaluation execution, and Phase 2 diagnostic analysis.
 - hlinet/agent: heuristic-learning loop mechanics.
 - hlinet/algebra: visual concept algebra operators and routing helpers.
-- scripts: human-facing commands.
-- docs: explanation, reports, plots, and design notes.
-- logs: generated run records and historical reasoning snapshots.
+- scripts: human-facing commands, including Phase 2 diagnostics.
+- docs: explanation, reports, plots, design notes, and architecture locks.
+- logs: generated run records, historical reasoning snapshots, Phase 2 eval logs, and diagnostic artifacts.
 
 ## AI non-claim lock
 
@@ -386,10 +402,11 @@ Never claim or imply:
 - There are no learned quantities when prototypes or tuned thresholds are being discussed.
 - Plots or logs prove correctness without evaluation context.
 - RCC documentation proves source correctness.
+- Phase 2 diagnostics prove classifier correctness or imply classifier improvement.
 
 ## AI interpretation of current evidence
 
-HL-ImageNet is a preliminary heuristic-learning demo showing that a coding agent can iteratively maintain a symbolic image classifier using classical vision features, scoring rules, tiebreakers, logs, and proof traces. Phase 1 demonstrates confusion-driven improvement and representation-saturation behavior, but its headline accuracy is development-set accuracy, not a clean held-out benchmark. The stricter validation numbers must remain visible whenever results are summarized.
+HL-ImageNet is a preliminary heuristic-learning demo showing that a coding agent can iteratively maintain a symbolic image classifier using classical vision features, scoring rules, tiebreakers, logs, and proof traces. Phase 1 demonstrates confusion-driven improvement and representation-saturation behavior, but its headline accuracy is development-set accuracy, not a clean held-out benchmark. Phase 2 exploratory classifier work is now present upstream, and the Phase 2.2 diagnostic lens exposes validation failure geometry from existing logs. The stricter validation numbers and diagnostic non-claim boundaries must remain visible whenever results are summarized.
 
 ## Required local verification
 
@@ -414,6 +431,6 @@ When adding a new major folder, create a mini README with Purpose, S, H, A, T, I
 
 ## Final AI warning
 
-This repository is strongest when claim boundaries stay visible. Do not optimize documentation to sound stronger than the evidence. Preserve the development-set versus validation-set distinction, the synthetic-class caveat, the Phase 2 direction, and the fact that RCC improves navigation rather than proving code correctness.
+This repository is strongest when claim boundaries stay visible. Do not optimize documentation to sound stronger than the evidence. Preserve the development-set versus validation-set distinction, the synthetic-class caveat, the Phase 2 split labels, the diagnostic non-claim boundary, and the fact that RCC improves navigation rather than proving code correctness.
 
 <!-- RCC-AI-README:END -->
