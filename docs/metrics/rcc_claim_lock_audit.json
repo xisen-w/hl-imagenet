@@ -1,6 +1,6 @@
 {
   "schema": "hl_imagenet_rcc_claim_lock_audit_v1_2",
-  "generated_at": "2026-05-13T10:44:38",
+  "generated_at": "2026-05-13T10:51:39",
   "repository": "hl-imagenet",
   "identity": "RCC Metrics v1.2 - Claim-Lock Density Repair",
   "summary": {
