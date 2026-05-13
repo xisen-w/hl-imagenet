@@ -107,11 +107,15 @@ swap iff disc_margin > base_threshold + score_gap * gap_scale
 
 24 pairwise discriminant functions. Per-pair base thresholds calibrated by accuracy (84% -> -0.10, 58% -> 0.30).
 
+### Phase 2 Accuracy Trajectory
+
+![Phase 2 Accuracy Trajectory](docs/plots/phase2/01_accuracy_trajectory.png)
+
 ### Phase 2 Experiment Logs
 
 - [`logs/session_reasoning.md`](logs/session_reasoning.md) — Full reasoning log: what was tried, why, results per iteration
 - [`docs/lessons.md`](docs/lessons.md) — 15 hard-won lessons from 330+ iterations
-- [`logs/phase1/`](logs/phase1/) — All eval run logs (JSON + markdown)
+- [`logs/phase2/`](logs/phase2/) — All eval run logs (JSON + markdown)
 
 ---
 
@@ -192,6 +196,12 @@ The remaining 32 errors (14%) came from the dog/mushroom/teapot triangle: at 64x
 4. What Phase 1 demonstrated: the HL loop works. Confusion-driven iteration, feature invention, and representation saturation are real phenomena.
 
 See the [full blog post](docs/blog.md) for trajectory analysis and ceiling discussion.
+
+### Phase 1 Plots
+
+![Phase 1 Accuracy Trajectory](docs/plots/phase1/01_accuracy_trajectory.png)
+
+![Phase 1 Hard Classes](docs/plots/phase1/06_hard_classes.png)
 
 </details>
 
