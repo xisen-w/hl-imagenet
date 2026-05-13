@@ -370,6 +370,39 @@ Run the RCC dashboard generator:
 
 > **RCC metrics boundary**: RCC process metrics describe repository navigation, evidence governance, auditability, and process control. They do not prove classifier correctness, do not claim ImageNet performance, and do not imply RCC changed classifier runtime behavior.
 
+
+### RCC Metrics v1.1: Evidence Quality and Freshness
+
+RCC Metrics v1.1 extends the first process dashboard by checking not only whether RCC artifacts exist, but whether they are fresh, linked, section-complete, claim-bounded, regenerable, and useful for probe directionality analysis.
+
+RCC v1.1 artifacts:
+
+- docs/metrics/rcc_quality_metrics.md
+- docs/metrics/rcc_quality_metrics.json
+- docs/plots/rcc_quality_dashboard.png
+- docs/plots/rcc_artifact_freshness.png
+- docs/plots/rcc_probe_directionality.png
+- scripts/metrics/generate_rcc_quality_dashboard.py
+
+RCC quality dashboard:
+
+![RCC Quality Dashboard](docs/plots/rcc_quality_dashboard.png)
+
+RCC artifact freshness:
+
+![RCC Artifact Freshness](docs/plots/rcc_artifact_freshness.png)
+
+RCC probe directionality:
+
+![RCC Probe Directionality](docs/plots/rcc_probe_directionality.png)
+
+Run the RCC quality dashboard generator:
+
+    python scripts/metrics/generate_rcc_quality_dashboard.py
+
+RCC v1.1 boundary: these metrics measure repository-process quality, artifact freshness, link integrity, and rejected-probe directionality. They do not prove classifier correctness, do not claim ImageNet performance, and do not imply RCC changed classifier runtime behavior.
+
+
 ### Per-class accuracy (dev set)
 
 | Class | Dev Accuracy | Notes |

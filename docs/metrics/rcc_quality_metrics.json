@@ -1,0 +1,295 @@
+{
+  "schema": "hl_imagenet_rcc_quality_metrics_v1_1",
+  "generated_at": "2026-05-13T10:36:41",
+  "repository": "hl-imagenet",
+  "identity": "RCC Metrics v1.1 - Evidence Quality and Freshness Layer",
+  "dimensions_1_to_10": {
+    "Artifact Existence": 10.0,
+    "Artifact Freshness": 10.0,
+    "Section Completeness": 10.0,
+    "Claim-Lock Density": 5.0,
+    "README Link Integrity": 10.0,
+    "Regeneration Surface": 10.0,
+    "Probe Directionality": 5.742,
+    "Probe Claim Locks": 6.0,
+    "Guard Integrity": 10.0,
+    "Runtime Promotion Safety": 10.0,
+    "Artifact Size Health": 10.0
+  },
+  "artifact_quality": [
+    {
+      "path": "README.md",
+      "exists": true,
+      "size_bytes": 42868,
+      "committed_at": "2026-05-13T14:30:25+00:00",
+      "age_days": 0.004352959849537037,
+      "freshness_score": 10.0,
+      "section_score": 10.0,
+      "claim_lock_score": 8.0,
+      "size_score": 10.0
+    },
+    {
+      "path": "docs/metrics/rcc_process_metrics.md",
+      "exists": true,
+      "size_bytes": 2295,
+      "committed_at": "2026-05-13T14:30:25+00:00",
+      "age_days": 0.004352959849537037,
+      "freshness_score": 10.0,
+      "section_score": 10.0,
+      "claim_lock_score": 4.4,
+      "size_score": 10.0
+    },
+    {
+      "path": "docs/metrics/rcc_process_metrics.json",
+      "exists": true,
+      "size_bytes": 6974,
+      "committed_at": "2026-05-13T14:30:25+00:00",
+      "age_days": 0.004352959849537037,
+      "freshness_score": 10.0,
+      "section_score": 10.0,
+      "claim_lock_score": 6.8,
+      "size_score": 10.0
+    },
+    {
+      "path": "docs/metrics/README.md",
+      "exists": true,
+      "size_bytes": 1584,
+      "committed_at": "2026-05-13T14:30:25+00:00",
+      "age_days": 0.004352959849537037,
+      "freshness_score": 10.0,
+      "section_score": 10.0,
+      "claim_lock_score": 3.2,
+      "size_score": 10.0
+    },
+    {
+      "path": "scripts/metrics/generate_rcc_process_dashboard.py",
+      "exists": true,
+      "size_bytes": 17248,
+      "committed_at": "2026-05-13T14:24:51+00:00",
+      "age_days": 0.008218700590277777,
+      "freshness_score": 10.0,
+      "section_score": 10.0,
+      "claim_lock_score": 8.0,
+      "size_score": 10.0
+    },
+    {
+      "path": "logs/phase2/diagnostics/latest_phase2_diagnostic.md",
+      "exists": true,
+      "size_bytes": 4701,
+      "committed_at": "2026-05-12T14:37:51+00:00",
+      "age_days": 0.9991909228124999,
+      "freshness_score": 10.0,
+      "section_score": 10.0,
+      "claim_lock_score": 5.6,
+      "size_score": 10.0
+    },
+    {
+      "path": "logs/phase2/benchmarks/latest_phase2_benchmark.md",
+      "exists": true,
+      "size_bytes": 2189,
+      "committed_at": "2026-05-12T16:05:36+00:00",
+      "age_days": 0.9382534228124999,
+      "freshness_score": 10.0,
+      "section_score": 10.0,
+      "claim_lock_score": 4.4,
+      "size_score": 10.0
+    },
+    {
+      "path": "logs/phase2/attribution/latest_phase2_attribution.md",
+      "exists": true,
+      "size_bytes": 3538,
+      "committed_at": "2026-05-12T16:29:55+00:00",
+      "age_days": 0.9213668487384259,
+      "freshness_score": 10.0,
+      "section_score": 10.0,
+      "claim_lock_score": 4.4,
+      "size_score": 10.0
+    },
+    {
+      "path": "logs/phase2/candidates/latest_phase2_candidate_plan.md",
+      "exists": true,
+      "size_bytes": 12823,
+      "committed_at": "2026-05-12T16:39:33+00:00",
+      "age_days": 0.914677033923611,
+      "freshness_score": 10.0,
+      "section_score": 10.0,
+      "claim_lock_score": 5.6,
+      "size_score": 10.0
+    },
+    {
+      "path": "logs/phase2/regression_guard/latest_phase2_regression_guard.md",
+      "exists": true,
+      "size_bytes": 2563,
+      "committed_at": "2026-05-12T16:44:29+00:00",
+      "age_days": 0.9112511079976852,
+      "freshness_score": 10.0,
+      "section_score": 10.0,
+      "claim_lock_score": 5.6,
+      "size_score": 10.0
+    },
+    {
+      "path": "logs/phase2/rejected_deltas/phase2_6b_exclusion_guard/rejected_phase2_6b_delta_compare.md",
+      "exists": true,
+      "size_bytes": 2204,
+      "committed_at": "2026-05-12T17:15:35+00:00",
+      "age_days": 0.8896538857754629,
+      "freshness_score": 10.0,
+      "section_score": 10.0,
+      "claim_lock_score": 5.6,
+      "size_score": 10.0
+    },
+    {
+      "path": "logs/phase2/rejected_deltas/phase2_6d_golden_retriever_orange_exclusion/rejected_phase2_6d_probe_compare.md",
+      "exists": true,
+      "size_bytes": 2046,
+      "committed_at": "2026-05-13T13:28:30+00:00",
+      "age_days": 0.04735064503472222,
+      "freshness_score": 10.0,
+      "section_score": 10.0,
+      "claim_lock_score": 5.6,
+      "size_score": 10.0
+    },
+    {
+      "path": "logs/phase2/rejected_deltas/phase2_6e_golden_orange_banana_backstop/rejected_phase2_6e_probe_compare.md",
+      "exists": true,
+      "size_bytes": 1776,
+      "committed_at": "2026-05-13T13:52:14+00:00",
+      "age_days": 0.03086916355324074,
+      "freshness_score": 10.0,
+      "section_score": 10.0,
+      "claim_lock_score": 6.8,
+      "size_score": 10.0
+    },
+    {
+      "path": "docs/plots/rcc_process_dashboard.png",
+      "exists": true,
+      "size_bytes": 401256,
+      "committed_at": "2026-05-13T14:24:51+00:00",
+      "age_days": 0.008218700590277777,
+      "freshness_score": 10.0,
+      "section_score": 10.0,
+      "claim_lock_score": 2.0,
+      "size_score": 10.0
+    },
+    {
+      "path": "docs/plots/rcc_process_timeline.png",
+      "exists": true,
+      "size_bytes": 81479,
+      "committed_at": "2026-05-13T14:24:51+00:00",
+      "age_days": 0.008218700590277777,
+      "freshness_score": 10.0,
+      "section_score": 10.0,
+      "claim_lock_score": 2.0,
+      "size_score": 10.0
+    },
+    {
+      "path": "docs/plots/rcc_guard_delta_bars.png",
+      "exists": true,
+      "size_bytes": 83743,
+      "committed_at": "2026-05-13T14:24:51+00:00",
+      "age_days": 0.008218700590277777,
+      "freshness_score": 10.0,
+      "section_score": 10.0,
+      "claim_lock_score": 2.0,
+      "size_score": 10.0
+    }
+  ],
+  "readme_link_integrity": {
+    "score": 10.0,
+    "links": [
+      {
+        "path": "docs/metrics/rcc_process_metrics.md",
+        "referenced": true,
+        "exists": true,
+        "status": "pass"
+      },
+      {
+        "path": "docs/metrics/rcc_process_metrics.json",
+        "referenced": true,
+        "exists": true,
+        "status": "pass"
+      },
+      {
+        "path": "docs/plots/rcc_process_dashboard.png",
+        "referenced": true,
+        "exists": true,
+        "status": "pass"
+      },
+      {
+        "path": "docs/plots/rcc_process_timeline.png",
+        "referenced": true,
+        "exists": true,
+        "status": "pass"
+      },
+      {
+        "path": "docs/plots/rcc_guard_delta_bars.png",
+        "referenced": true,
+        "exists": true,
+        "status": "pass"
+      },
+      {
+        "path": "scripts/metrics/generate_rcc_process_dashboard.py",
+        "referenced": true,
+        "exists": true,
+        "status": "pass"
+      }
+    ]
+  },
+  "probe_quality": [
+    {
+      "path": "logs/phase2/rejected_deltas/phase2_6b_exclusion_guard/rejected_phase2_6b_delta_compare.md",
+      "overall_status": "fail",
+      "top1_delta": -0.0085,
+      "top3_delta": -0.0055,
+      "hl_unique_wins_delta": 1.0,
+      "baseline_right_hl_wrong_delta": 18.0,
+      "attractor_increases": 2,
+      "attractor_decreases": 1,
+      "directionality_score": 0.0,
+      "claim_lock_score": 5.6,
+      "section_score": 10.0
+    },
+    {
+      "path": "logs/phase2/rejected_deltas/phase2_6d_golden_retriever_orange_exclusion/rejected_phase2_6d_probe_compare.md",
+      "overall_status": "fail",
+      "top1_delta": 0.0005,
+      "top3_delta": 0.001,
+      "hl_unique_wins_delta": 2.0,
+      "baseline_right_hl_wrong_delta": 1.0,
+      "attractor_increases": 1,
+      "attractor_decreases": 2,
+      "directionality_score": 7.225,
+      "claim_lock_score": 5.6,
+      "section_score": 10.0
+    },
+    {
+      "path": "logs/phase2/rejected_deltas/phase2_6e_golden_orange_banana_backstop/rejected_phase2_6e_probe_compare.md",
+      "overall_status": "fail",
+      "top1_delta": 0.011,
+      "top3_delta": -0.0005,
+      "hl_unique_wins_delta": 5.0,
+      "baseline_right_hl_wrong_delta": -17.0,
+      "attractor_increases": 2,
+      "attractor_decreases": 1,
+      "directionality_score": 10.0,
+      "claim_lock_score": 6.8,
+      "section_score": 10.0
+    }
+  ],
+  "summary": {
+    "artifact_count": 16,
+    "existing_artifact_count": 16,
+    "probe_count": 3,
+    "mean_freshness_score": 10.0,
+    "mean_probe_directionality": 5.742,
+    "readme_link_integrity_score": 10.0,
+    "guard_integrity_score": 10.0,
+    "runtime_promotion_safety_score": 10.0
+  },
+  "non_claim_lock": [
+    "RCC quality metrics measure repository process quality, not classifier correctness.",
+    "Freshness and coverage are not proof.",
+    "Probe directionality does not imply accepted classifier improvement.",
+    "No runtime classifier delta is promoted by this script."
+  ]
+}
