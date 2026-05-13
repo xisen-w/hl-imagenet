@@ -24,12 +24,18 @@ _builder = SceneGraphBuilder()
 
 _HIST_BLEND_W = 0.88
 
+_HIST_MEANS = {
+    "banana": 1.233, "brown_bear": 1.331, "golden_retriever": 1.320,
+    "jellyfish": 0.664, "king_penguin": 1.215, "mushroom": 1.363,
+    "orange": 1.043, "school_bus": 1.527, "sports_car": 1.315, "teapot": 1.316,
+}
+
 
 def _blend_hist_scores(
     candidates: list[tuple[str, float, list[str]]],
     image: np.ndarray,
 ) -> list[tuple[str, float, list[str]]]:
-    """Blend signature scores with color histogram prototype scores."""
+    """Blend signature scores with mean-centered histogram prototype scores."""
     from hlinet.features.compounds.phase2_signatures import _color_hist_scores
 
     hist_scores = _color_hist_scores(image)
@@ -37,7 +43,7 @@ def _blend_hist_scores(
         return candidates
     w = _HIST_BLEND_W
     return [
-        (label, score * w + hist_scores.get(f"hist_{label}", 0) * (1 - w), route)
+        (label, score * w + (hist_scores.get(f"hist_{label}", 0) - _HIST_MEANS.get(label, 1.2) * 0.3) * (1 - w), route)
         for label, score, route in candidates
     ]
 
@@ -146,6 +152,13 @@ def _pairwise_rerank(
         frozenset(["banana", "golden_retriever"]): -0.05,
         frozenset(["mushroom", "school_bus"]): -0.05,
         frozenset(["school_bus", "sports_car"]): -0.10,
+        frozenset(["banana", "mushroom"]): 0.05,
+        frozenset(["golden_retriever", "teapot"]): 0.15,
+        frozenset(["brown_bear", "king_penguin"]): 0.25,
+        frozenset(["jellyfish", "king_penguin"]): 0.0,
+        frozenset(["orange", "teapot"]): 0.0,
+        frozenset(["brown_bear", "teapot"]): 0.10,
+        frozenset(["golden_retriever", "king_penguin"]): 0.10,
     }
 
     margin12 = top1_score - top2_score
@@ -173,6 +186,13 @@ def _pairwise_rerank(
         frozenset(["school_bus", "sports_car"]),
         frozenset(["teapot", "king_penguin"]),
         frozenset(["banana", "orange"]),
+        frozenset(["banana", "mushroom"]),
+        frozenset(["golden_retriever", "teapot"]),
+        frozenset(["jellyfish", "king_penguin"]),
+        frozenset(["brown_bear", "king_penguin"]),
+        frozenset(["orange", "teapot"]),
+        frozenset(["brown_bear", "teapot"]),
+        frozenset(["golden_retriever", "king_penguin"]),
     }
     if len(candidates) >= 3:
         top1_label, top1_score, _ = candidates[0]
@@ -349,6 +369,62 @@ def _compute_pair_signals(pair, s, _sigmoid):
                 "banana",
                 _sigmoid(s.get("yellow", 0), 0.25, 5) + _sigmoid(s.get("edge", 0), 0.20, 8)
                 + _sigmoid(s.get("top_uniformity", 1), 0.70, -5) + _sigmoid(s.get("hist_teapot_minus_banana", 0), 0.0, -3))
+
+    if pair == frozenset(["banana", "mushroom"]):
+        return ("banana",
+                _sigmoid(s.get("warm_val_mean", 0), 0.55, 5) + _sigmoid(s.get("smooth_warm", 0), 0.15, 5)
+                + _sigmoid(s.get("val", 0), 0.55, 4) + _sigmoid(s.get("hist_banana_minus_mushroom", 0), 0.0, 3),
+                "mushroom",
+                _sigmoid(s.get("round_edge", 0), 0.20, 6) + _sigmoid(s.get("edge", 0), 0.25, 6)
+                + _sigmoid(s.get("warm_blob_count", 0), 0.4, 4) + _sigmoid(s.get("hist_banana_minus_mushroom", 0), 0.0, -3))
+
+    if pair == frozenset(["golden_retriever", "teapot"]):
+        return ("golden_retriever",
+                _sigmoid(s.get("edge", 0), 0.23, 8) + _sigmoid(s.get("bot_edge", 0), 0.25, 8)
+                + _sigmoid(s.get("horiz_dominance", 1), 1.10, -4) + _sigmoid(s.get("hist_gr_minus_teapot", 0), 0.0, 3),
+                "teapot",
+                _sigmoid(s.get("edge", 1), 0.23, -8) + _sigmoid(s.get("autocorr_h", 0), 0.15, 5)
+                + _sigmoid(s.get("horiz_dominance", 0), 1.10, 4) + _sigmoid(s.get("hist_gr_minus_teapot", 0), 0.0, -3))
+
+    if pair == frozenset(["brown_bear", "king_penguin"]):
+        return ("brown_bear",
+                _sigmoid(s.get("textured_decentered", 0), 0.10, 8) + _sigmoid(s.get("edge", 0), 0.27, 6)
+                + _sigmoid(s.get("warm_tl", 0), 0.35, 4) + _sigmoid(s.get("hist_bear_minus_kp", 0), 0.0, 3),
+                "king_penguin",
+                _sigmoid(s.get("center_surround", 0), 0.95, 4) + _sigmoid(s.get("edge", 1), 0.27, -6)
+                + _sigmoid(s.get("warm_tl", 1), 0.35, -4) + _sigmoid(s.get("hist_bear_minus_kp", 0), 0.0, -3))
+
+    if pair == frozenset(["jellyfish", "king_penguin"]):
+        return ("jellyfish",
+                _sigmoid(s.get("sat", 0), 0.45, 5) + _sigmoid(s.get("color_std", 0), 0.25, 5)
+                + _sigmoid(s.get("sat_br", 0), 0.45, 4) + _sigmoid(s.get("hist_jelly_minus_kp", 0), 0.0, 3),
+                "king_penguin",
+                _sigmoid(s.get("grad_mean", 0), 0.95, 3) + _sigmoid(s.get("sat", 1), 0.45, -5)
+                + _sigmoid(s.get("color_std", 1), 0.25, -5) + _sigmoid(s.get("hist_jelly_minus_kp", 0), 0.0, -3))
+
+    if pair == frozenset(["orange", "teapot"]):
+        return ("orange",
+                _sigmoid(s.get("sat", 0), 0.50, 5) + _sigmoid(s.get("color_std", 0), 0.25, 5)
+                + _sigmoid(s.get("sat_bl", 0), 0.50, 4) + _sigmoid(s.get("hist_orange_minus_teapot", 0), 0.0, 3),
+                "teapot",
+                _sigmoid(s.get("sat", 1), 0.50, -5) + _sigmoid(s.get("autocorr_h", 0), 0.15, 5)
+                + _sigmoid(s.get("color_std", 1), 0.25, -5) + _sigmoid(s.get("hist_orange_minus_teapot", 0), 0.0, -3))
+
+    if pair == frozenset(["brown_bear", "teapot"]):
+        return ("brown_bear",
+                _sigmoid(s.get("edge", 0), 0.25, 8) + _sigmoid(s.get("textured_decentered", 0), 0.10, 8)
+                + _sigmoid(s.get("top_edge", 0), 0.24, 6) + _sigmoid(s.get("hist_bear_minus_teapot", 0), 0.0, 3),
+                "teapot",
+                _sigmoid(s.get("autocorr_h", 0), 0.14, 6) + _sigmoid(s.get("edge", 1), 0.25, -8)
+                + _sigmoid(s.get("top_edge", 1), 0.24, -6) + _sigmoid(s.get("hist_bear_minus_teapot", 0), 0.0, -3))
+
+    if pair == frozenset(["golden_retriever", "king_penguin"]):
+        return ("golden_retriever",
+                _sigmoid(s.get("warm", 0), 0.35, 5) + _sigmoid(s.get("blob_coverage", 0), 0.30, 4)
+                + _sigmoid(s.get("hue_red", 0), 0.25, 4) + _sigmoid(s.get("hist_gr_minus_kp", 0), 0.0, 3),
+                "king_penguin",
+                _sigmoid(s.get("warm", 1), 0.35, -5) + _sigmoid(s.get("blob_coverage", 1), 0.30, -4)
+                + _sigmoid(s.get("hue_red", 1), 0.25, -4) + _sigmoid(s.get("hist_gr_minus_kp", 0), 0.0, -3))
 
     return None
 

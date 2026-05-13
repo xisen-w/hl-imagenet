@@ -309,6 +309,7 @@ def _stats(graph: SceneGraph) -> dict[str, float]:
         hm = hist_scores.get("hist_mushroom", 0)
         ht = hist_scores.get("hist_teapot", 0)
         hk = hist_scores.get("hist_king_penguin", 0)
+        hj = hist_scores.get("hist_jellyfish", 0)
         result["hist_orange_minus_banana"] = ho - hb
         result["hist_sports_minus_bus"] = hs - hsb
         result["hist_bear_minus_gr"] = hbb - hg
@@ -316,6 +317,13 @@ def _stats(graph: SceneGraph) -> dict[str, float]:
         result["hist_gr_minus_banana"] = hg - hb
         result["hist_teapot_minus_kp"] = ht - hk
         result["hist_teapot_minus_banana"] = ht - hb
+        result["hist_banana_minus_mushroom"] = hb - hm
+        result["hist_gr_minus_teapot"] = hg - ht
+        result["hist_bear_minus_kp"] = hbb - hk
+        result["hist_jelly_minus_kp"] = hj - hk
+        result["hist_orange_minus_teapot"] = ho - ht
+        result["hist_bear_minus_teapot"] = hbb - ht
+        result["hist_gr_minus_kp"] = hg - hk
 
     return result
 

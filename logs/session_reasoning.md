@@ -171,3 +171,110 @@ Changes from iter14 (48.2%) baseline:
 Per-class: banana 51%, bear 40%, GR 40%, jelly 65.5%, KP 48%, mushroom 41.5%,
 orange 50.5%, bus 78.5%, sports_car 56.5%, teapot 30%
 
+
+
+## Session 3: Protocol Change — Optimize on Train Only (2026-05-13)
+
+### Protocol
+User clarified: do NOT look at val to guide decisions — that's also overfitting on validation.
+From now on: all analysis, confusion matrices, and feature distributions use train only.
+Val eval runs as a side product for reporting.
+
+### Train Baseline: 47.5% top-1 (949/2000)
+Val baseline: 50.1% (val > train by 2.6pp — consistent historical pattern).
+
+Train per-class: banana 56%, bear 42.5%, GR 35.5%, jelly 65%, KP 43.5%, mushroom 42%, 
+  orange 42%, bus 78%, sports_car 50.5%, teapot 20%
+
+Top train confusions:
+- orange → banana: 53
+- sports_car → school_bus: 42
+- teapot → king_penguin: 42
+- mushroom → banana: 38
+- teapot → banana: 34
+- golden_retriever → banana: 28
+- brown_bear → school_bus: 28
+
+### Analysis — Biggest Bottlenecks (Train)
+1. **Teapot at 20%** — worst class by far. 42 → KP, 34 → banana, 24 → GR. Shape-defined class.
+2. **GR at 35.5%** — 28 → banana, 21 → bear, 19 → teapot, 16 → bus. Warm-blob overlap.
+3. **Banana sink** — receives 186 FPs (38 mushroom, 34 teapot, 28 GR, 53 orange, etc.)
+4. **Bus sink** — receives 166 FPs (42 sports_car, 28 bear, 23 banana, etc.)
+
+### Iter 16a: 7 new discriminant pairs → 48.25% (+0.75pp from 47.5% baseline)
+
+Added discriminants for the top uncovered confusion pairs on train:
+- banana-mushroom (85% acc): warm_val_mean, smooth_warm, val, hist diff
+- GR-teapot (74.5% acc): edge, bot_edge, horiz_dominance, hist diff
+- bear-KP (78% acc): textured_decentered, edge, warm_tl, hist diff
+- jellyfish-KP (87.5% acc): sat, color_std, sat_br, hist diff
+- orange-teapot (82% acc): sat, color_std, sat_bl, hist diff
+- bear-teapot (82% acc): edge, textured_decentered, top_edge, hist diff
+- GR-KP (80% acc): warm, blob_coverage, hue_red, hist diff
+
+Added 7 new histogram differential features: hist_banana_minus_mushroom, hist_gr_minus_teapot,
+hist_bear_minus_kp, hist_jelly_minus_kp, hist_orange_minus_teapot, hist_bear_minus_teapot,
+hist_gr_minus_kp.
+
+Result: 48.25% (+0.75pp). KP +7pp, mushroom +2.5pp, BUT GR -2.5pp, bear -4.5pp.
+The bear-KP discriminant was pushing bear images TO KP incorrectly.
+
+### Iter 16b-c: Tuned per-pair base thresholds → 48.5% (+1pp)
+
+Raised base thresholds for less accurate discriminants:
+- bear-KP: 0.05 → 0.25 (78% acc, was causing bear regression)
+- GR-teapot: 0.05 → 0.15 (74.5% acc)
+- bear-teapot: 0.0 → 0.10
+- GR-KP: 0.05 → 0.10
+
+Result: 48.5% — bear recovered to 40%, KP still at 50%.
+Removing bear-KP from rank3 whitelist dropped KP to 47.5% — not worth it.
+Restored bear-KP to rank3 whitelist with high base threshold.
+
+### Iter 16f-h: Mean-centered histogram blending → 48.75% (+1.25pp)
+
+Key insight: raw histogram scores have class-level bias. school_bus averages 1.53 
+across all images, jellyfish only 0.66. Blending raw scores amplifies sinks.
+
+Solution: `blended = sig * 0.88 + (hist - class_mean * alpha) * 0.12`
+
+Tested alpha values on train:
+- alpha=1.0 (full): 48.6% — jelly +4.5pp, KP +1.5pp, bear +2pp, BUT bus -4pp, sports -3pp
+- alpha=0.5: 48.6% — bus recovered to 75.5% but still down
+- alpha=0.3: 48.75% — best balance. jelly +2.5pp, bear +1pp, bus -1.5pp, sports -1.5pp
+- alpha=0.25: 48.75% — same total, bus slightly better
+
+Settled on alpha=0.3 as optimal.
+
+### Current Train State: 48.75% top-1 (975/2000)
+
+Per-class (train): banana 56%, bear 41%, GR 37.5%, jelly 66%, KP 50.5%, mushroom 44.5%, 
+  orange 45%, bus 76.5%, sports 49%, teapot 21.5%
+
+Changes from Session 2 end (47.5% train):
+1. 7 new discriminant pairs (24 total)
+2. 7 new histogram differential features (14 total)
+3. Per-pair base threshold calibration for new pairs
+4. Mean-centered histogram blending (alpha=0.3)
+
+### Status Quo Analysis
+
+**What's working:**
+- Pairwise reranking (24 pairs) is the backbone, responsible for ~4pp over base scoring
+- Histogram blending adds another ~0.5-1pp
+- Gap-aware gating prevents ~50 reranking regressions per eval
+
+**What's stuck:**
+- Teapot at 21% — shape-defined class, fundamentally limited by color/texture features
+- GR at 37.5% — warm-blob overlap with banana, mushroom, bear, teapot
+- Sink classes (banana 186 FPs, bus 166 FPs) — structural to additive scoring
+
+**Architecture ceiling:**
+- ~55% of errors have true class beyond rank 3 → unreachable by reranking
+- 24 discriminant pairs cover top confusions; each new one gives <0.3pp
+- Parametric tuning (thresholds, weights) gives <0.1pp per iteration now
+
+**Next breakthrough needed:**
+- New representation type (frequency domain? multi-scale? spatial relations?)
+- Different scoring architecture (multiplicative? attention-weighted?)
+- Explicit shape features (Hough transforms for handles/spouts?)
