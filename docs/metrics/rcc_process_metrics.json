@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-13T10:24:48",
+  "generated_at": "2026-05-13T10:30:23",
   "repository": "hl-imagenet",
   "identity": "governed heuristic-learning workbench",
   "phase_hits": {
@@ -53,6 +53,7 @@
     "docs/README.md",
     "docs/architecture/README.md",
     "docs/logs/README.md",
+    "docs/metrics/README.md",
     "docs/plots/README.md",
     "hlinet/README.md",
     "hlinet/agent/README.md",
@@ -81,7 +82,8 @@
     "logs/phase2/regression_guard/README.md",
     "logs/phase2/rejected_deltas/phase2_6b_exclusion_guard/README.md",
     "logs/phase2/rejected_deltas/phase2_6d_golden_retriever_orange_exclusion/README.md",
-    "scripts/README.md"
+    "scripts/README.md",
+    "scripts/metrics/README.md"
   ],
   "counts": {
     "phase_coverage": 8,
@@ -94,7 +96,7 @@
     "rcc_total": 7,
     "artifact_coverage": 8,
     "artifact_total": 8,
-    "mini_readme_count": 32,
+    "mini_readme_count": 34,
     "rejected_or_failed_delta_count": 3,
     "accepted_runtime_delta_count": 0
   },

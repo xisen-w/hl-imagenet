@@ -306,6 +306,70 @@ Attractor result:
 
 > **Rejected-probe boundary**: This is preserved high-value negative evidence, not a classifier improvement. The hierarchy change is not promoted. The lesson is that paired class-specific deltas can produce strong lift, but the next probe needs attractor balancing against golden_retriever and king_penguin spillback.
 
+### RCC / AEFL Context Layer: Repository Process Metrics
+
+HL-ImageNet now includes a human-facing RCC / AEFL context layer. This layer does not change classifier behavior. It makes the repository easier to navigate, audit, extend, and hand off to humans or AI agents by exposing context, command surfaces, claim boundaries, evidence artifacts, rejected-delta ledgers, and process metrics.
+
+RCC / AEFL artifacts:
+
+- `docs/metrics/rcc_process_metrics.md`
+- `docs/metrics/rcc_process_metrics.json`
+- `docs/plots/rcc_process_dashboard.png`
+- `docs/plots/rcc_process_timeline.png`
+- `docs/plots/rcc_guard_delta_bars.png`
+- `scripts/metrics/generate_rcc_process_dashboard.py`
+
+Current RCC process snapshot:
+
+| Metric | Value |
+|---|---:|
+| Phase coverage | 8 / 8 |
+| Command coverage | 5 / 5 |
+| Boundary coverage | 9 / 9 |
+| RCC coverage | 7 / 7 |
+| Evidence artifact coverage | 8 / 8 |
+| Mini README count | 32 |
+| Rejected / failed delta count | 3 |
+| Accepted runtime delta count after guard | 0 |
+
+RCC process dashboard:
+
+![RCC Process Dashboard](docs/plots/rcc_process_dashboard.png)
+
+RCC phase timeline:
+
+![RCC Process Timeline](docs/plots/rcc_process_timeline.png)
+
+Rejected-probe learning signals:
+
+![RCC Guard Delta Bars](docs/plots/rcc_guard_delta_bars.png)
+
+What RCC is doing here:
+
+| Function | Meaning |
+|---|---|
+| Navigation map | Root README and mini READMEs tell humans/agents where to look first. |
+| Edit-boundary protection | Architecture locks and folder READMEs reduce accidental edits to the wrong surface. |
+| Claim-boundary protection | Non-claim locks keep development, validation, benchmark, and rejected-delta claims separated. |
+| Evidence memory | Logs and generated reports preserve what happened during each phase. |
+| Failure learning | Rejected probes are preserved as design constraints instead of being lost. |
+| Runtime protection | Regression guard blocks failed classifier deltas from being promoted. |
+
+Current RCC interpretation:
+
+| Observation | Meaning |
+|---|---|
+| Phase 2.6B failed global scorer pressure | Global exclusion pressure is too blunt. |
+| Phase 2.6D near-miss class-specific probe | Class-specific deltas are promising but can create spillover. |
+| Phase 2.6E high-value paired probe | Paired deltas can produce strong lift but still need attractor balancing. |
+| No accepted runtime delta after guard | The guard is preserving runtime integrity. |
+
+Run the RCC dashboard generator:
+
+    python scripts/metrics/generate_rcc_process_dashboard.py
+
+> **RCC metrics boundary**: RCC process metrics describe repository navigation, evidence governance, auditability, and process control. They do not prove classifier correctness, do not claim ImageNet performance, and do not imply RCC changed classifier runtime behavior.
+
 ### Per-class accuracy (dev set)
 
 | Class | Dev Accuracy | Notes |
@@ -556,6 +620,9 @@ python scripts/predict_image.py path/to/image.jpg
 ```
 
 
+
+
+
 ## RCC Process Metrics Dashboard
 
 RCC / AEFL context is now tracked as a repository-process metric layer. The dashboard below measures navigation, context fidelity, claim-boundary safety, auditability, drift resistance, evidence-chain completeness, failure learning, and controlled evolution. These are repo-governance metrics, not classifier-accuracy claims.
@@ -698,8 +765,8 @@ AI agents should reconstruct repository context through bounded README surfaces 
 - hlinet/eval: dataset loading, metrics, evaluation execution, Phase 2 diagnostic analysis, Phase 2 benchmark comparisons, Phase 2 sample-level attribution, Phase 2 candidate selection, and Phase 2 regression guards.
 - hlinet/agent: heuristic-learning loop mechanics.
 - hlinet/algebra: visual concept algebra operators and routing helpers.
-- scripts: human-facing commands, including Phase 2 diagnostics, Phase 2 benchmarks, Phase 2 attribution, Phase 2 candidate selection, and Phase 2 regression guards.
-- docs: explanation, reports, plots, design notes, and architecture locks.
+- scripts: human-facing commands, including Phase 2 diagnostics, Phase 2 benchmarks, Phase 2 attribution, Phase 2 candidate selection, Phase 2 regression guards, and RCC process metrics.
+- docs: explanation, reports, plots, metrics, design notes, and architecture locks.
 - logs: generated run records, historical reasoning snapshots, Phase 2 eval logs, diagnostic artifacts, benchmark artifacts, attribution artifacts, candidate-selection artifacts, regression-guard artifacts, rejected-delta artifacts, and rejected-probe artifacts.
 
 ## AI non-claim lock
@@ -721,6 +788,7 @@ Never claim or imply:
 - Phase 2 regression guards prove classifier correctness or imply classifier improvement.
 - Phase 2 rejected-delta ledgers prove classifier correctness or imply classifier improvement.
 - Phase 2 rejected-probe ledgers prove classifier correctness or imply classifier improvement.
+- RCC process metrics prove classifier correctness or imply classifier improvement.
 
 ## AI interpretation of current evidence
 

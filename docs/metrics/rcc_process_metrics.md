@@ -1,6 +1,6 @@
 # HL-ImageNet RCC Process Metrics
 
-Generated: `2026-05-13T10:24:48`
+Generated: `2026-05-13T10:30:23`
 
 ## Summary
 
@@ -11,7 +11,7 @@ Generated: `2026-05-13T10:24:48`
 | Boundary coverage | 9 / 9 |
 | RCC coverage | 7 / 7 |
 | Evidence artifact coverage | 8 / 8 |
-| Mini README count | 32 |
+| Mini README count | 34 |
 | Rejected / failed delta count | 3 |
 | Accepted runtime delta count after guard | 0 |
 
