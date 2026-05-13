@@ -1,0 +1,369 @@
+{
+  "schema": "hl_imagenet_rcc_claim_lock_audit_v1_2",
+  "generated_at": "2026-05-13T10:44:38",
+  "repository": "hl-imagenet",
+  "identity": "RCC Metrics v1.2 - Claim-Lock Density Repair",
+  "summary": {
+    "artifact_count": 20,
+    "existing_artifact_count": 20,
+    "mean_claim_lock_score_all_existing": 1.312,
+    "mean_claim_lock_score_text": 1.875,
+    "mean_claim_lock_score_plots": 0.0,
+    "required_lock_count": 8,
+    "plot_lock_count": 5
+  },
+  "required_locks": [
+    "does not prove classifier correctness",
+    "does not claim ImageNet performance",
+    "does not imply RCC changed classifier runtime behavior",
+    "does not promote classifier behavior",
+    "not a classifier improvement",
+    "validation evidence is not final test evidence",
+    "repository-process",
+    "non-claim"
+  ],
+  "plot_locks": [
+    "plots are process-observability artifacts",
+    "plots are not benchmark results",
+    "plots do not prove classifier correctness",
+    "plots do not claim ImageNet performance",
+    "plots do not imply runtime classifier changes"
+  ],
+  "artifact_audit": [
+    {
+      "path": "README.md",
+      "exists": true,
+      "type": "text",
+      "lock_hits": {
+        "does not prove classifier correctness": false,
+        "does not claim ImageNet performance": false,
+        "does not imply RCC changed classifier runtime behavior": false,
+        "does not promote classifier behavior": false,
+        "not a classifier improvement": true,
+        "validation evidence is not final test evidence": false,
+        "repository-process": true,
+        "non-claim": true
+      },
+      "lock_score": 3.75,
+      "word_count": 5661
+    },
+    {
+      "path": "docs/metrics/README.md",
+      "exists": true,
+      "type": "text",
+      "lock_hits": {
+        "does not prove classifier correctness": false,
+        "does not claim ImageNet performance": false,
+        "does not imply RCC changed classifier runtime behavior": false,
+        "does not promote classifier behavior": false,
+        "not a classifier improvement": false,
+        "validation evidence is not final test evidence": false,
+        "repository-process": true,
+        "non-claim": false
+      },
+      "lock_score": 1.25,
+      "word_count": 197
+    },
+    {
+      "path": "scripts/metrics/README.md",
+      "exists": true,
+      "type": "text",
+      "lock_hits": {
+        "does not prove classifier correctness": false,
+        "does not claim ImageNet performance": false,
+        "does not imply RCC changed classifier runtime behavior": false,
+        "does not promote classifier behavior": false,
+        "not a classifier improvement": false,
+        "validation evidence is not final test evidence": false,
+        "repository-process": true,
+        "non-claim": false
+      },
+      "lock_score": 1.25,
+      "word_count": 180
+    },
+    {
+      "path": "docs/plots/README.md",
+      "exists": true,
+      "type": "text",
+      "lock_hits": {
+        "does not prove classifier correctness": false,
+        "does not claim ImageNet performance": false,
+        "does not imply RCC changed classifier runtime behavior": false,
+        "does not promote classifier behavior": false,
+        "not a classifier improvement": false,
+        "validation evidence is not final test evidence": false,
+        "repository-process": false,
+        "non-claim": false
+      },
+      "lock_score": 0.0,
+      "word_count": 167
+    },
+    {
+      "path": "docs/metrics/rcc_process_metrics.md",
+      "exists": true,
+      "type": "text",
+      "lock_hits": {
+        "does not prove classifier correctness": false,
+        "does not claim ImageNet performance": false,
+        "does not imply RCC changed classifier runtime behavior": false,
+        "does not promote classifier behavior": false,
+        "not a classifier improvement": false,
+        "validation evidence is not final test evidence": false,
+        "repository-process": false,
+        "non-claim": true
+      },
+      "lock_score": 1.25,
+      "word_count": 289
+    },
+    {
+      "path": "docs/metrics/rcc_quality_metrics.md",
+      "exists": true,
+      "type": "text",
+      "lock_hits": {
+        "does not prove classifier correctness": false,
+        "does not claim ImageNet performance": false,
+        "does not imply RCC changed classifier runtime behavior": false,
+        "does not promote classifier behavior": false,
+        "not a classifier improvement": false,
+        "validation evidence is not final test evidence": false,
+        "repository-process": false,
+        "non-claim": true
+      },
+      "lock_score": 1.25,
+      "word_count": 528
+    },
+    {
+      "path": "logs/phase2/diagnostics/latest_phase2_diagnostic.md",
+      "exists": true,
+      "type": "text",
+      "lock_hits": {
+        "does not prove classifier correctness": true,
+        "does not claim ImageNet performance": false,
+        "does not imply RCC changed classifier runtime behavior": false,
+        "does not promote classifier behavior": false,
+        "not a classifier improvement": false,
+        "validation evidence is not final test evidence": false,
+        "repository-process": false,
+        "non-claim": true
+      },
+      "lock_score": 2.5,
+      "word_count": 595
+    },
+    {
+      "path": "logs/phase2/benchmarks/latest_phase2_benchmark.md",
+      "exists": true,
+      "type": "text",
+      "lock_hits": {
+        "does not prove classifier correctness": false,
+        "does not claim ImageNet performance": false,
+        "does not imply RCC changed classifier runtime behavior": false,
+        "does not promote classifier behavior": false,
+        "not a classifier improvement": false,
+        "validation evidence is not final test evidence": false,
+        "repository-process": false,
+        "non-claim": true
+      },
+      "lock_score": 1.25,
+      "word_count": 315
+    },
+    {
+      "path": "logs/phase2/attribution/latest_phase2_attribution.md",
+      "exists": true,
+      "type": "text",
+      "lock_hits": {
+        "does not prove classifier correctness": false,
+        "does not claim ImageNet performance": false,
+        "does not imply RCC changed classifier runtime behavior": false,
+        "does not promote classifier behavior": false,
+        "not a classifier improvement": false,
+        "validation evidence is not final test evidence": false,
+        "repository-process": false,
+        "non-claim": true
+      },
+      "lock_score": 1.25,
+      "word_count": 398
+    },
+    {
+      "path": "logs/phase2/candidates/latest_phase2_candidate_plan.md",
+      "exists": true,
+      "type": "text",
+      "lock_hits": {
+        "does not prove classifier correctness": true,
+        "does not claim ImageNet performance": false,
+        "does not imply RCC changed classifier runtime behavior": false,
+        "does not promote classifier behavior": false,
+        "not a classifier improvement": false,
+        "validation evidence is not final test evidence": false,
+        "repository-process": false,
+        "non-claim": true
+      },
+      "lock_score": 2.5,
+      "word_count": 1236
+    },
+    {
+      "path": "logs/phase2/regression_guard/latest_phase2_regression_guard.md",
+      "exists": true,
+      "type": "text",
+      "lock_hits": {
+        "does not prove classifier correctness": true,
+        "does not claim ImageNet performance": false,
+        "does not imply RCC changed classifier runtime behavior": false,
+        "does not promote classifier behavior": false,
+        "not a classifier improvement": false,
+        "validation evidence is not final test evidence": false,
+        "repository-process": false,
+        "non-claim": true
+      },
+      "lock_score": 2.5,
+      "word_count": 308
+    },
+    {
+      "path": "logs/phase2/rejected_deltas/phase2_6b_exclusion_guard/rejected_phase2_6b_delta_compare.md",
+      "exists": true,
+      "type": "text",
+      "lock_hits": {
+        "does not prove classifier correctness": false,
+        "does not claim ImageNet performance": false,
+        "does not imply RCC changed classifier runtime behavior": false,
+        "does not promote classifier behavior": false,
+        "not a classifier improvement": false,
+        "validation evidence is not final test evidence": true,
+        "repository-process": false,
+        "non-claim": true
+      },
+      "lock_score": 2.5,
+      "word_count": 282
+    },
+    {
+      "path": "logs/phase2/rejected_deltas/phase2_6d_golden_retriever_orange_exclusion/rejected_phase2_6d_probe_compare.md",
+      "exists": true,
+      "type": "text",
+      "lock_hits": {
+        "does not prove classifier correctness": false,
+        "does not claim ImageNet performance": false,
+        "does not imply RCC changed classifier runtime behavior": false,
+        "does not promote classifier behavior": false,
+        "not a classifier improvement": false,
+        "validation evidence is not final test evidence": true,
+        "repository-process": false,
+        "non-claim": true
+      },
+      "lock_score": 2.5,
+      "word_count": 254
+    },
+    {
+      "path": "logs/phase2/rejected_deltas/phase2_6e_golden_orange_banana_backstop/rejected_phase2_6e_probe_compare.md",
+      "exists": true,
+      "type": "text",
+      "lock_hits": {
+        "does not prove classifier correctness": false,
+        "does not claim ImageNet performance": false,
+        "does not imply RCC changed classifier runtime behavior": false,
+        "does not promote classifier behavior": false,
+        "not a classifier improvement": false,
+        "validation evidence is not final test evidence": true,
+        "repository-process": false,
+        "non-claim": true
+      },
+      "lock_score": 2.5,
+      "word_count": 224
+    },
+    {
+      "path": "docs/plots/rcc_process_dashboard.png",
+      "exists": true,
+      "type": "plot",
+      "governed_by": "docs/plots/README.md",
+      "lock_hits": {
+        "plots are process-observability artifacts": false,
+        "plots are not benchmark results": false,
+        "plots do not prove classifier correctness": false,
+        "plots do not claim ImageNet performance": false,
+        "plots do not imply runtime classifier changes": false
+      },
+      "lock_score": 0.0,
+      "size_bytes": 401256
+    },
+    {
+      "path": "docs/plots/rcc_process_timeline.png",
+      "exists": true,
+      "type": "plot",
+      "governed_by": "docs/plots/README.md",
+      "lock_hits": {
+        "plots are process-observability artifacts": false,
+        "plots are not benchmark results": false,
+        "plots do not prove classifier correctness": false,
+        "plots do not claim ImageNet performance": false,
+        "plots do not imply runtime classifier changes": false
+      },
+      "lock_score": 0.0,
+      "size_bytes": 81479
+    },
+    {
+      "path": "docs/plots/rcc_guard_delta_bars.png",
+      "exists": true,
+      "type": "plot",
+      "governed_by": "docs/plots/README.md",
+      "lock_hits": {
+        "plots are process-observability artifacts": false,
+        "plots are not benchmark results": false,
+        "plots do not prove classifier correctness": false,
+        "plots do not claim ImageNet performance": false,
+        "plots do not imply runtime classifier changes": false
+      },
+      "lock_score": 0.0,
+      "size_bytes": 83743
+    },
+    {
+      "path": "docs/plots/rcc_quality_dashboard.png",
+      "exists": true,
+      "type": "plot",
+      "governed_by": "docs/plots/README.md",
+      "lock_hits": {
+        "plots are process-observability artifacts": false,
+        "plots are not benchmark results": false,
+        "plots do not prove classifier correctness": false,
+        "plots do not claim ImageNet performance": false,
+        "plots do not imply runtime classifier changes": false
+      },
+      "lock_score": 0.0,
+      "size_bytes": 403010
+    },
+    {
+      "path": "docs/plots/rcc_artifact_freshness.png",
+      "exists": true,
+      "type": "plot",
+      "governed_by": "docs/plots/README.md",
+      "lock_hits": {
+        "plots are process-observability artifacts": false,
+        "plots are not benchmark results": false,
+        "plots do not prove classifier correctness": false,
+        "plots do not claim ImageNet performance": false,
+        "plots do not imply runtime classifier changes": false
+      },
+      "lock_score": 0.0,
+      "size_bytes": 175167
+    },
+    {
+      "path": "docs/plots/rcc_probe_directionality.png",
+      "exists": true,
+      "type": "plot",
+      "governed_by": "docs/plots/README.md",
+      "lock_hits": {
+        "plots are process-observability artifacts": false,
+        "plots are not benchmark results": false,
+        "plots do not prove classifier correctness": false,
+        "plots do not claim ImageNet performance": false,
+        "plots do not imply runtime classifier changes": false
+      },
+      "lock_score": 0.0,
+      "size_bytes": 116455
+    }
+  ],
+  "non_claim_lock": [
+    "Claim-lock audit measures explicit boundary language, not classifier correctness.",
+    "High claim-lock density does not prove the source is correct.",
+    "High claim-lock density does not claim ImageNet performance.",
+    "High claim-lock density does not imply RCC changed classifier runtime behavior.",
+    "Plot claim-locks are governed through docs/plots/README.md because PNG files are binary artifacts."
+  ]
+}
