@@ -258,6 +258,40 @@ Attractor result:
 
 > **Rejected-probe boundary**: This is a preserved near-miss lesson, not a classifier improvement. The hierarchy change is not promoted. The lesson is that class-specific deltas are promising, but the next probe needs a banana-spillover backstop.
 
+
+### Phase 2.6E: Rejected paired class-specific probe ledger
+
+Phase 2.6E preserves a rejected high-value paired class-specific probe. The probe solved the banana spillover seen in Phase 2.6D and improved top-1, HL-unique wins, and baseline-right / HL-wrong count, but it still failed the regression guard because golden_retriever and king_penguin false positives increased.
+
+Rejected probe artifact:
+
+- `logs/phase2/rejected_deltas/phase2_6e_golden_orange_banana_backstop/rejected_phase2_6e_probe_compare.md`
+- `logs/phase2/rejected_deltas/phase2_6e_golden_orange_banana_backstop/rejected_phase2_6e_probe_compare.json`
+
+The rejected Phase 2.6E probe attempted one paired hierarchy intervention:
+
+    golden_retriever excluding_features += phase2_orange_signature
+    banana excluding_features += phase2_orange_signature
+
+Rejected / high-value result:
+
+| Metric | Pre | Post | Delta |
+|---|---:|---:|---:|
+| Top-1 | 33.40% | 34.50% | +1.10pp |
+| Top-3 | 68.65% | 68.60% | -0.05pp |
+| HL-unique wins | 68 | 73 | +5 |
+| Baseline-right / HL-wrong | 817 | 800 | -17 |
+
+Attractor result:
+
+| Attractor | Pre | Post | Delta |
+|---|---:|---:|---:|
+| banana | 416 | 368 | -48 |
+| golden_retriever | 245 | 250 | +5 |
+| king_penguin | 389 | 392 | +3 |
+
+> **Rejected-probe boundary**: This is preserved high-value negative evidence, not a classifier improvement. The hierarchy change is not promoted. The lesson is that paired class-specific deltas can produce strong lift, but the next probe needs attractor balancing against golden_retriever and king_penguin spillback.
+
 ### Per-class accuracy (dev set)
 
 | Class | Dev Accuracy | Notes |
@@ -362,7 +396,7 @@ Phase 1 demonstrated that the HL loop *can* build a symbolic classifier, but the
 - Test set is touched only once at the very end
 - No threshold tuning against val or test images
 
-**Status**: Phase 2 exploratory classifier work has started upstream. The current repo includes Phase 2 class signatures, a flat 10-class hierarchy, soft scoring, Phase 2 evaluation logs, a Phase 2.2 diagnostic lens, a Phase 2.3 benchmark harness, a Phase 2.4 sample-level attribution layer, a Phase 2.5 attribution-guided candidate-selection layer, a Phase 2.6A regression guard baseline, and a Phase 2.6C rejected-delta ledger for preserving failed controlled-delta evidence, and a Phase 2.6D rejected near-miss class-specific probe ledger.
+**Status**: Phase 2 exploratory classifier work has started upstream. The current repo includes Phase 2 class signatures, a flat 10-class hierarchy, soft scoring, Phase 2 evaluation logs, a Phase 2.2 diagnostic lens, a Phase 2.3 benchmark harness, a Phase 2.4 sample-level attribution layer, a Phase 2.5 attribution-guided candidate-selection layer, a Phase 2.6A regression guard baseline, and a Phase 2.6C rejected-delta ledger for preserving failed controlled-delta evidence, a Phase 2.6D rejected near-miss class-specific probe ledger, and a Phase 2.6E rejected high-value paired class-specific probe ledger.
 
 Current diagnostic snapshot from logs/phase2/diagnostics/latest_phase2_diagnostic.md:
 
@@ -530,6 +564,7 @@ python scripts/predict_image.py path/to/image.jpg
 8. **Phase 2 regression-guard boundary**: The Phase 2.6A regression guard locks the current evidence baseline before classifier changes. It does not change classifier behavior, prove correctness, or claim improvement.
 9. **Phase 2 rejected-delta boundary**: The Phase 2.6C rejected-delta ledger preserves failed classifier experiments as negative evidence. It does not promote failed behavior changes or claim improvement.
 10. **Phase 2 rejected-probe boundary**: The Phase 2.6D rejected-probe ledger preserves near-miss class-specific experiments as negative evidence. It does not promote failed behavior changes or claim improvement.
+11. **Phase 2 paired rejected-probe boundary**: The Phase 2.6E rejected-probe ledger preserves a high-value paired class-specific experiment as negative evidence. It does not promote failed behavior changes or claim improvement.
 
 ---
 
@@ -654,7 +689,7 @@ Never claim or imply:
 
 ## AI interpretation of current evidence
 
-HL-ImageNet is a preliminary heuristic-learning demo showing that a coding agent can iteratively maintain a symbolic image classifier using classical vision features, scoring rules, tiebreakers, logs, and proof traces. Phase 1 demonstrates confusion-driven improvement and representation-saturation behavior, but its headline accuracy is development-set accuracy, not a clean held-out benchmark. Phase 2 exploratory classifier work is now present upstream. The Phase 2.2 diagnostic lens exposes validation failure geometry from existing logs. The Phase 2.3 benchmark harness compares the current HL classifier against transparent non-neural baselines. The Phase 2.4 attribution layer emits per-sample validation traces for inspecting collapse paths and feature activation. The Phase 2.5 candidate-selection layer ranks future intervention candidates before classifier behavior changes. The Phase 2.6A regression guard locks the pre-change evidence baseline before controlled deltas. The Phase 2.6C rejected-delta ledger preserves a failed global scorer experiment as negative evidence without promoting the failed behavior. The Phase 2.6D rejected-probe ledger preserves a near-miss class-specific probe that improved several metrics but failed due to banana spillover. The stricter validation numbers, diagnostic non-claim boundaries, benchmark non-claim boundaries, attribution boundaries, candidate-selection boundaries, regression-guard boundaries, and rejected-delta and rejected-probe boundaries must remain visible whenever results are summarized.
+HL-ImageNet is a preliminary heuristic-learning demo showing that a coding agent can iteratively maintain a symbolic image classifier using classical vision features, scoring rules, tiebreakers, logs, and proof traces. Phase 1 demonstrates confusion-driven improvement and representation-saturation behavior, but its headline accuracy is development-set accuracy, not a clean held-out benchmark. Phase 2 exploratory classifier work is now present upstream. The Phase 2.2 diagnostic lens exposes validation failure geometry from existing logs. The Phase 2.3 benchmark harness compares the current HL classifier against transparent non-neural baselines. The Phase 2.4 attribution layer emits per-sample validation traces for inspecting collapse paths and feature activation. The Phase 2.5 candidate-selection layer ranks future intervention candidates before classifier behavior changes. The Phase 2.6A regression guard locks the pre-change evidence baseline before controlled deltas. The Phase 2.6C rejected-delta ledger preserves a failed global scorer experiment as negative evidence without promoting the failed behavior. The Phase 2.6D rejected-probe ledger preserves a near-miss class-specific probe that improved several metrics but failed due to banana spillover. The Phase 2.6E rejected-probe ledger preserves a high-value paired probe that solved banana spillover and improved top-1 but failed due to golden_retriever and king_penguin spillback. The stricter validation numbers, diagnostic non-claim boundaries, benchmark non-claim boundaries, attribution boundaries, candidate-selection boundaries, regression-guard boundaries, and rejected-delta and rejected-probe boundaries must remain visible whenever results are summarized.
 
 ## Required local verification
 
