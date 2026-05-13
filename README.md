@@ -555,6 +555,24 @@ python -m hlinet.eval.runner
 python scripts/predict_image.py path/to/image.jpg
 ```
 
+
+## RCC Process Metrics Dashboard
+
+RCC / AEFL context is now tracked as a repository-process metric layer. The dashboard below measures navigation, context fidelity, claim-boundary safety, auditability, drift resistance, evidence-chain completeness, failure learning, and controlled evolution. These are repo-governance metrics, not classifier-accuracy claims.
+
+![RCC Process Dashboard](docs/plots/rcc_process_dashboard.png)
+
+Generated metric artifacts:
+
+- `docs/metrics/rcc_process_metrics.md`
+- `docs/metrics/rcc_process_metrics.json`
+- `docs/plots/rcc_process_dashboard.png`
+- `docs/plots/rcc_process_timeline.png`
+- `docs/plots/rcc_guard_delta_bars.png`
+
+> **RCC metrics boundary**: These metrics describe repository navigation and evidence governance. They do not prove classifier correctness, do not claim ImageNet performance, and do not imply RCC changed classifier runtime behavior.
+
+
 ## Technical Details
 
 - **Language**: Python 3.11

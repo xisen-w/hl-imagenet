@@ -1,0 +1,212 @@
+{
+  "generated_at": "2026-05-13T10:24:48",
+  "repository": "hl-imagenet",
+  "identity": "governed heuristic-learning workbench",
+  "phase_hits": {
+    "Phase 2.2": true,
+    "Phase 2.3": true,
+    "Phase 2.4": true,
+    "Phase 2.5": true,
+    "Phase 2.6A": true,
+    "Phase 2.6C": true,
+    "Phase 2.6D": true,
+    "Phase 2.6E": true
+  },
+  "command_hits": {
+    "run_phase2_diagnostics.py": true,
+    "run_phase2_benchmarks.py": true,
+    "run_phase2_attribution.py": true,
+    "run_phase2_candidates.py": true,
+    "run_phase2_regression_guard.py": true
+  },
+  "boundary_hits": {
+    "Benchmark boundary": true,
+    "Attribution boundary": true,
+    "Candidate-selection boundary": true,
+    "Regression-guard boundary": true,
+    "Rejected-delta boundary": true,
+    "Rejected-probe boundary": true,
+    "non-claim": true,
+    "does not claim": true,
+    "not a classifier improvement": true
+  },
+  "rcc_hits": {
+    "RCC": true,
+    "AI operating contract": true,
+    "AI file routing guide": true,
+    "AI non-claim lock": true,
+    "README maintenance rule": true,
+    "Current Identity": true,
+    "architecture locks": true
+  },
+  "artifact_hits": {
+    "logs/phase2/diagnostics/latest_phase2_diagnostic.md": true,
+    "logs/phase2/benchmarks/latest_phase2_benchmark.md": true,
+    "logs/phase2/attribution/latest_phase2_attribution.md": true,
+    "logs/phase2/candidates/latest_phase2_candidate_plan.md": true,
+    "logs/phase2/regression_guard/latest_phase2_regression_guard.md": true,
+    "logs/phase2/rejected_deltas/phase2_6b_exclusion_guard/rejected_phase2_6b_delta_compare.md": true,
+    "logs/phase2/rejected_deltas/phase2_6d_golden_retriever_orange_exclusion/rejected_phase2_6d_probe_compare.md": true,
+    "logs/phase2/rejected_deltas/phase2_6e_golden_orange_banana_backstop/rejected_phase2_6e_probe_compare.md": true
+  },
+  "mini_readmes": [
+    "docs/README.md",
+    "docs/architecture/README.md",
+    "docs/logs/README.md",
+    "docs/plots/README.md",
+    "hlinet/README.md",
+    "hlinet/agent/README.md",
+    "hlinet/algebra/README.md",
+    "hlinet/classifier/README.md",
+    "hlinet/classifier/classes/README.md",
+    "hlinet/eval/README.md",
+    "hlinet/features/README.md",
+    "hlinet/features/_generated/README.md",
+    "hlinet/features/compounds/README.md",
+    "hlinet/features/concepts/README.md",
+    "hlinet/features/parts/README.md",
+    "hlinet/features/primitives/README.md",
+    "hlinet/features/spatial/README.md",
+    "hlinet/features/textures/README.md",
+    "hlinet/proof/README.md",
+    "hlinet/scene/README.md",
+    "hlinet/sensors/README.md",
+    "logs/README.md",
+    "logs/phase1/README.md",
+    "logs/phase2/README.md",
+    "logs/phase2/attribution/README.md",
+    "logs/phase2/benchmarks/README.md",
+    "logs/phase2/candidates/README.md",
+    "logs/phase2/diagnostics/README.md",
+    "logs/phase2/regression_guard/README.md",
+    "logs/phase2/rejected_deltas/phase2_6b_exclusion_guard/README.md",
+    "logs/phase2/rejected_deltas/phase2_6d_golden_retriever_orange_exclusion/README.md",
+    "scripts/README.md"
+  ],
+  "counts": {
+    "phase_coverage": 8,
+    "phase_total": 8,
+    "command_coverage": 5,
+    "command_total": 5,
+    "boundary_coverage": 9,
+    "boundary_total": 9,
+    "rcc_coverage": 7,
+    "rcc_total": 7,
+    "artifact_coverage": 8,
+    "artifact_total": 8,
+    "mini_readme_count": 32,
+    "rejected_or_failed_delta_count": 3,
+    "accepted_runtime_delta_count": 0
+  },
+  "scores_1_to_10": {
+    "Navigation Speed": 10.0,
+    "Context Fidelity": 10.0,
+    "Edit Boundary Clarity": 10.0,
+    "Claim Boundary Safety": 10.0,
+    "Auditability": 10.0,
+    "Agent Efficiency": 10.0,
+    "Drift Resistance": 10.0,
+    "Onboarding Clarity": 10.0,
+    "Evidence Chain Completeness": 10.0,
+    "Failure Learning": 10.0,
+    "Controlled Evolution": 10.0,
+    "Runtime Integrity": 10.0
+  },
+  "original_repo_reference_scores_1_to_10": {
+    "Navigation Speed": 4.0,
+    "Context Fidelity": 5.0,
+    "Edit Boundary Clarity": 3.5,
+    "Claim Boundary Safety": 6.0,
+    "Auditability": 6.5,
+    "Agent Efficiency": 4.0,
+    "Drift Resistance": 4.0,
+    "Onboarding Clarity": 5.0,
+    "Evidence Chain Completeness": 3.5,
+    "Failure Learning": 2.5,
+    "Controlled Evolution": 3.0,
+    "Runtime Integrity": 8.0
+  },
+  "probe_metrics": [
+    {
+      "path": "logs/phase2/rejected_deltas/phase2_6b_exclusion_guard/rejected_phase2_6b_delta_compare.md",
+      "overall_status": "fail",
+      "top1_delta": -0.0085,
+      "top3_delta": -0.0055,
+      "hl_unique_wins_delta": 1.0,
+      "baseline_right_hl_wrong_delta": 18.0,
+      "attractor_deltas": {
+        "banana": {
+          "pre": 416.0,
+          "post": 442.0,
+          "delta": 26.0
+        },
+        "golden_retriever": {
+          "pre": 245.0,
+          "post": 211.0,
+          "delta": -34.0
+        },
+        "king_penguin": {
+          "pre": 389.0,
+          "post": 410.0,
+          "delta": 21.0
+        }
+      }
+    },
+    {
+      "path": "logs/phase2/rejected_deltas/phase2_6d_golden_retriever_orange_exclusion/rejected_phase2_6d_probe_compare.md",
+      "overall_status": "fail",
+      "top1_delta": 0.0005,
+      "top3_delta": 0.001,
+      "hl_unique_wins_delta": 2.0,
+      "baseline_right_hl_wrong_delta": 1.0,
+      "attractor_deltas": {
+        "banana": {
+          "pre": 416.0,
+          "post": 420.0,
+          "delta": 4.0
+        },
+        "golden_retriever": {
+          "pre": 245.0,
+          "post": 240.0,
+          "delta": -5.0
+        },
+        "king_penguin": {
+          "pre": 389.0,
+          "post": 387.0,
+          "delta": -2.0
+        }
+      }
+    },
+    {
+      "path": "logs/phase2/rejected_deltas/phase2_6e_golden_orange_banana_backstop/rejected_phase2_6e_probe_compare.md",
+      "overall_status": "fail",
+      "top1_delta": 0.011,
+      "top3_delta": -0.0005,
+      "hl_unique_wins_delta": 5.0,
+      "baseline_right_hl_wrong_delta": -17.0,
+      "attractor_deltas": {
+        "banana": {
+          "pre": 416.0,
+          "post": 368.0,
+          "delta": -48.0
+        },
+        "golden_retriever": {
+          "pre": 245.0,
+          "post": 250.0,
+          "delta": 5.0
+        },
+        "king_penguin": {
+          "pre": 389.0,
+          "post": 392.0,
+          "delta": 3.0
+        }
+      }
+    }
+  ],
+  "interpretation": [
+    "RCC is functioning as durable repository memory.",
+    "The repo now exposes navigation, claim boundaries, command surfaces, evidence artifacts, and rejected-delta lessons without needing chat context.",
+    "No accepted runtime classifier delta has been promoted after the guard was installed.",
+    "Rejected probes are becoming useful constraints for the next controlled experiment."
+  ]
+}
