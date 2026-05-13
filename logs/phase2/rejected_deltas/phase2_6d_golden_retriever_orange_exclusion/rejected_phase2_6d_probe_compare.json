@@ -1,0 +1,127 @@
+{
+  "schema": "hl_imagenet_phase2_6d_probe_compare_v1",
+  "generated_at": "2026-05-13T09:07:19",
+  "probe_name": "golden_retriever_orange_signature_exclusion",
+  "overall_status": "fail",
+  "pre_baseline": {
+    "top1": 0.334,
+    "top3": 0.6865,
+    "hl_unique_wins": 68,
+    "baseline_right_hl_wrong": 817
+  },
+  "post_probe": {
+    "top1": 0.3345,
+    "top3": 0.6875,
+    "hl_unique_wins": 70,
+    "baseline_right_hl_wrong": 818
+  },
+  "checks": [
+    {
+      "name": "minimum_top1_accuracy",
+      "value": 0.3345,
+      "threshold": 0.329,
+      "status": "pass"
+    },
+    {
+      "name": "minimum_top3_accuracy",
+      "value": 0.6875,
+      "threshold": 0.6815,
+      "status": "pass"
+    },
+    {
+      "name": "minimum_hl_unique_wins",
+      "value": 70,
+      "threshold": 61,
+      "status": "pass"
+    },
+    {
+      "name": "no_major_attractor_increase",
+      "value": 1,
+      "threshold": 0,
+      "status": "fail",
+      "details": [
+        "banana"
+      ]
+    },
+    {
+      "name": "major_attractor_decrease_present",
+      "value": 2,
+      "threshold": 1,
+      "status": "pass",
+      "details": [
+        "golden_retriever",
+        "king_penguin"
+      ]
+    },
+    {
+      "name": "victim_class_improvement_present",
+      "value": 2,
+      "threshold": 1,
+      "status": "pass",
+      "details": [
+        "orange",
+        "sports_car"
+      ]
+    }
+  ],
+  "major_attractor_deltas": {
+    "banana": {
+      "pre": 416,
+      "post": 420,
+      "delta": 4
+    },
+    "golden_retriever": {
+      "pre": 245,
+      "post": 240,
+      "delta": -5
+    },
+    "king_penguin": {
+      "pre": 389,
+      "post": 387,
+      "delta": -2
+    }
+  },
+  "victim_class_deltas": {
+    "brown_bear": {
+      "pre_recall": 0.06,
+      "post_recall": 0.06,
+      "delta_recall": 0.0,
+      "pre_miss": 188,
+      "post_miss": 188
+    },
+    "mushroom": {
+      "pre_recall": 0.22,
+      "post_recall": 0.205,
+      "delta_recall": -0.015000000000000013,
+      "pre_miss": 156,
+      "post_miss": 159
+    },
+    "orange": {
+      "pre_recall": 0.165,
+      "post_recall": 0.185,
+      "delta_recall": 0.01999999999999999,
+      "pre_miss": 167,
+      "post_miss": 163
+    },
+    "sports_car": {
+      "pre_recall": 0.115,
+      "post_recall": 0.12,
+      "delta_recall": 0.0049999999999999906,
+      "pre_miss": 177,
+      "post_miss": 176
+    },
+    "teapot": {
+      "pre_recall": 0.05,
+      "post_recall": 0.04,
+      "delta_recall": -0.010000000000000002,
+      "pre_miss": 190,
+      "post_miss": 192
+    }
+  },
+  "non_claim_lock": [
+    "This probe comparison does not prove final classifier improvement.",
+    "Validation evidence is not final test evidence.",
+    "A failing probe should be reverted or ledgered as rejected.",
+    "A passing probe still requires README/RCC boundary updates before push."
+  ]
+}
