@@ -1,8 +1,8 @@
-# HL-ImageNet: A Preliminary Heuristic-Learning Demo for Image Classification
+# HL-ImageNet: A Governed Heuristic-Learning Workbench for Symbolic Image Classification
 
 > This is not a standard ImageNet benchmark result. Phase 1 used a mixed exploratory setup with 4 real Tiny ImageNet classes and 6 synthetic classes, and the main 86.1% number is development-set accuracy after iterative tuning. Phase 2 now includes split-aware validation diagnostics, benchmark comparisons against transparent non-neural baselines, sample-level attribution traces, attribution-guided candidate selection, a regression guard baseline, and a rejected-delta ledger. Current Phase 2 validation shows the HL symbolic classifier above random and majority baselines, below simple handcrafted feature baselines, and highly structured around false-positive attractors, victim classes, and globally overactive features. The first controlled global scoring delta was rejected by the guard and not promoted.
 
-**Heuristic Learning for Image Classification — Without Neural Networks**
+**A governed symbolic image-classification workbench — without neural networks, gradient descent, or backpropagation**
 
 A coding agent (Claude) iteratively built a purely symbolic image classifier through 248 evaluation iterations across 11 sessions. No neural networks, no gradient descent, no backpropagation. The system uses classical computer vision (OpenCV), hand-crafted features, and symbolic scoring rules.
 
@@ -10,6 +10,20 @@ This is an application of Jiayi Weng's [Heuristic Learning](https://trinkle23897
 
 ---
 
+## Current Identity
+
+HL-ImageNet is now best understood as a governed heuristic-learning workbench:
+
+    symbolic classifier
+    -> validation diagnostics
+    -> baseline comparison
+    -> sample-level attribution
+    -> candidate selection
+    -> regression guard
+    -> controlled probe
+    -> accept / reject ledger
+
+The current public evidence does not claim standard ImageNet performance, neural-network superiority, or final held-out benchmark success. It shows a transparent symbolic classifier being improved, constrained, and audited through reproducible local experiments.
 ## Results
 
 ### Phase 1 (completed): Development-set accuracy
@@ -396,7 +410,7 @@ Phase 1 demonstrated that the HL loop *can* build a symbolic classifier, but the
 - Test set is touched only once at the very end
 - No threshold tuning against val or test images
 
-**Status**: Phase 2 exploratory classifier work has started upstream. The current repo includes Phase 2 class signatures, a flat 10-class hierarchy, soft scoring, Phase 2 evaluation logs, a Phase 2.2 diagnostic lens, a Phase 2.3 benchmark harness, a Phase 2.4 sample-level attribution layer, a Phase 2.5 attribution-guided candidate-selection layer, a Phase 2.6A regression guard baseline, and a Phase 2.6C rejected-delta ledger for preserving failed controlled-delta evidence, a Phase 2.6D rejected near-miss class-specific probe ledger, and a Phase 2.6E rejected high-value paired class-specific probe ledger.
+**Status**: Phase 2 exploratory classifier work has started upstream. The current repo includes Phase 2 class signatures, a flat 10-class hierarchy, soft scoring, Phase 2 evaluation logs, a Phase 2.2 diagnostic lens, a Phase 2.3 benchmark harness, a Phase 2.4 sample-level attribution layer, a Phase 2.5 attribution-guided candidate-selection layer, a Phase 2.6A regression guard baseline, a Phase 2.6C rejected-delta ledger for preserving failed controlled-delta evidence, a Phase 2.6D rejected near-miss class-specific probe ledger, and a Phase 2.6E rejected high-value paired class-specific probe ledger.
 
 Current diagnostic snapshot from logs/phase2/diagnostics/latest_phase2_diagnostic.md:
 
@@ -520,7 +534,7 @@ hl-image-net/
 ├── data/imagenet_10/      # 10-class dataset (not in repo)
 ├── logs/
 │   ├── phase1/            # Phase 1 eval logs, validation logs, reasoning snapshots
-│   └── phase2/            # Phase 2 eval logs, diagnostics, benchmarks, attribution, candidates, regression guards
+│   └── phase2/            # Phase 2 eval logs, diagnostics, benchmarks, attribution, candidates, regression guards, rejected ledgers
 └── docs/
     ├── blog.md            # Full writeup
     ├── result1.md         # Results analysis + critical transitions
@@ -605,7 +619,7 @@ Weng, J. (2026). *Learning Beyond Gradients*. https://trinkle23897.github.io/lea
 Current repository context:
 
 - Repository: hl-imagenet
-- Purpose: heuristic-learning image classification demo without neural networks.
+- Purpose: governed heuristic-learning workbench for symbolic image classification without neural networks.
 - Primary package: hlinet.
 - Primary docs: README.md, docs/blog.md, docs/result1.md, docs/experiment_report.md, docs/design.md, docs/architecture/hl_imagenet_rcc_phase2_diagnostic_lens_v1_0.tex, docs/architecture/hl_imagenet_phase2_benchmark_harness_v1_0.tex, docs/architecture/hl_imagenet_phase2_sample_attribution_v1_0.tex, docs/architecture/hl_imagenet_phase2_candidate_selection_v1_0.tex, docs/architecture/hl_imagenet_phase2_regression_guard_v1_0.tex, docs/architecture/hl_imagenet_phase2_rejected_delta_ledger_v1_0.tex.
 - Primary scripts: scripts/run_eval.py, scripts/predict_image.py, scripts/generate_plots.py, scripts/demo.py, scripts/run_phase2_diagnostics.py, scripts/run_phase2_benchmarks.py, scripts/run_phase2_attribution.py, scripts/run_phase2_candidates.py, scripts/run_phase2_regression_guard.py.
@@ -622,6 +636,8 @@ Current repository context:
 - Phase 2.5 candidate-selection layer is planning-only: it ranks future intervention candidates from diagnostics, benchmarks, and attribution without changing classifier behavior.
 - Phase 2.6A regression guard is protection-only: it locks pre-change thresholds and rerun requirements before any controlled classifier delta.
 - Phase 2.6C rejected-delta ledger is failure-preservation-only: it records a failed global scorer delta without promoting the failed classifier behavior.
+- Phase 2.6D rejected-probe ledger is near-miss-preservation-only: it records a failed class-specific probe without promoting the failed classifier behavior.
+- Phase 2.6E rejected-probe ledger is high-value-failure-preservation-only: it records a paired probe that improved top-1 but failed the strict attractor guard.
 
 AI agents must update this section only when repository purpose, evaluation claims, command surface, package structure, or phase status changes.
 
@@ -686,10 +702,11 @@ Never claim or imply:
 - Phase 2 candidate selection proves classifier correctness or implies classifier improvement.
 - Phase 2 regression guards prove classifier correctness or imply classifier improvement.
 - Phase 2 rejected-delta ledgers prove classifier correctness or imply classifier improvement.
+- Phase 2 rejected-probe ledgers prove classifier correctness or imply classifier improvement.
 
 ## AI interpretation of current evidence
 
-HL-ImageNet is a preliminary heuristic-learning demo showing that a coding agent can iteratively maintain a symbolic image classifier using classical vision features, scoring rules, tiebreakers, logs, and proof traces. Phase 1 demonstrates confusion-driven improvement and representation-saturation behavior, but its headline accuracy is development-set accuracy, not a clean held-out benchmark. Phase 2 exploratory classifier work is now present upstream. The Phase 2.2 diagnostic lens exposes validation failure geometry from existing logs. The Phase 2.3 benchmark harness compares the current HL classifier against transparent non-neural baselines. The Phase 2.4 attribution layer emits per-sample validation traces for inspecting collapse paths and feature activation. The Phase 2.5 candidate-selection layer ranks future intervention candidates before classifier behavior changes. The Phase 2.6A regression guard locks the pre-change evidence baseline before controlled deltas. The Phase 2.6C rejected-delta ledger preserves a failed global scorer experiment as negative evidence without promoting the failed behavior. The Phase 2.6D rejected-probe ledger preserves a near-miss class-specific probe that improved several metrics but failed due to banana spillover. The Phase 2.6E rejected-probe ledger preserves a high-value paired probe that solved banana spillover and improved top-1 but failed due to golden_retriever and king_penguin spillback. The stricter validation numbers, diagnostic non-claim boundaries, benchmark non-claim boundaries, attribution boundaries, candidate-selection boundaries, regression-guard boundaries, and rejected-delta and rejected-probe boundaries must remain visible whenever results are summarized.
+HL-ImageNet is now a governed heuristic-learning workbench showing that a coding agent can iteratively maintain, diagnose, benchmark, attribute, and regression-guard a symbolic image classifier using classical vision features, scoring rules, tiebreakers, logs, proof traces, and rejected-delta ledgers. Phase 1 demonstrates confusion-driven improvement and representation-saturation behavior, but its headline accuracy is development-set accuracy, not a clean held-out benchmark. Phase 2 exploratory classifier work is now present upstream. The Phase 2.2 diagnostic lens exposes validation failure geometry from existing logs. The Phase 2.3 benchmark harness compares the current HL classifier against transparent non-neural baselines. The Phase 2.4 attribution layer emits per-sample validation traces for inspecting collapse paths and feature activation. The Phase 2.5 candidate-selection layer ranks future intervention candidates before classifier behavior changes. The Phase 2.6A regression guard locks the pre-change evidence baseline before controlled deltas. The Phase 2.6C rejected-delta ledger preserves a failed global scorer experiment as negative evidence without promoting the failed behavior. The Phase 2.6D rejected-probe ledger preserves a near-miss class-specific probe that improved several metrics but failed due to banana spillover. The Phase 2.6E rejected-probe ledger preserves a high-value paired probe that solved banana spillover and improved top-1 but failed due to golden_retriever and king_penguin spillback. The stricter validation numbers, diagnostic non-claim boundaries, benchmark non-claim boundaries, attribution boundaries, candidate-selection boundaries, regression-guard boundaries, and rejected-delta and rejected-probe boundaries must remain visible whenever results are summarized.
 
 ## Required local verification
 
