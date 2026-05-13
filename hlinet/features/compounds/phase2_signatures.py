@@ -299,6 +299,24 @@ def _stats(graph: SceneGraph) -> dict[str, float]:
     hist_scores = _color_hist_scores(image)
     result.update(hist_scores)
 
+    if hist_scores:
+        hb = hist_scores.get("hist_banana", 0)
+        ho = hist_scores.get("hist_orange", 0)
+        hs = hist_scores.get("hist_sports_car", 0)
+        hsb = hist_scores.get("hist_school_bus", 0)
+        hg = hist_scores.get("hist_golden_retriever", 0)
+        hbb = hist_scores.get("hist_brown_bear", 0)
+        hm = hist_scores.get("hist_mushroom", 0)
+        ht = hist_scores.get("hist_teapot", 0)
+        hk = hist_scores.get("hist_king_penguin", 0)
+        result["hist_orange_minus_banana"] = ho - hb
+        result["hist_sports_minus_bus"] = hs - hsb
+        result["hist_bear_minus_gr"] = hbb - hg
+        result["hist_mushroom_minus_bear"] = hm - hbb
+        result["hist_gr_minus_banana"] = hg - hb
+        result["hist_teapot_minus_kp"] = ht - hk
+        result["hist_teapot_minus_banana"] = ht - hb
+
     return result
 
 
@@ -569,6 +587,7 @@ class Phase2GoldenRetrieverSignature:
             _sigmoid(s.get("blue_purple", 1), 0.38, -3),
             _sigmoid(s.get("hue_cyan_blue", 1), 0.17, -5),
             _sigmoid(s.get("bw", 1), 0.88, -2),
+            _sigmoid(s.get("color_std", 1), 0.25, -4),
         ]
         score = _guarded_score(pos, guards)
         if score > 0.20:

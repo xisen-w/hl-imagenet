@@ -22,6 +22,25 @@ import hlinet.features  # noqa: F401
 _hierarchy = build_phase1_hierarchy()
 _builder = SceneGraphBuilder()
 
+_HIST_BLEND_W = 0.88
+
+
+def _blend_hist_scores(
+    candidates: list[tuple[str, float, list[str]]],
+    image: np.ndarray,
+) -> list[tuple[str, float, list[str]]]:
+    """Blend signature scores with color histogram prototype scores."""
+    from hlinet.features.compounds.phase2_signatures import _color_hist_scores
+
+    hist_scores = _color_hist_scores(image)
+    if not hist_scores:
+        return candidates
+    w = _HIST_BLEND_W
+    return [
+        (label, score * w + hist_scores.get(f"hist_{label}", 0) * (1 - w), route)
+        for label, score, route in candidates
+    ]
+
 
 def predict(image: np.ndarray) -> Prediction:
     """Classify an image through the symbolic visual algebra pipeline.
@@ -41,6 +60,7 @@ def predict(image: np.ndarray) -> Prediction:
             feature_activations=cache,
         )
 
+    candidates = _blend_hist_scores(candidates, image)
     candidates.sort(key=lambda x: x[1], reverse=True)
 
     candidates = _pairwise_rerank(candidates, graph)
@@ -97,7 +117,11 @@ def _pairwise_rerank(
     candidates: list[tuple[str, float, list[str]]],
     graph: SceneGraph,
 ) -> list[tuple[str, float, list[str]]]:
-    """Rerank top candidates using targeted pairwise discriminants."""
+    """Rerank top candidates using targeted pairwise discriminants.
+
+    Uses gap-aware confidence gating: the discriminant must beat a threshold
+    that scales with the score margin — bigger gaps need stronger evidence.
+    """
     if len(candidates) < 2:
         return candidates
 
@@ -106,17 +130,37 @@ def _pairwise_rerank(
     s = _stats(graph)
     candidates = list(candidates)
 
-    _RANK3_ONLY = set()
-
     top1_label, top1_score, _ = candidates[0]
     top2_label, top2_score, _ = candidates[1]
 
+    _PAIR_BASE = {
+        frozenset(["banana", "teapot"]): 0.30,
+        frozenset(["banana", "school_bus"]): 0.20,
+        frozenset(["king_penguin", "teapot"]): 0.15,
+        frozenset(["brown_bear", "school_bus"]): 0.10,
+        frozenset(["banana", "orange"]): 0.0,
+        frozenset(["king_penguin", "sports_car"]): 0.0,
+        frozenset(["golden_retriever", "orange"]): -0.05,
+        frozenset(["brown_bear", "golden_retriever"]): 0.0,
+        frozenset(["golden_retriever", "sports_car"]): -0.05,
+        frozenset(["banana", "golden_retriever"]): -0.05,
+        frozenset(["mushroom", "school_bus"]): -0.05,
+        frozenset(["school_bus", "sports_car"]): -0.10,
+    }
+
     margin12 = top1_score - top2_score
-    pair12 = frozenset([top1_label, top2_label])
-    if margin12 <= 0.25 and pair12 not in _RANK3_ONLY:
-        winner = _pairwise_discriminant(top1_label, top2_label, s, _sigmoid)
-        if winner is not None and winner == top2_label:
-            candidates[0], candidates[1] = candidates[1], candidates[0]
+    if margin12 <= 0.25:
+        pair12 = frozenset([top1_label, top2_label])
+        signals = _compute_pair_signals(pair12, s, _sigmoid)
+        if signals is not None:
+            cls1, sig1, cls2, sig2 = signals
+            disc_margin = abs(sig1 - sig2)
+            base = _PAIR_BASE.get(pair12, 0.05)
+            threshold = base + margin12 * 1.5
+            if disc_margin > threshold:
+                winner = cls1 if sig1 > sig2 else cls2
+                if winner == top2_label:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
 
     _RANK3_WHITELIST = {
         frozenset(["teapot", "sports_car"]),
@@ -127,6 +171,8 @@ def _pairwise_rerank(
         frozenset(["school_bus", "brown_bear"]),
         frozenset(["golden_retriever", "brown_bear"]),
         frozenset(["school_bus", "sports_car"]),
+        frozenset(["teapot", "king_penguin"]),
+        frozenset(["banana", "orange"]),
     }
     if len(candidates) >= 3:
         top1_label, top1_score, _ = candidates[0]
@@ -134,9 +180,16 @@ def _pairwise_rerank(
         margin13 = top1_score - top3_score
         pair13 = frozenset([top1_label, top3_label])
         if margin13 <= 0.15 and pair13 in _RANK3_WHITELIST:
-            winner = _pairwise_discriminant(top1_label, top3_label, s, _sigmoid)
-            if winner is not None and winner == top3_label:
-                candidates[0], candidates[2] = candidates[2], candidates[0]
+            signals = _compute_pair_signals(pair13, s, _sigmoid)
+            if signals is not None:
+                cls1, sig1, cls2, sig2 = signals
+                disc_margin = abs(sig1 - sig2)
+                base = _PAIR_BASE.get(pair13, 0.0)
+                threshold = base + margin13 * 2.0
+                if disc_margin > threshold:
+                    winner = cls1 if sig1 > sig2 else cls2
+                    if winner == top3_label:
+                        candidates[0], candidates[2] = candidates[2], candidates[0]
 
     return candidates
 
@@ -148,23 +201,6 @@ def _local_verify(
     """Placeholder for local region verifiers. Currently a no-op at 64x64."""
     return candidates
 
-
-def _pairwise_discriminant(
-    label_a: str, label_b: str, s: dict[str, float], _sigmoid
-) -> str | None:
-    """Given two class labels, return the winner or None if no discriminant exists."""
-    pair = frozenset([label_a, label_b])
-
-    signals = _compute_pair_signals(pair, s, _sigmoid)
-    if signals is None:
-        return None
-
-    cls1, sig1, cls2, sig2 = signals
-    if sig1 > sig2:
-        return cls1
-    elif sig2 > sig1:
-        return cls2
-    return None
 
 
 def _compute_pair_signals(pair, s, _sigmoid):
@@ -179,18 +215,22 @@ def _compute_pair_signals(pair, s, _sigmoid):
     if pair == frozenset(["banana", "orange"]):
         return ("orange",
                 _sigmoid(s.get("hue_red", 0), 0.25, 6) + _sigmoid(s.get("color_std", 0), 0.50, 5)
-                + _sigmoid(s.get("bw", 1), 0.25, -5) + _sigmoid(s.get("grad_mean", 1), 0.80, -3),
+                + _sigmoid(s.get("bw", 1), 0.25, -5) + _sigmoid(s.get("grad_mean", 1), 0.80, -3)
+                + _sigmoid(s.get("hist_orange_minus_banana", 0), 0.0, 3),
                 "banana",
                 _sigmoid(s.get("hue_red", 1), 0.25, -6) + _sigmoid(s.get("color_std", 1), 0.50, -5)
-                + _sigmoid(s.get("bw", 0), 0.25, 5) + _sigmoid(s.get("grad_mean", 0), 0.80, 3))
+                + _sigmoid(s.get("bw", 0), 0.25, 5) + _sigmoid(s.get("grad_mean", 0), 0.80, 3)
+                + _sigmoid(s.get("hist_orange_minus_banana", 0), 0.0, -3))
 
     if pair == frozenset(["banana", "golden_retriever"]):
         return ("golden_retriever",
                 _sigmoid(s.get("edge", 0), 0.24, 10) + _sigmoid(s.get("sat", 1), 0.45, -5)
-                + _sigmoid(s.get("yellow", 1), 0.30, -5) + _sigmoid(s.get("bot_edge", 0), 0.24, 8),
+                + _sigmoid(s.get("yellow", 1), 0.30, -5) + _sigmoid(s.get("bot_edge", 0), 0.24, 8)
+                + _sigmoid(s.get("hist_gr_minus_banana", 0), 0.0, 2),
                 "banana",
                 _sigmoid(s.get("edge", 1), 0.24, -10) + _sigmoid(s.get("sat", 0), 0.45, 5)
-                + _sigmoid(s.get("yellow", 0), 0.30, 5) + _sigmoid(s.get("bot_edge", 1), 0.24, -8))
+                + _sigmoid(s.get("yellow", 0), 0.30, 5) + _sigmoid(s.get("bot_edge", 1), 0.24, -8)
+                + _sigmoid(s.get("hist_gr_minus_banana", 0), 0.0, -2))
 
     if pair == frozenset(["mushroom", "golden_retriever"]):
         return ("mushroom",
@@ -259,18 +299,22 @@ def _compute_pair_signals(pair, s, _sigmoid):
     if pair == frozenset(["sports_car", "school_bus"]):
         return ("sports_car",
                 _sigmoid(s.get("hue_orange", 1), 0.30, -5) + _sigmoid(s.get("yellow", 1), 0.15, -5)
-                + _sigmoid(s.get("warm", 1), 0.30, -4) + _sigmoid(s.get("blob_lap_var", 1), 0.60, -3),
+                + _sigmoid(s.get("warm", 1), 0.30, -4) + _sigmoid(s.get("blob_lap_var", 1), 0.60, -3)
+                + _sigmoid(s.get("hist_sports_minus_bus", 0), -0.15, 2),
                 "school_bus",
                 _sigmoid(s.get("hue_orange", 0), 0.30, 5) + _sigmoid(s.get("yellow", 0), 0.15, 5)
-                + _sigmoid(s.get("warm", 0), 0.30, 4) + _sigmoid(s.get("blob_lap_var", 0), 0.60, 3))
+                + _sigmoid(s.get("warm", 0), 0.30, 4) + _sigmoid(s.get("blob_lap_var", 0), 0.60, 3)
+                + _sigmoid(s.get("hist_sports_minus_bus", 0), -0.15, -2))
 
     if pair == frozenset(["brown_bear", "golden_retriever"]):
         return ("brown_bear",
                 _sigmoid(s.get("textured_decentered", 0), 0.10, 8) + _sigmoid(s.get("center_surround", 1), 0.90, -4)
-                + _sigmoid(s.get("edge_tl", 0), 0.26, 8) + _sigmoid(s.get("warm_val_mean", 1), 0.51, -5),
+                + _sigmoid(s.get("edge_tl", 0), 0.26, 8) + _sigmoid(s.get("warm_val_mean", 1), 0.51, -5)
+                + _sigmoid(s.get("hist_bear_minus_gr", 0), 0.0, 3),
                 "golden_retriever",
                 _sigmoid(s.get("textured_decentered", 1), 0.10, -8) + _sigmoid(s.get("center_surround", 0), 0.90, 4)
-                + _sigmoid(s.get("edge_tl", 1), 0.26, -8) + _sigmoid(s.get("warm_val_mean", 0), 0.51, 5))
+                + _sigmoid(s.get("edge_tl", 1), 0.26, -8) + _sigmoid(s.get("warm_val_mean", 0), 0.51, 5)
+                + _sigmoid(s.get("hist_bear_minus_gr", 0), 0.0, -3))
 
     if pair == frozenset(["brown_bear", "banana"]):
         return ("brown_bear",
@@ -283,21 +327,31 @@ def _compute_pair_signals(pair, s, _sigmoid):
     if pair == frozenset(["brown_bear", "mushroom"]):
         return ("brown_bear",
                 _sigmoid(s.get("textured_decentered", 0), 0.09, 10) + _sigmoid(s.get("center_surround", 1), 0.95, -5)
-                + _sigmoid(s.get("sat", 1), 0.42, -4) + _sigmoid(s.get("sat_bl", 1), 0.42, -4),
+                + _sigmoid(s.get("sat", 1), 0.42, -4) + _sigmoid(s.get("sat_bl", 1), 0.42, -4)
+                + _sigmoid(s.get("hist_mushroom_minus_bear", 0), 0.0, -3),
                 "mushroom",
                 _sigmoid(s.get("textured_decentered", 1), 0.09, -10) + _sigmoid(s.get("center_surround", 0), 0.95, 5)
-                + _sigmoid(s.get("sat", 0), 0.42, 4) + _sigmoid(s.get("sat_bl", 0), 0.42, 4))
+                + _sigmoid(s.get("sat", 0), 0.42, 4) + _sigmoid(s.get("sat_bl", 0), 0.42, 4)
+                + _sigmoid(s.get("hist_mushroom_minus_bear", 0), 0.0, 3))
+
+    if pair == frozenset(["teapot", "king_penguin"]):
+        return ("teapot",
+                _sigmoid(s.get("hue_red", 0), 0.20, 5) + _sigmoid(s.get("warm", 0), 0.25, 4)
+                + _sigmoid(s.get("sat_bl", 0), 0.30, 4) + _sigmoid(s.get("hist_teapot_minus_kp", 0), 0.0, 3),
+                "king_penguin",
+                _sigmoid(s.get("hue_red", 1), 0.20, -5) + _sigmoid(s.get("warm", 1), 0.25, -4)
+                + _sigmoid(s.get("sat_bl", 1), 0.30, -4) + _sigmoid(s.get("hist_teapot_minus_kp", 0), 0.0, -3))
+
+    if pair == frozenset(["teapot", "banana"]):
+        return ("teapot",
+                _sigmoid(s.get("yellow", 1), 0.25, -5) + _sigmoid(s.get("edge", 1), 0.20, -8)
+                + _sigmoid(s.get("top_uniformity", 0), 0.70, 5) + _sigmoid(s.get("hist_teapot_minus_banana", 0), 0.0, 3),
+                "banana",
+                _sigmoid(s.get("yellow", 0), 0.25, 5) + _sigmoid(s.get("edge", 0), 0.20, 8)
+                + _sigmoid(s.get("top_uniformity", 1), 0.70, -5) + _sigmoid(s.get("hist_teapot_minus_banana", 0), 0.0, -3))
 
     return None
 
-
-def _iterative_refine(
-    candidates: list[tuple[str, float, list[str]]],
-    graph: SceneGraph,
-    cache: dict[str, FeatureValue],
-) -> list[tuple[str, float, list[str]]]:
-    """Second pass: no-op placeholder for future spatial attention refinement."""
-    return candidates
 
 
 def _score_all_classes_flat(
