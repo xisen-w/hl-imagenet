@@ -1,6 +1,6 @@
 # HL-ImageNet: A Preliminary Heuristic-Learning Demo for Image Classification
 
-> This is not a standard ImageNet benchmark result. Phase 1 used a mixed exploratory setup with 4 real Tiny ImageNet classes and 6 synthetic classes, and the main 86.1% number is development-set accuracy after iterative tuning. Phase 2 now includes split-aware validation diagnostics, benchmark comparisons against transparent non-neural baselines, sample-level attribution traces, and attribution-guided candidate selection. Current Phase 2 validation shows the HL symbolic classifier above random and majority baselines, below simple handcrafted feature baselines, and highly structured around false-positive attractors, victim classes, and globally overactive features.
+> This is not a standard ImageNet benchmark result. Phase 1 used a mixed exploratory setup with 4 real Tiny ImageNet classes and 6 synthetic classes, and the main 86.1% number is development-set accuracy after iterative tuning. Phase 2 now includes split-aware validation diagnostics, benchmark comparisons against transparent non-neural baselines, sample-level attribution traces, attribution-guided candidate selection, a regression guard baseline, and a rejected-delta ledger. Current Phase 2 validation shows the HL symbolic classifier above random and majority baselines, below simple handcrafted feature baselines, and highly structured around false-positive attractors, victim classes, and globally overactive features. The first controlled global scoring delta was rejected by the guard and not promoted.
 
 **Heuristic Learning for Image Classification — Without Neural Networks**
 
@@ -329,7 +329,7 @@ Phase 1 demonstrated that the HL loop *can* build a symbolic classifier, but the
 - Test set is touched only once at the very end
 - No threshold tuning against val or test images
 
-**Status**: Phase 2 exploratory classifier work has started upstream. The current repo includes Phase 2 class signatures, a flat 10-class hierarchy, soft scoring, Phase 2 evaluation logs, a Phase 2.2 diagnostic lens, a Phase 2.3 benchmark harness, a Phase 2.4 sample-level attribution layer, a Phase 2.5 attribution-guided candidate-selection layer, and a Phase 2.6A regression guard baseline, and a Phase 2.6C rejected-delta ledger for preserving failed controlled-delta evidence.
+**Status**: Phase 2 exploratory classifier work has started upstream. The current repo includes Phase 2 class signatures, a flat 10-class hierarchy, soft scoring, Phase 2 evaluation logs, a Phase 2.2 diagnostic lens, a Phase 2.3 benchmark harness, a Phase 2.4 sample-level attribution layer, a Phase 2.5 attribution-guided candidate-selection layer, a Phase 2.6A regression guard baseline, and a Phase 2.6C rejected-delta ledger for preserving failed controlled-delta evidence.
 
 Current diagnostic snapshot from logs/phase2/diagnostics/latest_phase2_diagnostic.md:
 
@@ -552,6 +552,7 @@ Current repository context:
 - Phase 2.4 attribution layer is inspection-only: it emits per-sample validation traces, collapse paths, proof traces, and baseline-agreement flags without changing classifier behavior.
 - Phase 2.5 candidate-selection layer is planning-only: it ranks future intervention candidates from diagnostics, benchmarks, and attribution without changing classifier behavior.
 - Phase 2.6A regression guard is protection-only: it locks pre-change thresholds and rerun requirements before any controlled classifier delta.
+- Phase 2.6C rejected-delta ledger is failure-preservation-only: it records a failed global scorer delta without promoting the failed classifier behavior.
 
 AI agents must update this section only when repository purpose, evaluation claims, command surface, package structure, or phase status changes.
 
@@ -596,7 +597,7 @@ AI agents should reconstruct repository context through bounded README surfaces 
 - hlinet/algebra: visual concept algebra operators and routing helpers.
 - scripts: human-facing commands, including Phase 2 diagnostics, Phase 2 benchmarks, Phase 2 attribution, Phase 2 candidate selection, and Phase 2 regression guards.
 - docs: explanation, reports, plots, design notes, and architecture locks.
-- logs: generated run records, historical reasoning snapshots, Phase 2 eval logs, diagnostic artifacts, benchmark artifacts, attribution artifacts, candidate-selection artifacts, and regression-guard artifacts.
+- logs: generated run records, historical reasoning snapshots, Phase 2 eval logs, diagnostic artifacts, benchmark artifacts, attribution artifacts, candidate-selection artifacts, regression-guard artifacts, and rejected-delta artifacts.
 
 ## AI non-claim lock
 
@@ -615,10 +616,11 @@ Never claim or imply:
 - Phase 2 attribution proves classifier correctness or implies classifier improvement.
 - Phase 2 candidate selection proves classifier correctness or implies classifier improvement.
 - Phase 2 regression guards prove classifier correctness or imply classifier improvement.
+- Phase 2 rejected-delta ledgers prove classifier correctness or imply classifier improvement.
 
 ## AI interpretation of current evidence
 
-HL-ImageNet is a preliminary heuristic-learning demo showing that a coding agent can iteratively maintain a symbolic image classifier using classical vision features, scoring rules, tiebreakers, logs, and proof traces. Phase 1 demonstrates confusion-driven improvement and representation-saturation behavior, but its headline accuracy is development-set accuracy, not a clean held-out benchmark. Phase 2 exploratory classifier work is now present upstream. The Phase 2.2 diagnostic lens exposes validation failure geometry from existing logs, the Phase 2.3 benchmark harness compares the current HL classifier against transparent non-neural baselines, and the Phase 2.4 attribution layer emits per-sample validation traces for inspecting collapse paths and feature activation, the Phase 2.5 candidate-selection layer ranks future intervention candidates before any classifier behavior changes, and the Phase 2.6A regression guard locks the pre-change evidence baseline before controlled deltas. The stricter validation numbers, diagnostic non-claim boundaries, and benchmark non-claim boundaries must remain visible whenever results are summarized.
+HL-ImageNet is a preliminary heuristic-learning demo showing that a coding agent can iteratively maintain a symbolic image classifier using classical vision features, scoring rules, tiebreakers, logs, and proof traces. Phase 1 demonstrates confusion-driven improvement and representation-saturation behavior, but its headline accuracy is development-set accuracy, not a clean held-out benchmark. Phase 2 exploratory classifier work is now present upstream. The Phase 2.2 diagnostic lens exposes validation failure geometry from existing logs. The Phase 2.3 benchmark harness compares the current HL classifier against transparent non-neural baselines. The Phase 2.4 attribution layer emits per-sample validation traces for inspecting collapse paths and feature activation. The Phase 2.5 candidate-selection layer ranks future intervention candidates before classifier behavior changes. The Phase 2.6A regression guard locks the pre-change evidence baseline before controlled deltas. The Phase 2.6C rejected-delta ledger preserves a failed global scorer experiment as negative evidence without promoting the failed behavior. The stricter validation numbers, diagnostic non-claim boundaries, benchmark non-claim boundaries, attribution boundaries, candidate-selection boundaries, regression-guard boundaries, and rejected-delta boundaries must remain visible whenever results are summarized.
 
 ## Required local verification
 

@@ -16,7 +16,8 @@ This folder stores architecture documents that define contribution boundaries, s
 - `hl_imagenet_phase2_benchmark_harness_v1_0.tex` locks the Phase 2.3 benchmark-harness architecture.
 - `hl_imagenet_phase2_sample_attribution_v1_0.tex` locks the Phase 2.4 sample-level attribution architecture.
 - `hl_imagenet_phase2_candidate_selection_v1_0.tex` locks the Phase 2.5 candidate-selection architecture.
-- `hl_imagenet_phase2_regression_guard_v1_0.tex` locks the Phase 2.6A regression-guard architecture.
+- `hl_imagenet_phase2_regression_guard_v1_0.tex`
+- `hl_imagenet_phase2_rejected_delta_ledger_v1_0.tex` locks the Phase 2.6A regression-guard architecture.
 - `hlinet/eval/diagnostics.py` implements the diagnostic lens.
 - `hlinet/eval/benchmark.py` and `hlinet/eval/baselines.py` implement the benchmark harness.
 - `hlinet/eval/attribution.py` implements the sample-level attribution layer.
@@ -35,6 +36,7 @@ This folder stores architecture documents that define contribution boundaries, s
 - `hl_imagenet_phase2_sample_attribution_v1_0.tex`
 - `hl_imagenet_phase2_candidate_selection_v1_0.tex`
 - `hl_imagenet_phase2_regression_guard_v1_0.tex`
+- `hl_imagenet_phase2_rejected_delta_ledger_v1_0.tex`
 
 ## T - Theory or method basis
 

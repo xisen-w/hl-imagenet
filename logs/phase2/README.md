@@ -35,6 +35,8 @@ This folder stores Phase 2 evaluation JSON/Markdown outputs, Phase 2.2 diagnosti
 - `candidates/latest_phase2_candidate_plan.md`
 - `regression_guard/latest_phase2_regression_guard.json`
 - `regression_guard/latest_phase2_regression_guard.md`
+- `rejected_deltas/phase2_6b_exclusion_guard/rejected_phase2_6b_delta_compare.json`
+- `rejected_deltas/phase2_6b_exclusion_guard/rejected_phase2_6b_delta_compare.md`
 
 ## T - Theory or method basis
 
