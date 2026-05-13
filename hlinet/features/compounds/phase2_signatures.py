@@ -34,9 +34,11 @@ def _stats(graph: SceneGraph) -> dict[str, float]:
     lap_var = float(cv2.Laplacian(gray, cv2.CV_64F).var())
 
     warm_aspect = 1.0
+    warm_blob_count = 0.0
     warm_coverage = float(warm.sum()) / (h * w)
     if warm_coverage > 0.02:
         num_labels, labels = cv2.connectedComponents((warm * 255).astype(np.uint8))
+        warm_blob_count = min(num_labels - 1, 20) / 20.0
         if num_labels > 1:
             largest = 1 + np.argmax([(labels == i).sum() for i in range(1, num_labels)])
             ys, xs = np.where(labels == largest)
@@ -85,6 +87,20 @@ def _stats(graph: SceneGraph) -> dict[str, float]:
     else:
         grad_dir_entropy = 1.0
 
+    # Horizontal gradient dominance (vehicles have strong horizontal lines)
+    horiz_dominance = float(np.abs(gy).sum()) / max(float(np.abs(gx).sum()), 1)
+
+    # Edge spatial autocorrelation (repetitive structures like windows)
+    edge_f = edges.astype(np.float32) / 255
+    shifted_r = np.zeros_like(edge_f)
+    shifted_r[:, 2:] = edge_f[:, :-2]
+    autocorr_flat = edge_f.ravel()
+    shifted_flat = shifted_r.ravel()
+    denom = np.std(autocorr_flat) * np.std(shifted_flat)
+    autocorr_h = float(np.corrcoef(autocorr_flat, shifted_flat)[0, 1]) if denom > 1e-9 else 0.0
+    if np.isnan(autocorr_h):
+        autocorr_h = 0.0
+
     # Color channel std (high = colorful/diverse hues)
     b_ch, g_ch, r_ch = cv2.split(graph.raw_image)
     color_std = float(np.std([r_ch.mean(), g_ch.mean(), b_ch.mean()])) / 100
@@ -125,7 +141,67 @@ def _stats(graph: SceneGraph) -> dict[str, float]:
         hue_hist = np.zeros(12)
     hue_spread = float(np.sum(hue_hist > 0.05))
 
-    return {
+    # --- 2x2 spatial pyramid ---
+    mid_y, mid_x = h // 2, w // 2
+    quads = {
+        "tl": (slice(0, mid_y), slice(0, mid_x)),
+        "tr": (slice(0, mid_y), slice(mid_x, w)),
+        "bl": (slice(mid_y, h), slice(0, mid_x)),
+        "br": (slice(mid_y, h), slice(mid_x, w)),
+    }
+    quad_warm = {}
+    quad_edge = {}
+    quad_green = {}
+    quad_sat = {}
+    for qname, (ys, xs) in quads.items():
+        qarea = max((ys.stop - ys.start) * (xs.stop - xs.start), 1)
+        quad_warm[qname] = float(warm[ys, xs].sum()) / qarea
+        quad_edge[qname] = float(edges[ys, xs].sum() / 255) / qarea
+        quad_green[qname] = float(green[ys, xs].sum()) / qarea
+        quad_sat[qname] = float(sat[ys, xs].mean()) / 255
+
+    # Sky detection (Phase 1 heuristic): blue or bright uniform top quarter
+    top_q = gray[:h // 4, :]
+    top_sat = sat[:h // 4, :]
+    top_hue = hue[:h // 4, :]
+    sky_blue = ((top_hue >= 85) & (top_hue <= 130) & (top_sat > 30) & (top_q > 80))
+    sky_bright = (top_q > 180) & (top_sat < 40)
+    sky_ratio = float((sky_blue | sky_bright).sum()) / max(top_q.size, 1)
+    top_uniformity = 1.0 - float(top_q.std()) / 128
+
+    # Blob interior texture (Phase 1: blob_smooth vs blob_textured)
+    blob_lap_var = 0.0
+    blob_coverage = 0.0
+    if warm_coverage > 0.12:
+        num_labels_b, labels_b = cv2.connectedComponents((warm * 255).astype(np.uint8))
+        if num_labels_b > 1:
+            largest_b = 1 + np.argmax([(labels_b == i).sum() for i in range(1, num_labels_b)])
+            blob_mask = (labels_b == largest_b)
+            blob_coverage = float(blob_mask.sum()) / (h * w)
+            if blob_coverage > 0.08:
+                lap = cv2.Laplacian(gray, cv2.CV_64F)
+                blob_lap_var = float(lap[blob_mask].var()) / 10000
+
+    # Contour shape: circularity of largest contour
+    contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    circularity = 0.0
+    contour_solidity = 0.0
+    if contours:
+        largest_c = max(contours, key=cv2.contourArea)
+        area_c = cv2.contourArea(largest_c)
+        peri_c = cv2.arcLength(largest_c, True)
+        if peri_c > 0 and area_c > 50:
+            circularity = 4 * np.pi * area_c / (peri_c * peri_c)
+            hull = cv2.convexHull(largest_c)
+            hull_area = cv2.contourArea(hull)
+            if hull_area > 0:
+                contour_solidity = area_c / hull_area
+
+    # Top vs bottom edge density (Phase 1: mushroom cap = top textured, bottom detailed)
+    top_edge = float(edges[:mid_y, :].sum() / 255) / max(mid_y * w, 1)
+    bot_edge = float(edges[mid_y:, :].sum() / 255) / max((h - mid_y) * w, 1)
+
+    result = {
         "sat": float(sat.mean()) / 255,
         "val": float(val.mean()) / 255,
         "warm": warm_coverage,
@@ -136,6 +212,7 @@ def _stats(graph: SceneGraph) -> dict[str, float]:
         "edge": float(edges.sum() / 255) / (h * w),
         "lap_var": lap_var,
         "warm_aspect": warm_aspect,
+        "warm_blob_count": warm_blob_count,
         "bg_contrast": abs(float(center.mean()) - float(border_mean)),
         "lbp_entropy": lbp_entropy,
         "symmetry": symmetry,
@@ -143,7 +220,7 @@ def _stats(graph: SceneGraph) -> dict[str, float]:
         "grad_dir_entropy": grad_dir_entropy,
         "color_std": color_std,
         "center_surround": center_surround,
-        # Spatial
+        # Spatial bands
         "warm_band_top": warm_band_top,
         "warm_band_bot": warm_band_bot,
         "bright_top_minus_bot": bright_band_top - bright_band_bot,
@@ -157,7 +234,93 @@ def _stats(graph: SceneGraph) -> dict[str, float]:
         "hue_blue": float(hue_hist[8]),
         "hue_spread": hue_spread,
         "sat_pixels_ratio": sat_pixels_ratio,
+        # --- NEW: spatial pyramid (2x2) ---
+        "warm_tl": quad_warm["tl"],
+        "warm_tr": quad_warm["tr"],
+        "warm_bl": quad_warm["bl"],
+        "warm_br": quad_warm["br"],
+        "edge_tl": quad_edge["tl"],
+        "edge_tr": quad_edge["tr"],
+        "edge_bl": quad_edge["bl"],
+        "edge_br": quad_edge["br"],
+        "green_tl": quad_green["tl"],
+        "green_tr": quad_green["tr"],
+        "green_bl": quad_green["bl"],
+        "green_br": quad_green["br"],
+        "sat_tl": quad_sat["tl"],
+        "sat_tr": quad_sat["tr"],
+        "sat_bl": quad_sat["bl"],
+        "sat_br": quad_sat["br"],
+        # --- NEW: sky / scene context ---
+        "sky_ratio": sky_ratio,
+        "top_uniformity": top_uniformity,
+        # --- NEW: blob interior ---
+        "blob_lap_var": blob_lap_var,
+        "blob_coverage": blob_coverage,
+        # --- NEW: shape ---
+        "circularity": circularity,
+        "contour_solidity": contour_solidity,
+        # --- NEW: vertical edge asymmetry ---
+        "top_edge": top_edge,
+        "bot_edge": bot_edge,
+        "edge_top_minus_bot": top_edge - bot_edge,
+        # --- Derived conjunctive features ---
+        "smooth_yellow": float(yellow.sum()) / (h * w) * max(0, 1.0 - float(edges.sum() / 255) / (h * w) * 3),
+        "smooth_warm": warm_coverage * max(0, 1.0 - float(edges.sum() / 255) / (h * w) * 3),
+        "textured_decentered": float(edges.sum() / 255) / (h * w) * max(0, 1.0 - center_surround / 1.5),
+        "warm_val_mean": float(val[warm].mean()) / 255 if warm.sum() > 100 else 0.5,
+        "dark_warm_ratio": float(((warm) & (val < 120)).sum()) / max(float(((warm) & (val >= 120)).sum()), 1),
+        "sat_color_std": float(sat.mean()) / 255 * color_std,
+        "sat_smooth_warm": float(sat.mean()) / 255 * warm_coverage * max(0, 1.0 - float(edges.sum() / 255) / (h * w) * 3),
+        "warm_hue_mean": float(hue[warm].mean()) / 45 if warm.sum() > 100 else 0.5,
+        "horiz_dominance": horiz_dominance,
+        "autocorr_h": autocorr_h,
     }
+
+    # Width profile: is the middle third wider than top/bottom in edge spread?
+    widths = np.zeros(h)
+    for row_y in range(h):
+        edge_cols = np.where(edges[row_y, :] > 0)[0]
+        if len(edge_cols) >= 2:
+            widths[row_y] = edge_cols[-1] - edge_cols[0]
+    max_width = max(widths.max(), 1)
+    widths_norm = widths / max_width
+    third = h // 3
+    top_width = float(widths_norm[:third].mean())
+    mid_width = float(widths_norm[third:2*third].mean())
+    bot_width = float(widths_norm[2*third:].mean())
+    result["mid_wider"] = 1.0 if (mid_width > top_width and mid_width > bot_width) else 0.0
+    result["mid_width_ratio"] = mid_width / max(0.5 * (top_width + bot_width), 0.01)
+
+    from hlinet.features.compounds.local_regions import _region_stats
+    local = _region_stats(graph)
+    result.update(local)
+
+    hist_scores = _color_hist_scores(image)
+    result.update(hist_scores)
+
+    return result
+
+
+_COLOR_PROTOS = None
+
+def _color_hist_scores(image_bgr: np.ndarray) -> dict[str, float]:
+    global _COLOR_PROTOS
+    if _COLOR_PROTOS is None:
+        import pathlib
+        proto_path = pathlib.Path(__file__).parent / "color_prototypes.npz"
+        if proto_path.exists():
+            _COLOR_PROTOS = dict(np.load(str(proto_path)))
+        else:
+            return {}
+    hsv = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2HSV)
+    hist = cv2.calcHist([hsv], [0, 1], None, [12, 8], [0, 180, 0, 256])
+    hist = cv2.normalize(hist, hist).flatten().astype(np.float32)
+    scores = {}
+    for cls_name, proto in _COLOR_PROTOS.items():
+        score = cv2.compareHist(hist, proto.astype(np.float32), cv2.HISTCMP_INTERSECT)
+        scores[f"hist_{cls_name}"] = float(score)
+    return scores
 
 
 def _feature_conf(name: str, graph: SceneGraph) -> float:
@@ -185,71 +348,106 @@ def _detected(score: float, evidence: str) -> FeatureValue:
     return FeatureValue.detected(confidence=_clamp(score), evidence=[evidence])
 
 
+def _guarded_score(pos: float, guards: list[float]) -> float:
+    """Positive core modulated by min-guard: if any guard fires 0, score halves."""
+    guard = min(guards) if guards else 1.0
+    return pos * (0.5 + 0.5 * guard)
+
+
 @register_feature(name="phase2_jellyfish_signature", tags=["phase2", "class"], description="Blue/purple translucent, low-edge, low-warm")
 class Phase2JellyfishSignature:
     def evaluate(self, graph: SceneGraph, region: Region | None = None) -> FeatureValue:
         s = _stats(graph)
-        score = (
-            _sigmoid(s.get("blue_purple", 0), 0.15, 8) * 0.25
-            + _sigmoid(s.get("hue_orange", 1), 0.20, -8) * 0.20
-            + _sigmoid(s.get("grad_mean", 1), 0.80, -4) * 0.15
-            + _sigmoid(s.get("yellow", 1), 0.10, -10) * 0.15
-            + _sigmoid(s.get("edge", 1), 0.18, -12) * 0.15
-            + _sigmoid(s.get("warm", 1), 0.15, -6) * 0.10
+        pos = (
+            _sigmoid(s.get("blue_region_area", 0), 0.10, 8) * 0.25
+            + _sigmoid(s.get("blue_purple", 0), 0.13, 6) * 0.20
+            + _sigmoid(s.get("hue_cyan_blue", 0), 0.10, 5) * 0.15
+            + _sigmoid(s.get("color_std", 0), 0.25, 5) * 0.10
+            + _sigmoid(s.get("edge", 1), 0.20, -8) * 0.10
+            + _sigmoid(s.get("lbp_entropy", 1), 5.0, -5) * 0.10
+            + _sigmoid(s.get("r0_area", 0), 0.15, 6) * 0.10
         )
-        if score > 0.25:
-            return _detected(score, f"bp={s.get('blue_purple',0):.2f}, hue_o={s.get('hue_orange',0):.2f}, grad={s.get('grad_mean',0):.2f}")
+        guards = [
+            _sigmoid(s.get("warm", 1), 0.43, -4),
+            _sigmoid(s.get("hue_orange", 1), 0.47, -3),
+            _sigmoid(s.get("yellow", 1), 0.22, -5),
+        ]
+        score = _guarded_score(pos, guards)
+        if score > 0.20:
+            return _detected(score, f"bp={s.get('blue_purple',0):.2f}, hcb={s.get('hue_cyan_blue',0):.2f}, cstd={s.get('color_std',0):.2f}")
         return FeatureValue.absent("no jellyfish signature")
 
 
-@register_feature(name="phase2_king_penguin_signature", tags=["phase2", "class"], description="Low-sat, low-warm, low-color-std, desaturated body")
+@register_feature(name="phase2_king_penguin_signature", tags=["phase2", "class"], description="Low-sat, low-color-std, low warm, bw dominant")
 class Phase2KingPenguinSignature:
     def evaluate(self, graph: SceneGraph, region: Region | None = None) -> FeatureValue:
         s = _stats(graph)
-        score = (
-            _sigmoid(s.get("sat", 1), 0.35, -10) * 0.20
-            + _sigmoid(s.get("color_std", 1), 0.12, -8) * 0.20
-            + _sigmoid(s.get("sat_pixels_ratio", 1), 0.60, -5) * 0.15
-            + _sigmoid(s.get("radial_warm_diff", 1), 0.05, -6) * 0.15
+        pos = (
+            _sigmoid(s.get("sat", 1), 0.35, -8) * 0.20
+            + _sigmoid(s.get("bw", 0), 0.55, 5) * 0.15
+            + _sigmoid(s.get("color_std", 1), 0.13, -8) * 0.15
             + _sigmoid(s.get("warm", 1), 0.30, -8) * 0.15
-            + _sigmoid(s.get("val", 1), 0.52, -5) * 0.15
+            + _sigmoid(s.get("has_dark_bright_contrast", 0), 0.5, 5) * 0.10
+            + _sigmoid(s.get("sat_bl", 1), 0.35, -8) * 0.10
+            + _sigmoid(s.get("sat_br", 1), 0.35, -8) * 0.15
         )
-        if score > 0.25:
-            return _detected(score, f"sat={s.get('sat',0):.2f}, cstd={s.get('color_std',0):.2f}, warm={s.get('warm',0):.2f}")
+        guards = [
+            _sigmoid(s.get("lap_var", 99999), 20000, -0.0001),
+            _sigmoid(s.get("blob_coverage", 1), 0.62, -3),
+            _sigmoid(s.get("edge", 1), 0.35, -5),
+            _sigmoid(s.get("yellow", 1), 0.52, -3),
+            _sigmoid(s.get("hue_red", 1), 0.57, -3),
+            _sigmoid(s.get("grad_mean", 1), 2.00, -2),
+        ]
+        score = _guarded_score(pos, guards)
+        if score > 0.20:
+            return _detected(score, f"sat={s.get('sat',0):.2f}, cstd={s.get('color_std',0):.2f}, hcb={s.get('hue_cyan_blue',0):.2f}")
         return FeatureValue.absent("no penguin signature")
 
 
-@register_feature(name="phase2_orange_signature", tags=["phase2", "class"], description="High-sat, high-color-std, low-texture warm fruit")
+@register_feature(name="phase2_orange_signature", tags=["phase2", "class"], description="High-sat, high-color-std, warm, smooth fruit with red hue")
 class Phase2OrangeSignature:
     def evaluate(self, graph: SceneGraph, region: Region | None = None) -> FeatureValue:
         s = _stats(graph)
-        score = (
+        pos = (
             _sigmoid(s.get("sat", 0), 0.50, 8) * 0.20
-            + _sigmoid(s.get("color_std", 0), 0.25, 5) * 0.20
-            + _sigmoid(s.get("lap_var", 99999), 5000, -0.0003) * 0.15
+            + _sigmoid(s.get("sat_color_std", 0), 0.15, 8) * 0.15
+            + _sigmoid(s.get("smooth_warm", 0), 0.15, 5) * 0.15
             + _sigmoid(s.get("warm", 0), 0.40, 4) * 0.15
-            + _sigmoid(s.get("grad_mean", 1), 1.0, -4) * 0.15
-            + _sigmoid(s.get("sat_pixels_ratio", 0), 0.80, 5) * 0.15
+            + _sigmoid(s.get("blob_coverage", 0), 0.38, 4) * 0.10
+            + _sigmoid(s.get("smooth_warm_blob_area", 0), 0.05, 10) * 0.10
+            + _sigmoid(s.get("hue_red", 0), 0.25, 5) * 0.15
         )
-        if score > 0.25:
-            return _detected(score, f"sat={s.get('sat',0):.2f}, cstd={s.get('color_std',0):.2f}, lap={s.get('lap_var',0):.0f}")
+        guards = [
+            _sigmoid(s.get("edge", 1), 0.32, -8),
+            _sigmoid(s.get("grad_mean", 1), 1.55, -3),
+        ]
+        score = _guarded_score(pos, guards)
+        if score > 0.20:
+            return _detected(score, f"sat={s.get('sat',0):.2f}, cstd={s.get('color_std',0):.2f}, hred={s.get('hue_red',0):.2f}")
         return FeatureValue.absent("no orange signature")
 
 
-@register_feature(name="phase2_banana_signature", tags=["phase2", "class"], description="Yellow-dominant warm fruit with orange hue peak")
+@register_feature(name="phase2_banana_signature", tags=["phase2", "class"], description="High yellow, warm, saturated, orange-hue fruit")
 class Phase2BananaSignature:
     def evaluate(self, graph: SceneGraph, region: Region | None = None) -> FeatureValue:
         s = _stats(graph)
-        score = (
-            _sigmoid(s.get("yellow", 0), 0.25, 5) * 0.25
-            + _sigmoid(s.get("warm", 0), 0.40, 4) * 0.20
+        pos = (
+            _sigmoid(s.get("smooth_yellow", 0), 0.06, 12) * 0.25
+            + _sigmoid(s.get("yellow", 0), 0.25, 5) * 0.20
+            + _sigmoid(s.get("warm", 0), 0.40, 4) * 0.15
             + _sigmoid(s.get("hue_orange", 0), 0.40, 5) * 0.15
             + _sigmoid(s.get("warm_band_bot", 0), 0.45, 4) * 0.15
-            + _sigmoid(s.get("hue_cyan_blue", 1), 0.05, -15) * 0.15
-            + _sigmoid(s.get("sat", 0), 0.65, -6) * 0.10
+            + _sigmoid(s.get("hue_cyan_blue", 1), 0.05, -15) * 0.10
         )
-        if score > 0.25:
-            return _detected(score, f"yellow={s.get('yellow',0):.2f}, warm={s.get('warm',0):.2f}, hue_o={s.get('hue_orange',0):.2f}")
+        guards = [
+            _sigmoid(s.get("hue_red", 1), 0.55, -4),
+            _sigmoid(s.get("edge", 1), 0.35, -8),
+            _sigmoid(s.get("blue_purple", 1), 0.38, -3),
+        ]
+        score = _guarded_score(pos, guards)
+        if score > 0.20:
+            return _detected(score, f"yellow={s.get('yellow',0):.2f}, warm={s.get('warm',0):.2f}, sat={s.get('sat',0):.2f}")
         return FeatureValue.absent("no banana signature")
 
 
@@ -257,51 +455,75 @@ class Phase2BananaSignature:
 class Phase2BrownBearSignature:
     def evaluate(self, graph: SceneGraph, region: Region | None = None) -> FeatureValue:
         s = _stats(graph)
-        score = (
-            _sigmoid(s.get("lbp_entropy", 0), 5.20, 6) * 0.20
-            + _sigmoid(s.get("edge", 0), 0.27, 10) * 0.20
-            + _sigmoid(s.get("center_surround", 1), 0.95, -5) * 0.20
-            + _sigmoid(s.get("color_std", 1), 0.15, -6) * 0.15
-            + _sigmoid(s.get("sat", 1), 0.40, -5) * 0.15
-            + _sigmoid(s.get("grad_dir_entropy", 0), 0.97, 10) * 0.10
+        pos = (
+            _sigmoid(s.get("textured_decentered", 0), 0.08, 10) * 0.25
+            + _sigmoid(s.get("edge", 0), 0.27, 10) * 0.15
+            + _sigmoid(s.get("lbp_entropy", 0), 5.20, 6) * 0.10
+            + _sigmoid(s.get("center_surround", 1), 0.95, -5) * 0.15
+            + _sigmoid(s.get("dark_warm_ratio", 0), 1.0, 1.5) * 0.15
+            + _sigmoid(s.get("warm_val_mean", 1), 0.50, -5) * 0.10
+            + _sigmoid(s.get("green", 0), 0.08, 5) * 0.10
         )
-        if score > 0.25:
-            return _detected(score, f"lbp={s.get('lbp_entropy',0):.2f}, edge={s.get('edge',0):.2f}, cs={s.get('center_surround',0):.2f}")
+        guards = [
+            _sigmoid(s.get("blue_purple", 1), 0.35, -3),
+        ]
+        score = _guarded_score(pos, guards)
+        if score > 0.20:
+            return _detected(score, f"td={s.get('textured_decentered',0):.3f}, edge={s.get('edge',0):.2f}, dwr={s.get('dark_warm_ratio',0):.2f}")
         return FeatureValue.absent("no brown bear signature")
 
 
-@register_feature(name="phase2_sports_car_signature", tags=["phase2", "class"], description="Low grad_dir, low warm/yellow, high texture")
+@register_feature(name="phase2_sports_car_signature", tags=["phase2", "class"], description="Low grad_dir, high warm_aspect, low warm/blob structured vehicle")
 class Phase2SportsCarSignature:
     def evaluate(self, graph: SceneGraph, region: Region | None = None) -> FeatureValue:
         s = _stats(graph)
-        score = (
-            _sigmoid(s.get("grad_dir_entropy", 1), 0.94, -10) * 0.25
-            + _sigmoid(s.get("hue_orange", 1), 0.20, -6) * 0.20
-            + _sigmoid(s.get("warm", 1), 0.30, -5) * 0.15
-            + _sigmoid(s.get("yellow", 1), 0.15, -6) * 0.15
-            + _sigmoid(s.get("warm_band_bot", 1), 0.25, -4) * 0.15
-            + _sigmoid(s.get("color_std", 1), 0.15, -5) * 0.10
+        pos = (
+            _sigmoid(s.get("grad_dir_entropy", 1), 0.94, -10) * 0.20
+            + _sigmoid(s.get("horiz_dominance", 0), 1.10, 3) * 0.15
+            + _sigmoid(s.get("max_elongation", 0), 4.0, 0.5) * 0.10
+            + _sigmoid(s.get("r0_aspect", 0), 2.0, 1.5) * 0.10
+            + _sigmoid(s.get("warm_aspect", 0), 1.48, 2) * 0.10
+            + _sigmoid(s.get("lap_var", 0), 7000, 0.0002) * 0.10
+            + _sigmoid(s.get("grad_mean", 0), 1.18, 3) * 0.10
+            + _sigmoid(s.get("autocorr_h", 0), 0.15, 5) * 0.10
+            + _sigmoid(s.get("blob_coverage", 1), 0.38, -4) * 0.05
         )
-        if score > 0.25:
-            return _detected(score, f"gdir={s.get('grad_dir_entropy',0):.2f}, warm={s.get('warm',0):.2f}, hue_o={s.get('hue_orange',0):.2f}")
+        guards = [
+            _sigmoid(s.get("yellow", 1), 0.42, -4),
+            _sigmoid(s.get("hue_orange", 1), 0.60, -3),
+            _sigmoid(s.get("sat", 1), 0.63, -3),
+        ]
+        score = _guarded_score(pos, guards)
+        if score > 0.20:
+            return _detected(score, f"gdir={s.get('grad_dir_entropy',0):.2f}, lap={s.get('lap_var',0):.0f}, grad={s.get('grad_mean',0):.2f}")
         return FeatureValue.absent("no sports car signature")
 
 
-@register_feature(name="phase2_teapot_signature", tags=["phase2", "class"], description="Low-edge, low-color-std, low-texture indoor object")
+@register_feature(name="phase2_teapot_signature", tags=["phase2", "class"], description="Low edge, low sat, uniform top, indoor object")
 class Phase2TeapotSignature:
     def evaluate(self, graph: SceneGraph, region: Region | None = None) -> FeatureValue:
         s = _stats(graph)
-        score = (
-            _sigmoid(s.get("edge", 1), 0.22, -10) * 0.20
-            + _sigmoid(s.get("blue_purple", 1), 0.08, -8) * 0.15
-            + _sigmoid(s.get("color_std", 1), 0.15, -5) * 0.15
-            + _sigmoid(s.get("grad_mean", 1), 1.0, -4) * 0.15
-            + _sigmoid(s.get("lap_var", 99999), 6000, -0.0003) * 0.15
-            + _sigmoid(s.get("bw", 0), 0.50, 4) * 0.10
-            + _sigmoid(s.get("warm", 0), 0.25, 4) * 0.10
+        pos = (
+            _sigmoid(s.get("edge_tl", 1), 0.22, -10) * 0.15
+            + _sigmoid(s.get("top_edge", 1), 0.22, -10) * 0.10
+            + _sigmoid(s.get("edge", 1), 0.23, -10) * 0.10
+            + _sigmoid(s.get("sat_tl", 1), 0.43, -5) * 0.10
+            + _sigmoid(s.get("color_std", 1), 0.21, -5) * 0.10
+            + _sigmoid(s.get("top_uniformity", 0), 0.70, 5) * 0.10
+            + _sigmoid(s.get("center_surround", 0), 1.00, 3) * 0.10
+            + _sigmoid(s.get("hue_red", 0), 0.15, 5) * 0.15
+            + _sigmoid(s.get("warm_br", 0), 0.20, 4) * 0.10
         )
-        if score > 0.25:
-            return _detected(score, f"edge={s.get('edge',0):.2f}, cstd={s.get('color_std',0):.2f}, grad={s.get('grad_mean',0):.2f}")
+        guards = [
+            _sigmoid(s.get("sat", 1), 0.66, -3),
+            _sigmoid(s.get("blue_purple", 1), 0.23, -5),
+            _sigmoid(s.get("yellow", 1), 0.70, -2),
+            _sigmoid(s.get("warm", 1), 0.86, -2),
+            _sigmoid(s.get("green", 1), 0.21, -3),
+        ]
+        score = _guarded_score(pos, guards)
+        if score > 0.20:
+            return _detected(score, f"edge={s.get('edge',0):.2f}, cs={s.get('center_surround',0):.2f}, hred={s.get('hue_red',0):.2f}")
         return FeatureValue.absent("no teapot signature")
 
 
@@ -309,48 +531,65 @@ class Phase2TeapotSignature:
 class Phase2MushroomSignature:
     def evaluate(self, graph: SceneGraph, region: Region | None = None) -> FeatureValue:
         s = _stats(graph)
-        score = (
-            _sigmoid(s.get("edge", 0), 0.26, 10) * 0.20
-            + _sigmoid(s.get("lbp_entropy", 0), 5.20, 6) * 0.20
-            + _sigmoid(s.get("hue_cyan_blue", 1), 0.04, -15) * 0.15
-            + _sigmoid(s.get("lap_var", 0), 8000, 0.0002) * 0.15
-            + _sigmoid(s.get("blue_purple", 1), 0.05, -12) * 0.15
-            + _sigmoid(s.get("grad_mean", 0), 1.3, 3) * 0.15
+        pos = (
+            _sigmoid(s.get("round_edge", 0), 0.15, 8) * 0.20
+            + _sigmoid(s.get("edge", 0), 0.26, 10) * 0.15
+            + _sigmoid(s.get("lbp_entropy", 0), 5.20, 6) * 0.10
+            + _sigmoid(s.get("center_surround", 0), 1.05, 3) * 0.10
+            + _sigmoid(s.get("has_green_surround", 0), 0.5, 5) * 0.15
+            + _sigmoid(s.get("green_region_area", 0), 0.03, 10) * 0.10
+            + _sigmoid(s.get("bot_edge", 0), 0.26, 8) * 0.10
+            + _sigmoid(s.get("grad_mean", 0), 1.3, 3) * 0.10
         )
-        if score > 0.25:
-            return _detected(score, f"edge={s.get('edge',0):.2f}, lbp={s.get('lbp_entropy',0):.2f}, hcb={s.get('hue_cyan_blue',0):.2f}")
+        guards = [
+            _sigmoid(s.get("hue_cyan_blue", 1), 0.11, -8),
+            _sigmoid(s.get("blue_purple", 1), 0.12, -8),
+            _sigmoid(s.get("smooth_warm_blob_area", 1), 0.19, -3),
+        ]
+        score = _guarded_score(pos, guards)
+        if score > 0.20:
+            return _detected(score, f"lbp={s.get('lbp_entropy',0):.2f}, edge={s.get('edge',0):.2f}, cs={s.get('center_surround',0):.2f}")
         return FeatureValue.absent("no mushroom signature")
 
 
-@register_feature(name="phase2_golden_retriever_signature", tags=["phase2", "class"], description="Warm-centered, high grad_dir, red-hue, low-blue animal")
+@register_feature(name="phase2_golden_retriever_signature", tags=["phase2", "class"], description="Warm centered, radial warm, high grad_dir, red hue animal")
 class Phase2GoldenRetrieverSignature:
     def evaluate(self, graph: SceneGraph, region: Region | None = None) -> FeatureValue:
         s = _stats(graph)
-        score = (
+        pos = (
             _sigmoid(s.get("radial_warm_diff", 0), 0.10, 4) * 0.20
-            + _sigmoid(s.get("hue_red", 0), 0.25, 4) * 0.20
+            + _sigmoid(s.get("hue_red", 0), 0.23, 4) * 0.20
+            + _sigmoid(s.get("warm_val_mean", 0), 0.50, 5) * 0.15
             + _sigmoid(s.get("warm", 0), 0.35, 4) * 0.15
-            + _sigmoid(s.get("blue_purple", 1), 0.08, -8) * 0.15
-            + _sigmoid(s.get("lap_var", 99999), 6000, -0.0002) * 0.15
-            + _sigmoid(s.get("green", 1), 0.10, -6) * 0.15
+            + _sigmoid(s.get("center_surround", 0), 1.00, 3) * 0.10
+            + _sigmoid(s.get("bot_edge", 0), 0.22, 8) * 0.10
+            + _sigmoid(s.get("grad_dir_entropy", 0), 0.96, 8) * 0.10
         )
-        if score > 0.25:
-            return _detected(score, f"rwd={s.get('radial_warm_diff',0):.2f}, hred={s.get('hue_red',0):.2f}, warm={s.get('warm',0):.2f}")
+        guards = [
+            _sigmoid(s.get("blue_purple", 1), 0.38, -3),
+            _sigmoid(s.get("hue_cyan_blue", 1), 0.17, -5),
+            _sigmoid(s.get("bw", 1), 0.88, -2),
+        ]
+        score = _guarded_score(pos, guards)
+        if score > 0.20:
+            return _detected(score, f"warm={s.get('warm',0):.2f}, rwd={s.get('radial_warm_diff',0):.2f}, hred={s.get('hue_red',0):.2f}")
         return FeatureValue.absent("no golden retriever signature")
 
 
-@register_feature(name="phase2_school_bus_signature", tags=["phase2", "class"], description="High grad/lap, low grad_dir, orange-hue dominated vehicle")
+@register_feature(name="phase2_school_bus_signature", tags=["phase2", "class"], description="High blob texture, high grad, structured, warm vehicle")
 class Phase2SchoolBusSignature:
     def evaluate(self, graph: SceneGraph, region: Region | None = None) -> FeatureValue:
         s = _stats(graph)
         score = (
-            _sigmoid(s.get("grad_mean", 0), 1.4, 3) * 0.20
-            + _sigmoid(s.get("grad_dir_entropy", 1), 0.94, -8) * 0.20
-            + _sigmoid(s.get("lap_var", 0), 9000, 0.0002) * 0.20
+            _sigmoid(s.get("grad_mean", 0), 1.4, 3) * 0.15
+            + _sigmoid(s.get("grad_dir_entropy", 1), 0.94, -8) * 0.15
+            + _sigmoid(s.get("lap_var", 0), 9000, 0.0002) * 0.15
             + _sigmoid(s.get("hue_orange", 0), 0.40, 4) * 0.15
-            + _sigmoid(s.get("edge", 0), 0.24, 8) * 0.15
-            + _sigmoid(s.get("radial_warm_diff", 0), 0.10, 4) * 0.10
+            + _sigmoid(s.get("blob_lap_var", 0), 0.50, 2) * 0.10
+            + _sigmoid(s.get("warm_band_bot", 0), 0.35, 4) * 0.10
+            + _sigmoid(s.get("autocorr_h", 0), 0.15, 5) * 0.10
+            + _sigmoid(s.get("horiz_dominance", 0), 1.05, 3) * 0.10
         )
-        if score > 0.25:
-            return _detected(score, f"grad={s.get('grad_mean',0):.2f}, gdir={s.get('grad_dir_entropy',0):.2f}, lap={s.get('lap_var',0):.0f}")
+        if score > 0.20:
+            return _detected(score, f"gdir={s.get('grad_dir_entropy',0):.2f}, lap={s.get('lap_var',0):.0f}, hue_o={s.get('hue_orange',0):.2f}")
         return FeatureValue.absent("no school bus signature")

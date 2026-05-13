@@ -30,7 +30,7 @@ def predict(image: np.ndarray) -> Prediction:
     """
     graph = _builder.build(image)
     cache: dict[str, FeatureValue] = {}
-    # Flat scoring: evaluate ALL leaf classes directly (no gate filtering)
+
     candidates = _score_all_classes_flat(_hierarchy, graph, cache)
 
     if not candidates:
@@ -43,8 +43,9 @@ def predict(image: np.ndarray) -> Prediction:
 
     candidates.sort(key=lambda x: x[1], reverse=True)
 
-    # Phase 1 tiebreaker disabled for Phase 2: soft signatures produce larger
-    # margins, making the old pixel-level tiebreaker counterproductive.
+    candidates = _pairwise_rerank(candidates, graph)
+
+    candidates = _local_verify(candidates, graph)
 
     best_label, best_score, best_route = candidates[0]
     alternatives = [(label, score) for label, score, _ in candidates[1:5]]
@@ -59,6 +60,235 @@ def predict(image: np.ndarray) -> Prediction:
         feature_activations=cache,
         route=best_route,
     )
+
+
+_SIGNATURE_MAP = {
+    "golden_retriever": "phase2_golden_retriever_signature",
+    "mushroom": "phase2_mushroom_signature",
+    "teapot": "phase2_teapot_signature",
+    "school_bus": "phase2_school_bus_signature",
+    "banana": "phase2_banana_signature",
+    "orange": "phase2_orange_signature",
+    "brown_bear": "phase2_brown_bear_signature",
+    "king_penguin": "phase2_king_penguin_signature",
+    "jellyfish": "phase2_jellyfish_signature",
+    "sports_car": "phase2_sports_car_signature",
+}
+
+def _score_signatures_direct(
+    graph: SceneGraph, cache: dict[str, FeatureValue]
+) -> list[tuple[str, float, list[str]]]:
+    """Score all classes by evaluating their phase2 signatures directly."""
+    from hlinet.registry import registry
+
+    results = []
+    for class_name, feat_name in _SIGNATURE_MAP.items():
+        try:
+            feat = registry.get_feature(feat_name)
+            val = feat.evaluate(graph)
+            cache[feat_name] = val
+            results.append((class_name, val.confidence, ["root", class_name]))
+        except (KeyError, Exception):
+            results.append((class_name, 0.0, ["root", class_name]))
+    return results
+
+
+def _pairwise_rerank(
+    candidates: list[tuple[str, float, list[str]]],
+    graph: SceneGraph,
+) -> list[tuple[str, float, list[str]]]:
+    """Rerank top candidates using targeted pairwise discriminants."""
+    if len(candidates) < 2:
+        return candidates
+
+    from hlinet.features.compounds.phase2_signatures import _stats, _sigmoid
+
+    s = _stats(graph)
+    candidates = list(candidates)
+
+    _RANK3_ONLY = set()
+
+    top1_label, top1_score, _ = candidates[0]
+    top2_label, top2_score, _ = candidates[1]
+
+    margin12 = top1_score - top2_score
+    pair12 = frozenset([top1_label, top2_label])
+    if margin12 <= 0.25 and pair12 not in _RANK3_ONLY:
+        winner = _pairwise_discriminant(top1_label, top2_label, s, _sigmoid)
+        if winner is not None and winner == top2_label:
+            candidates[0], candidates[1] = candidates[1], candidates[0]
+
+    _RANK3_WHITELIST = {
+        frozenset(["teapot", "sports_car"]),
+        frozenset(["banana", "brown_bear"]),
+        frozenset(["banana", "golden_retriever"]),
+        frozenset(["school_bus", "mushroom"]),
+        frozenset(["golden_retriever", "mushroom"]),
+        frozenset(["school_bus", "brown_bear"]),
+        frozenset(["golden_retriever", "brown_bear"]),
+        frozenset(["school_bus", "sports_car"]),
+    }
+    if len(candidates) >= 3:
+        top1_label, top1_score, _ = candidates[0]
+        top3_label, top3_score, _ = candidates[2]
+        margin13 = top1_score - top3_score
+        pair13 = frozenset([top1_label, top3_label])
+        if margin13 <= 0.15 and pair13 in _RANK3_WHITELIST:
+            winner = _pairwise_discriminant(top1_label, top3_label, s, _sigmoid)
+            if winner is not None and winner == top3_label:
+                candidates[0], candidates[2] = candidates[2], candidates[0]
+
+    return candidates
+
+
+def _local_verify(
+    candidates: list[tuple[str, float, list[str]]],
+    graph: SceneGraph,
+) -> list[tuple[str, float, list[str]]]:
+    """Placeholder for local region verifiers. Currently a no-op at 64x64."""
+    return candidates
+
+
+def _pairwise_discriminant(
+    label_a: str, label_b: str, s: dict[str, float], _sigmoid
+) -> str | None:
+    """Given two class labels, return the winner or None if no discriminant exists."""
+    pair = frozenset([label_a, label_b])
+
+    signals = _compute_pair_signals(pair, s, _sigmoid)
+    if signals is None:
+        return None
+
+    cls1, sig1, cls2, sig2 = signals
+    if sig1 > sig2:
+        return cls1
+    elif sig2 > sig1:
+        return cls2
+    return None
+
+
+def _compute_pair_signals(pair, s, _sigmoid):
+    if pair == frozenset(["king_penguin", "sports_car"]):
+        return ("sports_car",
+                _sigmoid(s.get("grad_mean", 0), 1.35, 3) + _sigmoid(s.get("grad_dir_entropy", 1), 0.95, -10)
+                + _sigmoid(s.get("lap_var", 0), 8000, 0.0003) + _sigmoid(s.get("warm_aspect", 0), 1.40, 2),
+                "king_penguin",
+                _sigmoid(s.get("grad_mean", 1), 1.35, -3) + _sigmoid(s.get("grad_dir_entropy", 0), 0.95, 10)
+                + _sigmoid(s.get("lap_var", 99999), 8000, -0.0003) + _sigmoid(s.get("warm_aspect", 1), 1.40, -2))
+
+    if pair == frozenset(["banana", "orange"]):
+        return ("orange",
+                _sigmoid(s.get("hue_red", 0), 0.25, 6) + _sigmoid(s.get("color_std", 0), 0.50, 5)
+                + _sigmoid(s.get("bw", 1), 0.25, -5) + _sigmoid(s.get("grad_mean", 1), 0.80, -3),
+                "banana",
+                _sigmoid(s.get("hue_red", 1), 0.25, -6) + _sigmoid(s.get("color_std", 1), 0.50, -5)
+                + _sigmoid(s.get("bw", 0), 0.25, 5) + _sigmoid(s.get("grad_mean", 0), 0.80, 3))
+
+    if pair == frozenset(["banana", "golden_retriever"]):
+        return ("golden_retriever",
+                _sigmoid(s.get("edge", 0), 0.24, 10) + _sigmoid(s.get("sat", 1), 0.45, -5)
+                + _sigmoid(s.get("yellow", 1), 0.30, -5) + _sigmoid(s.get("bot_edge", 0), 0.24, 8),
+                "banana",
+                _sigmoid(s.get("edge", 1), 0.24, -10) + _sigmoid(s.get("sat", 0), 0.45, 5)
+                + _sigmoid(s.get("yellow", 0), 0.30, 5) + _sigmoid(s.get("bot_edge", 1), 0.24, -8))
+
+    if pair == frozenset(["mushroom", "golden_retriever"]):
+        return ("mushroom",
+                _sigmoid(s.get("val", 1), 0.50, -4) + _sigmoid(s.get("sat_br", 0), 0.43, 5)
+                + _sigmoid(s.get("lap_var", 0), 8000, 0.0002) + _sigmoid(s.get("hue_yellow", 0), 0.12, 5),
+                "golden_retriever",
+                _sigmoid(s.get("val", 0), 0.50, 4) + _sigmoid(s.get("sat_br", 1), 0.43, -5)
+                + _sigmoid(s.get("lap_var", 99999), 8000, -0.0002) + _sigmoid(s.get("hue_yellow", 1), 0.12, -5))
+
+    if pair == frozenset(["orange", "golden_retriever"]):
+        return ("orange",
+                _sigmoid(s.get("sat", 0), 0.55, 5) + _sigmoid(s.get("color_std", 0), 0.30, 5)
+                + _sigmoid(s.get("blob_coverage", 0), 0.50, 4) + _sigmoid(s.get("circularity", 0), 0.03, 20),
+                "golden_retriever",
+                _sigmoid(s.get("radial_warm_diff", 0), 0.15, 4) + _sigmoid(s.get("bot_edge", 0), 0.22, 8)
+                + _sigmoid(s.get("warm_br", 0), 0.45, 4) + _sigmoid(s.get("grad_dir_entropy", 0), 0.97, 8))
+
+    if pair == frozenset(["sports_car", "golden_retriever"]):
+        return ("sports_car",
+                _sigmoid(s.get("grad_dir_entropy", 1), 0.93, -12) + _sigmoid(s.get("lap_var", 0), 9000, 0.0003)
+                + _sigmoid(s.get("bw", 0), 0.55, 4) + _sigmoid(s.get("sky_ratio", 0), 0.20, 4),
+                "golden_retriever",
+                _sigmoid(s.get("warm", 0), 0.40, 5) + _sigmoid(s.get("radial_warm_diff", 0), 0.15, 4)
+                + _sigmoid(s.get("hue_red", 0), 0.25, 4) + _sigmoid(s.get("warm_br", 0), 0.45, 4))
+
+    if pair == frozenset(["banana", "school_bus"]):
+        return ("banana",
+                _sigmoid(s.get("val", 0), 0.65, 4) + _sigmoid(s.get("blue_purple", 1), 0.04, -5)
+                + _sigmoid(s.get("warm_band_top", 0), 0.50, 4) + _sigmoid(s.get("lap_var", 99999), 9000, -0.0002),
+                "school_bus",
+                _sigmoid(s.get("val", 1), 0.65, -4) + _sigmoid(s.get("blue_purple", 0), 0.04, 5)
+                + _sigmoid(s.get("warm_band_top", 1), 0.50, -4) + _sigmoid(s.get("lap_var", 0), 9000, 0.0002))
+
+    if pair == frozenset(["brown_bear", "sports_car"]):
+        return ("brown_bear",
+                _sigmoid(s.get("grad_dir_entropy", 0), 0.96, 10) + _sigmoid(s.get("edge", 0), 0.30, 8)
+                + _sigmoid(s.get("green_bl", 0), 0.15, 5) + _sigmoid(s.get("sat_br", 1), 0.32, -5),
+                "sports_car",
+                _sigmoid(s.get("grad_dir_entropy", 1), 0.96, -10) + _sigmoid(s.get("edge", 1), 0.30, -8)
+                + _sigmoid(s.get("green_bl", 1), 0.15, -5) + _sigmoid(s.get("sat_br", 0), 0.32, 5))
+
+    if pair == frozenset(["sports_car", "teapot"]):
+        return ("sports_car",
+                _sigmoid(s.get("grad_dir_entropy", 1), 0.93, -10) + _sigmoid(s.get("hue_red", 1), 0.40, -4)
+                + _sigmoid(s.get("top_uniformity", 0), 0.66, 4) + _sigmoid(s.get("lap_var", 0), 7500, 0.0003),
+                "teapot",
+                _sigmoid(s.get("grad_dir_entropy", 0), 0.93, 10) + _sigmoid(s.get("hue_red", 0), 0.40, 4)
+                + _sigmoid(s.get("top_uniformity", 1), 0.66, -4) + _sigmoid(s.get("lap_var", 99999), 7500, -0.0003))
+
+    if pair == frozenset(["mushroom", "school_bus"]):
+        return ("mushroom",
+                _sigmoid(s.get("grad_dir_entropy", 0), 0.97, 10) + _sigmoid(s.get("edge_br", 0), 0.33, 8)
+                + _sigmoid(s.get("lbp_entropy", 0), 5.32, 8) + _sigmoid(s.get("edge", 0), 0.33, 8),
+                "school_bus",
+                _sigmoid(s.get("grad_dir_entropy", 1), 0.97, -10) + _sigmoid(s.get("edge_br", 1), 0.33, -8)
+                + _sigmoid(s.get("lbp_entropy", 1), 5.32, -8) + _sigmoid(s.get("edge", 1), 0.33, -8))
+
+    if pair == frozenset(["brown_bear", "school_bus"]):
+        return ("brown_bear",
+                _sigmoid(s.get("green", 0), 0.15, 5) + _sigmoid(s.get("edge", 0), 0.30, 8)
+                + _sigmoid(s.get("grad_dir_entropy", 0), 0.96, 10) + _sigmoid(s.get("hue_cyan_blue", 1), 0.02, -8),
+                "school_bus",
+                _sigmoid(s.get("green", 1), 0.15, -5) + _sigmoid(s.get("edge", 1), 0.30, -8)
+                + _sigmoid(s.get("grad_dir_entropy", 1), 0.96, -10) + _sigmoid(s.get("hue_cyan_blue", 0), 0.02, 8))
+
+    if pair == frozenset(["sports_car", "school_bus"]):
+        return ("sports_car",
+                _sigmoid(s.get("hue_orange", 1), 0.30, -5) + _sigmoid(s.get("yellow", 1), 0.15, -5)
+                + _sigmoid(s.get("warm", 1), 0.30, -4) + _sigmoid(s.get("blob_lap_var", 1), 0.60, -3),
+                "school_bus",
+                _sigmoid(s.get("hue_orange", 0), 0.30, 5) + _sigmoid(s.get("yellow", 0), 0.15, 5)
+                + _sigmoid(s.get("warm", 0), 0.30, 4) + _sigmoid(s.get("blob_lap_var", 0), 0.60, 3))
+
+    if pair == frozenset(["brown_bear", "golden_retriever"]):
+        return ("brown_bear",
+                _sigmoid(s.get("textured_decentered", 0), 0.10, 8) + _sigmoid(s.get("center_surround", 1), 0.90, -4)
+                + _sigmoid(s.get("edge_tl", 0), 0.26, 8) + _sigmoid(s.get("warm_val_mean", 1), 0.51, -5),
+                "golden_retriever",
+                _sigmoid(s.get("textured_decentered", 1), 0.10, -8) + _sigmoid(s.get("center_surround", 0), 0.90, 4)
+                + _sigmoid(s.get("edge_tl", 1), 0.26, -8) + _sigmoid(s.get("warm_val_mean", 0), 0.51, 5))
+
+    if pair == frozenset(["brown_bear", "banana"]):
+        return ("brown_bear",
+                _sigmoid(s.get("textured_decentered", 0), 0.09, 10) + _sigmoid(s.get("smooth_yellow", 1), 0.08, -6)
+                + _sigmoid(s.get("edge", 0), 0.25, 8) + _sigmoid(s.get("warm_val_mean", 1), 0.54, -5),
+                "banana",
+                _sigmoid(s.get("textured_decentered", 1), 0.09, -10) + _sigmoid(s.get("smooth_yellow", 0), 0.08, 6)
+                + _sigmoid(s.get("edge", 1), 0.25, -8) + _sigmoid(s.get("warm_val_mean", 0), 0.54, 5))
+
+    if pair == frozenset(["brown_bear", "mushroom"]):
+        return ("brown_bear",
+                _sigmoid(s.get("textured_decentered", 0), 0.09, 10) + _sigmoid(s.get("center_surround", 1), 0.95, -5)
+                + _sigmoid(s.get("sat", 1), 0.42, -4) + _sigmoid(s.get("sat_bl", 1), 0.42, -4),
+                "mushroom",
+                _sigmoid(s.get("textured_decentered", 1), 0.09, -10) + _sigmoid(s.get("center_surround", 0), 0.95, 5)
+                + _sigmoid(s.get("sat", 0), 0.42, 4) + _sigmoid(s.get("sat_bl", 0), 0.42, 4))
+
+    return None
 
 
 def _iterative_refine(

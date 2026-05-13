@@ -99,7 +99,7 @@ def plot_accuracy_trajectory(evals):
 
     ax.set_xlabel("Evaluation Iteration (chronological)")
     ax.set_ylabel("Top-1 Accuracy (%)")
-    ax.set_title("HL-ImageNet: Accuracy Trajectory Over 200+ Iterations\n12.7% → 86.1% through pure Heuristic Learning")
+    ax.set_title("HL-ImageNet: Accuracy Trajectory Over 200+ Iterations\n12.7% → 86.1% (dev set, 230 images) through pure Heuristic Learning")
     ax.set_ylim(5, 95)
     ax.set_xlim(0, len(iterations) + 5)
     ax.yaxis.set_major_locator(MultipleLocator(10))
@@ -162,7 +162,7 @@ def plot_per_class_evolution(evals):
 
     ax.set_xlabel("System State (overall accuracy)")
     ax.set_ylabel("Per-Class Accuracy (%)")
-    ax.set_title("Per-Class Accuracy Evolution Across Development Milestones")
+    ax.set_title("Per-Class Accuracy Evolution Across Development Milestones (dev set)")
     ax.set_xticks(x)
     ax.set_xticklabels(milestone_labels)
     ax.set_ylim(0, 110)
@@ -273,7 +273,7 @@ def plot_confusion_heatmap(evals):
     ax.set_yticklabels(class_labels)
     ax.set_xlabel("Predicted")
     ax.set_ylabel("True")
-    ax.set_title("Final Confusion Matrix (% of true class)\n86.1% overall accuracy")
+    ax.set_title("Final Confusion Matrix (% of true class)\n86.1% dev-set accuracy")
 
     # Add text annotations
     for i in range(n):
@@ -325,7 +325,7 @@ def plot_session_timeline(evals):
 
     ax.set_xlabel("Wall-clock Time (hours from start)")
     ax.set_ylabel("Top-1 Accuracy (%)")
-    ax.set_title("Development Timeline: ~20 Hours from 12.7% to 86.1%")
+    ax.set_title("Development Timeline: ~20 Hours from 12.7% to 86.1% (dev set)")
     ax.set_ylim(5, 95)
     ax.grid(True, alpha=0.3)
 
@@ -432,6 +432,7 @@ def plot_summary_infographic():
     wedges, texts = ax.pie([correct, wrong], colors=['#4CAF50', '#FF5252'],
                            startangle=90, wedgeprops=dict(width=0.4))
     ax.text(0, 0, f'{correct:.1f}%', ha='center', va='center', fontsize=24, fontweight='bold')
+    ax.text(0, -0.15, '(dev set)', ha='center', va='center', fontsize=10, color='#888')
     ax.set_title("Final Top-1 Accuracy")
 
     # Panel 2: Iterations count
