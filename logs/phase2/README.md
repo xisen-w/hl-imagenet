@@ -4,7 +4,7 @@
 
 ## Purpose
 
-Phase 2 evaluation logs, derived diagnostic artifacts, benchmark-comparison artifacts, sample-level attribution artifacts, candidate-selection artifacts, and regression-guard artifacts, and rejected-delta artifacts for the split-aware 10-real-class Tiny ImageNet experiment.
+Phase 2 evaluation logs, derived diagnostic artifacts, benchmark-comparison artifacts, sample-level attribution artifacts, candidate-selection artifacts, and regression-guard artifacts, and rejected-delta and rejected-probe artifacts for the split-aware 10-real-class Tiny ImageNet experiment.
 
 ## S - Formal specification
 
@@ -37,10 +37,12 @@ This folder stores Phase 2 evaluation JSON/Markdown outputs, Phase 2.2 diagnosti
 - `regression_guard/latest_phase2_regression_guard.md`
 - `rejected_deltas/phase2_6b_exclusion_guard/rejected_phase2_6b_delta_compare.json`
 - `rejected_deltas/phase2_6b_exclusion_guard/rejected_phase2_6b_delta_compare.md`
+- `rejected_deltas/phase2_6d_golden_retriever_orange_exclusion/rejected_phase2_6d_probe_compare.json`
+- `rejected_deltas/phase2_6d_golden_retriever_orange_exclusion/rejected_phase2_6d_probe_compare.md`
 
 ## T - Theory or method basis
 
-Phase 2 is the split-aware evidence path for the symbolic classifier. Diagnostics expose failure geometry, benchmarks compare against baselines, attribution shows individual validation rows, candidate selection ranks future intervention candidates, regression guards lock the baseline before controlled classifier deltas, and rejected-delta ledgers preserve failed experiments without promoting them.
+Phase 2 is the split-aware evidence path for the symbolic classifier. Diagnostics expose failure geometry, benchmarks compare against baselines, attribution shows individual validation rows, candidate selection ranks future intervention candidates, regression guards lock the baseline before controlled classifier deltas, rejected-delta ledgers preserve failed experiments without promoting them, and rejected-probe ledgers preserve near-miss class-specific experiments without promoting them.
 
 ## I - Invariants
 

@@ -1,8 +1,12 @@
 {
-  "schema": "hl_imagenet_phase2_6d_probe_compare_v1",
-  "generated_at": "2026-05-13T09:07:19",
-  "probe_name": "golden_retriever_orange_signature_exclusion",
+  "schema": "hl_imagenet_phase2_rejected_probe_ledger_v1",
+  "probe_name": "phase2_6d_golden_retriever_orange_signature_exclusion",
   "overall_status": "fail",
+  "attempted_change": {
+    "file": "hlinet/classifier/hierarchy.py",
+    "change": "golden_retriever excluding_features += phase2_orange_signature",
+    "change_type": "class_specific_exclusion_probe"
+  },
   "pre_baseline": {
     "top1": 0.334,
     "top3": 0.6865,
@@ -15,7 +19,7 @@
     "hl_unique_wins": 70,
     "baseline_right_hl_wrong": 818
   },
-  "checks": [
+  "guard_checks": [
     {
       "name": "minimum_top1_accuracy",
       "value": 0.3345,
@@ -39,29 +43,21 @@
       "value": 1,
       "threshold": 0,
       "status": "fail",
-      "details": [
-        "banana"
-      ]
+      "details": ["banana"]
     },
     {
       "name": "major_attractor_decrease_present",
       "value": 2,
       "threshold": 1,
       "status": "pass",
-      "details": [
-        "golden_retriever",
-        "king_penguin"
-      ]
+      "details": ["golden_retriever", "king_penguin"]
     },
     {
       "name": "victim_class_improvement_present",
       "value": 2,
       "threshold": 1,
       "status": "pass",
-      "details": [
-        "orange",
-        "sports_car"
-      ]
+      "details": ["orange", "sports_car"]
     }
   ],
   "major_attractor_deltas": {
@@ -83,45 +79,47 @@
   },
   "victim_class_deltas": {
     "brown_bear": {
-      "pre_recall": 0.06,
-      "post_recall": 0.06,
-      "delta_recall": 0.0,
+      "pre_recall": 0.060,
+      "post_recall": 0.060,
+      "delta_recall": 0.000,
       "pre_miss": 188,
       "post_miss": 188
     },
     "mushroom": {
-      "pre_recall": 0.22,
+      "pre_recall": 0.220,
       "post_recall": 0.205,
-      "delta_recall": -0.015000000000000013,
+      "delta_recall": -0.015,
       "pre_miss": 156,
       "post_miss": 159
     },
     "orange": {
       "pre_recall": 0.165,
       "post_recall": 0.185,
-      "delta_recall": 0.01999999999999999,
+      "delta_recall": 0.020,
       "pre_miss": 167,
       "post_miss": 163
     },
     "sports_car": {
       "pre_recall": 0.115,
-      "post_recall": 0.12,
-      "delta_recall": 0.0049999999999999906,
+      "post_recall": 0.120,
+      "delta_recall": 0.005,
       "pre_miss": 177,
       "post_miss": 176
     },
     "teapot": {
-      "pre_recall": 0.05,
-      "post_recall": 0.04,
-      "delta_recall": -0.010000000000000002,
+      "pre_recall": 0.050,
+      "post_recall": 0.040,
+      "delta_recall": -0.010,
       "pre_miss": 190,
       "post_miss": 192
     }
   },
+  "decision": "rejected_near_miss",
+  "lesson": "Class-specific deltas are more promising than global scorer pressure, but golden_retriever/orange exclusion alone caused banana spillover. Next probe should preserve the golden_retriever/orange benefit while adding a banana backstop.",
   "non_claim_lock": [
-    "This probe comparison does not prove final classifier improvement.",
+    "This rejected probe does not prove classifier improvement.",
+    "The failed hierarchy change is not committed.",
     "Validation evidence is not final test evidence.",
-    "A failing probe should be reverted or ledgered as rejected.",
-    "A passing probe still requires README/RCC boundary updates before push."
+    "This ledger preserves near-miss evidence to constrain future design."
   ]
 }
