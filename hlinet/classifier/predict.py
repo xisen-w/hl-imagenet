@@ -48,6 +48,14 @@ def _blend_hist_scores(
     ]
 
 
+_SCORE_CALIBRATION = {
+    "school_bus": 0.538, "teapot": 0.450, "golden_retriever": 0.443,
+    "sports_car": 0.435, "brown_bear": 0.434, "banana": 0.404,
+    "mushroom": 0.399, "orange": 0.388, "king_penguin": 0.356, "jellyfish": 0.320,
+}
+_CALIBRATION_W = 0.15
+
+
 def predict(image: np.ndarray) -> Prediction:
     """Classify an image through the symbolic visual algebra pipeline.
 
@@ -67,6 +75,10 @@ def predict(image: np.ndarray) -> Prediction:
         )
 
     candidates = _blend_hist_scores(candidates, image)
+    candidates = [
+        (label, score - _SCORE_CALIBRATION.get(label, 0.4) * _CALIBRATION_W, route)
+        for label, score, route in candidates
+    ]
     candidates.sort(key=lambda x: x[1], reverse=True)
 
     candidates = _pairwise_rerank(candidates, graph)
@@ -159,6 +171,9 @@ def _pairwise_rerank(
         frozenset(["orange", "teapot"]): 0.0,
         frozenset(["brown_bear", "teapot"]): 0.10,
         frozenset(["golden_retriever", "king_penguin"]): 0.10,
+        frozenset(["jellyfish", "teapot"]): -0.05,
+        frozenset(["mushroom", "king_penguin"]): 0.0,
+        frozenset(["orange", "mushroom"]): 0.0,
     }
 
     margin12 = top1_score - top2_score
@@ -193,6 +208,9 @@ def _pairwise_rerank(
         frozenset(["orange", "teapot"]),
         frozenset(["brown_bear", "teapot"]),
         frozenset(["golden_retriever", "king_penguin"]),
+        frozenset(["jellyfish", "teapot"]),
+        frozenset(["mushroom", "king_penguin"]),
+        frozenset(["orange", "mushroom"]),
     }
     if len(candidates) >= 3:
         top1_label, top1_score, _ = candidates[0]

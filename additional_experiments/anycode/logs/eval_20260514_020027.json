@@ -1,0 +1,61 @@
+{
+  "top1_accuracy": 1.0,
+  "correct": 200,
+  "total": 200,
+  "elapsed_s": 0.2,
+  "ms_per_image": 0.9,
+  "per_class": {
+    "golden_retriever": {
+      "accuracy": 1.0,
+      "correct": 20,
+      "total": 20
+    },
+    "mushroom": {
+      "accuracy": 1.0,
+      "correct": 20,
+      "total": 20
+    },
+    "teapot": {
+      "accuracy": 1.0,
+      "correct": 20,
+      "total": 20
+    },
+    "school_bus": {
+      "accuracy": 1.0,
+      "correct": 20,
+      "total": 20
+    },
+    "banana": {
+      "accuracy": 1.0,
+      "correct": 20,
+      "total": 20
+    },
+    "orange": {
+      "accuracy": 1.0,
+      "correct": 20,
+      "total": 20
+    },
+    "brown_bear": {
+      "accuracy": 1.0,
+      "correct": 20,
+      "total": 20
+    },
+    "king_penguin": {
+      "accuracy": 1.0,
+      "correct": 20,
+      "total": 20
+    },
+    "jellyfish": {
+      "accuracy": 1.0,
+      "correct": 20,
+      "total": 20
+    },
+    "sports_car": {
+      "accuracy": 1.0,
+      "correct": 20,
+      "total": 20
+    }
+  },
+  "top_confusions": [],
+  "sample_errors": []
+}
