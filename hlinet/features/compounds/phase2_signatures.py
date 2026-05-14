@@ -101,6 +101,37 @@ def _stats(graph: SceneGraph) -> dict[str, float]:
     if np.isnan(autocorr_h):
         autocorr_h = 0.0
 
+    # DCT frequency band energy (expands representation space orthogonally)
+    gray_f = gray.astype(np.float32)
+    dct_img = cv2.dct(gray_f if h == w else cv2.resize(gray_f, (64, 64)))
+    dct_abs = np.abs(dct_img)
+    total_energy = float(dct_abs.sum()) + 1e-9
+    dct_low = float(dct_abs[:8, :8].sum()) / total_energy
+    dct_mid = float(dct_abs[8:24, 8:24].sum()) / total_energy
+    dct_high = float(dct_abs[24:, 24:].sum()) / total_energy
+
+    # Vertical edge regularity (how evenly spaced are vertical edges)
+    vert_edge_profile = (np.abs(gx) > grad_mag.mean()).sum(axis=0).astype(np.float32)
+    vert_edge_profile = vert_edge_profile / (vert_edge_profile.max() + 1e-9)
+    if len(vert_edge_profile) > 4:
+        vert_fft = np.abs(np.fft.rfft(vert_edge_profile - vert_edge_profile.mean()))
+        vert_regularity = float(vert_fft[1:6].max()) / max(float(vert_fft[1:].mean()), 1e-9)
+    else:
+        vert_regularity = 0.0
+
+    # Gabor filter bank — texture at specific orientations/frequencies
+    gabor_0_04_var = float(cv2.filter2D(gray, cv2.CV_64F,
+        cv2.getGaborKernel((9, 9), 3, 0, 2.5, 0.5, 0)).var()) / 10000
+    gabor_45_04_var = float(cv2.filter2D(gray, cv2.CV_64F,
+        cv2.getGaborKernel((9, 9), 3, np.pi/4, 2.5, 0.5, 0)).var()) / 10000
+    gabor_90_01_mean = float(np.abs(cv2.filter2D(gray, cv2.CV_64F,
+        cv2.getGaborKernel((9, 9), 3, np.pi/2, 10.0, 0.5, 0))).mean()) / 100
+    orient_energies = []
+    for theta in [0, np.pi/4, np.pi/2, 3*np.pi/4]:
+        k = cv2.getGaborKernel((9, 9), 3, theta, 5.0, 0.5, 0)
+        orient_energies.append(float(np.abs(cv2.filter2D(gray, cv2.CV_64F, k)).mean()))
+    gabor_dominant_orient = float(np.argmax(orient_energies)) / 4.0
+
     # Color channel std (high = colorful/diverse hues)
     b_ch, g_ch, r_ch = cv2.split(graph.raw_image)
     color_std = float(np.std([r_ch.mean(), g_ch.mean(), b_ch.mean()])) / 100
@@ -273,8 +304,22 @@ def _stats(graph: SceneGraph) -> dict[str, float]:
         "sat_color_std": float(sat.mean()) / 255 * color_std,
         "sat_smooth_warm": float(sat.mean()) / 255 * warm_coverage * max(0, 1.0 - float(edges.sum() / 255) / (h * w) * 3),
         "warm_hue_mean": float(hue[warm].mean()) / 45 if warm.sum() > 100 else 0.5,
+        "warm_hue_median": float(np.median(hue[warm])) if warm.sum() > 100 else 15.0,
+        "warm_sat_cv": float(sat[warm].std() / max(sat[warm].mean(), 1)) if warm.sum() > 100 else 0.3,
         "horiz_dominance": horiz_dominance,
         "autocorr_h": autocorr_h,
+        "autocorr_x_warm_bl": autocorr_h * quad_warm["bl"],
+        "horiz_x_warm_bl": horiz_dominance * quad_warm["bl"],
+        "autocorr_x_mid_wider": 0.0,
+        "dct_low": dct_low,
+        "dct_mid": dct_mid,
+        "dct_high": dct_high,
+        "dct_mid_over_low": dct_mid / max(dct_low, 1e-9),
+        "vert_regularity": vert_regularity,
+        "gabor_0_04_var": gabor_0_04_var,
+        "gabor_45_04_var": gabor_45_04_var,
+        "gabor_90_01_mean": gabor_90_01_mean,
+        "gabor_dominant_orient": gabor_dominant_orient,
     }
 
     # Width profile: is the middle third wider than top/bottom in edge spread?
@@ -291,6 +336,7 @@ def _stats(graph: SceneGraph) -> dict[str, float]:
     bot_width = float(widths_norm[2*third:].mean())
     result["mid_wider"] = 1.0 if (mid_width > top_width and mid_width > bot_width) else 0.0
     result["mid_width_ratio"] = mid_width / max(0.5 * (top_width + bot_width), 0.01)
+    result["autocorr_x_mid_wider"] = autocorr_h * result["mid_wider"]
 
     from hlinet.features.compounds.local_regions import _region_stats
     local = _region_stats(graph)

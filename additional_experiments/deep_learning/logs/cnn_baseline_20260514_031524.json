@@ -1,0 +1,769 @@
+{
+  "experiment": "deep_learning_small_cnn",
+  "classes": [
+    "golden_retriever",
+    "mushroom",
+    "teapot",
+    "school_bus",
+    "banana",
+    "orange",
+    "brown_bear",
+    "king_penguin",
+    "jellyfish",
+    "sports_car"
+  ],
+  "config": {
+    "data_root": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2",
+    "image_size": 32,
+    "epochs": 1,
+    "batch_size": 16,
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "dropout": 0.25,
+    "max_per_class": 5,
+    "device": "cpu",
+    "seed": 42
+  },
+  "training": {
+    "elapsed_s": 1.346,
+    "best_val_top1": 0.1,
+    "history": [
+      {
+        "epoch": 1,
+        "train": {
+          "loss": 2.2168310832977296,
+          "top1_accuracy": 0.2,
+          "top3_accuracy": 0.38
+        },
+        "val": {
+          "loss": 2.3040246772766113,
+          "top1_accuracy": 0.1,
+          "top3_accuracy": 0.3
+        },
+        "lr": 0.0
+      }
+    ]
+  },
+  "splits": {
+    "train": {
+      "split": "train",
+      "samples": 50,
+      "loss": 2.3034646987915037,
+      "top1_accuracy": 0.1,
+      "top3_accuracy": 0.3,
+      "elapsed_s": 0.206,
+      "ms_per_image": 4.11,
+      "per_class": {
+        "golden_retriever": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 5
+        },
+        "mushroom": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 5
+        },
+        "teapot": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 5
+        },
+        "school_bus": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 5
+        },
+        "banana": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 5
+        },
+        "orange": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 5
+        },
+        "brown_bear": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 5
+        },
+        "king_penguin": {
+          "accuracy": 1.0,
+          "correct": 5,
+          "total": 5
+        },
+        "jellyfish": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 5
+        },
+        "sports_car": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 5
+        }
+      },
+      "top_confusions": [
+        {
+          "true": "brown_bear",
+          "pred": "king_penguin",
+          "count": 5
+        },
+        {
+          "true": "golden_retriever",
+          "pred": "king_penguin",
+          "count": 5
+        },
+        {
+          "true": "mushroom",
+          "pred": "king_penguin",
+          "count": 5
+        },
+        {
+          "true": "sports_car",
+          "pred": "king_penguin",
+          "count": 5
+        },
+        {
+          "true": "school_bus",
+          "pred": "king_penguin",
+          "count": 5
+        },
+        {
+          "true": "teapot",
+          "pred": "king_penguin",
+          "count": 5
+        },
+        {
+          "true": "banana",
+          "pred": "king_penguin",
+          "count": 4
+        },
+        {
+          "true": "jellyfish",
+          "pred": "king_penguin",
+          "count": 4
+        },
+        {
+          "true": "orange",
+          "pred": "king_penguin",
+          "count": 4
+        },
+        {
+          "true": "orange",
+          "pred": "school_bus",
+          "count": 1
+        },
+        {
+          "true": "jellyfish",
+          "pred": "school_bus",
+          "count": 1
+        },
+        {
+          "true": "banana",
+          "pred": "school_bus",
+          "count": 1
+        }
+      ],
+      "sample_errors": [
+        {
+          "true": "orange",
+          "pred": "school_bus"
+        },
+        {
+          "true": "banana",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "brown_bear",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "banana",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "golden_retriever",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "banana",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "mushroom",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "sports_car",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "banana",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "school_bus",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "jellyfish",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "mushroom",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "golden_retriever",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "orange",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "teapot",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "sports_car",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "orange",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "brown_bear",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "school_bus",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "sports_car",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "school_bus",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "teapot",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "teapot",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "mushroom",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "teapot",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "golden_retriever",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "jellyfish",
+          "pred": "school_bus"
+        },
+        {
+          "true": "school_bus",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "sports_car",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "orange",
+          "pred": "king_penguin"
+        }
+      ]
+    },
+    "val": {
+      "split": "val",
+      "samples": 50,
+      "loss": 2.3040246772766113,
+      "top1_accuracy": 0.1,
+      "top3_accuracy": 0.3,
+      "elapsed_s": 0.14,
+      "ms_per_image": 2.808,
+      "per_class": {
+        "golden_retriever": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 5
+        },
+        "mushroom": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 5
+        },
+        "teapot": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 5
+        },
+        "school_bus": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 5
+        },
+        "banana": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 5
+        },
+        "orange": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 5
+        },
+        "brown_bear": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 5
+        },
+        "king_penguin": {
+          "accuracy": 1.0,
+          "correct": 5,
+          "total": 5
+        },
+        "jellyfish": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 5
+        },
+        "sports_car": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 5
+        }
+      },
+      "top_confusions": [
+        {
+          "true": "golden_retriever",
+          "pred": "king_penguin",
+          "count": 5
+        },
+        {
+          "true": "mushroom",
+          "pred": "king_penguin",
+          "count": 5
+        },
+        {
+          "true": "teapot",
+          "pred": "king_penguin",
+          "count": 5
+        },
+        {
+          "true": "school_bus",
+          "pred": "king_penguin",
+          "count": 5
+        },
+        {
+          "true": "banana",
+          "pred": "king_penguin",
+          "count": 5
+        },
+        {
+          "true": "orange",
+          "pred": "king_penguin",
+          "count": 5
+        },
+        {
+          "true": "brown_bear",
+          "pred": "king_penguin",
+          "count": 5
+        },
+        {
+          "true": "sports_car",
+          "pred": "king_penguin",
+          "count": 5
+        },
+        {
+          "true": "jellyfish",
+          "pred": "school_bus",
+          "count": 3
+        },
+        {
+          "true": "jellyfish",
+          "pred": "king_penguin",
+          "count": 2
+        }
+      ],
+      "sample_errors": [
+        {
+          "true": "golden_retriever",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "golden_retriever",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "golden_retriever",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "golden_retriever",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "golden_retriever",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "mushroom",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "mushroom",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "mushroom",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "mushroom",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "mushroom",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "teapot",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "teapot",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "teapot",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "teapot",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "teapot",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "school_bus",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "school_bus",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "school_bus",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "school_bus",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "school_bus",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "banana",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "banana",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "banana",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "banana",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "banana",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "orange",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "orange",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "orange",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "orange",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "orange",
+          "pred": "king_penguin"
+        }
+      ]
+    },
+    "test": {
+      "split": "test",
+      "samples": 50,
+      "loss": 2.3041798210144044,
+      "top1_accuracy": 0.1,
+      "top3_accuracy": 0.3,
+      "elapsed_s": 0.155,
+      "ms_per_image": 3.091,
+      "per_class": {
+        "golden_retriever": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 5
+        },
+        "mushroom": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 5
+        },
+        "teapot": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 5
+        },
+        "school_bus": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 5
+        },
+        "banana": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 5
+        },
+        "orange": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 5
+        },
+        "brown_bear": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 5
+        },
+        "king_penguin": {
+          "accuracy": 1.0,
+          "correct": 5,
+          "total": 5
+        },
+        "jellyfish": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 5
+        },
+        "sports_car": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 5
+        }
+      },
+      "top_confusions": [
+        {
+          "true": "golden_retriever",
+          "pred": "king_penguin",
+          "count": 5
+        },
+        {
+          "true": "mushroom",
+          "pred": "king_penguin",
+          "count": 5
+        },
+        {
+          "true": "teapot",
+          "pred": "king_penguin",
+          "count": 5
+        },
+        {
+          "true": "school_bus",
+          "pred": "king_penguin",
+          "count": 5
+        },
+        {
+          "true": "banana",
+          "pred": "king_penguin",
+          "count": 5
+        },
+        {
+          "true": "brown_bear",
+          "pred": "king_penguin",
+          "count": 5
+        },
+        {
+          "true": "sports_car",
+          "pred": "king_penguin",
+          "count": 5
+        },
+        {
+          "true": "orange",
+          "pred": "king_penguin",
+          "count": 4
+        },
+        {
+          "true": "jellyfish",
+          "pred": "school_bus",
+          "count": 4
+        },
+        {
+          "true": "orange",
+          "pred": "school_bus",
+          "count": 1
+        },
+        {
+          "true": "jellyfish",
+          "pred": "king_penguin",
+          "count": 1
+        }
+      ],
+      "sample_errors": [
+        {
+          "true": "golden_retriever",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "golden_retriever",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "golden_retriever",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "golden_retriever",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "golden_retriever",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "mushroom",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "mushroom",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "mushroom",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "mushroom",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "mushroom",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "teapot",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "teapot",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "teapot",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "teapot",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "teapot",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "school_bus",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "school_bus",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "school_bus",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "school_bus",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "school_bus",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "banana",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "banana",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "banana",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "banana",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "banana",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "orange",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "orange",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "orange",
+          "pred": "school_bus"
+        },
+        {
+          "true": "orange",
+          "pred": "king_penguin"
+        },
+        {
+          "true": "orange",
+          "pred": "king_penguin"
+        }
+      ]
+    }
+  }
+}

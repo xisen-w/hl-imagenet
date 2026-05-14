@@ -48,14 +48,6 @@ def _blend_hist_scores(
     ]
 
 
-_SCORE_CALIBRATION = {
-    "school_bus": 0.538, "teapot": 0.450, "golden_retriever": 0.443,
-    "sports_car": 0.435, "brown_bear": 0.434, "banana": 0.404,
-    "mushroom": 0.399, "orange": 0.388, "king_penguin": 0.356, "jellyfish": 0.320,
-}
-_CALIBRATION_W = 0.15
-
-
 def predict(image: np.ndarray) -> Prediction:
     """Classify an image through the symbolic visual algebra pipeline.
 
@@ -75,10 +67,6 @@ def predict(image: np.ndarray) -> Prediction:
         )
 
     candidates = _blend_hist_scores(candidates, image)
-    candidates = [
-        (label, score - _SCORE_CALIBRATION.get(label, 0.4) * _CALIBRATION_W, route)
-        for label, score, route in candidates
-    ]
     candidates.sort(key=lambda x: x[1], reverse=True)
 
     candidates = _pairwise_rerank(candidates, graph)
@@ -154,7 +142,7 @@ def _pairwise_rerank(
     _PAIR_BASE = {
         frozenset(["banana", "teapot"]): 0.30,
         frozenset(["banana", "school_bus"]): 0.20,
-        frozenset(["king_penguin", "teapot"]): 0.15,
+        frozenset(["king_penguin", "teapot"]): 0.0,
         frozenset(["brown_bear", "school_bus"]): 0.10,
         frozenset(["banana", "orange"]): 0.0,
         frozenset(["king_penguin", "sports_car"]): 0.0,
@@ -252,31 +240,46 @@ def _compute_pair_signals(pair, s, _sigmoid):
 
     if pair == frozenset(["banana", "orange"]):
         return ("orange",
-                _sigmoid(s.get("hue_red", 0), 0.25, 6) + _sigmoid(s.get("color_std", 0), 0.50, 5)
+                _sigmoid(s.get("hue_red", 0), 0.25, 6) + _sigmoid(s.get("color_std", 0), 0.35, 5)
                 + _sigmoid(s.get("bw", 1), 0.25, -5) + _sigmoid(s.get("grad_mean", 1), 0.80, -3)
-                + _sigmoid(s.get("hist_orange_minus_banana", 0), 0.0, 3),
+                + _sigmoid(s.get("hist_orange_minus_banana", 0), 0.0, 3)
+                + _sigmoid(s.get("warm_hue_mean", 1), 0.40, -6)
+                + _sigmoid(s.get("warm_val_mean", 0), 0.66, 5)
+                + _sigmoid(s.get("sat_color_std", 0), 0.25, 5)
+                + _sigmoid(s.get("warm_sat_cv", 1), 0.26, -5),
                 "banana",
-                _sigmoid(s.get("hue_red", 1), 0.25, -6) + _sigmoid(s.get("color_std", 1), 0.50, -5)
+                _sigmoid(s.get("hue_red", 1), 0.25, -6) + _sigmoid(s.get("color_std", 1), 0.35, -5)
                 + _sigmoid(s.get("bw", 0), 0.25, 5) + _sigmoid(s.get("grad_mean", 0), 0.80, 3)
-                + _sigmoid(s.get("hist_orange_minus_banana", 0), 0.0, -3))
+                + _sigmoid(s.get("hist_orange_minus_banana", 0), 0.0, -3)
+                + _sigmoid(s.get("warm_hue_mean", 0), 0.40, 6)
+                + _sigmoid(s.get("warm_val_mean", 1), 0.66, -5)
+                + _sigmoid(s.get("sat_color_std", 1), 0.25, -5)
+                + _sigmoid(s.get("warm_hue_median", 0), 17.0, 0.2)
+                + _sigmoid(s.get("warm_sat_cv", 0), 0.26, 5))
 
     if pair == frozenset(["banana", "golden_retriever"]):
         return ("golden_retriever",
                 _sigmoid(s.get("edge", 0), 0.24, 10) + _sigmoid(s.get("sat", 1), 0.45, -5)
                 + _sigmoid(s.get("yellow", 1), 0.30, -5) + _sigmoid(s.get("bot_edge", 0), 0.24, 8)
-                + _sigmoid(s.get("hist_gr_minus_banana", 0), 0.0, 2),
+                + _sigmoid(s.get("hist_gr_minus_banana", 0), 0.0, 2)
+                + _sigmoid(s.get("warm_hue_median", 1), 18.0, -0.3),
                 "banana",
                 _sigmoid(s.get("edge", 1), 0.24, -10) + _sigmoid(s.get("sat", 0), 0.45, 5)
                 + _sigmoid(s.get("yellow", 0), 0.30, 5) + _sigmoid(s.get("bot_edge", 1), 0.24, -8)
-                + _sigmoid(s.get("hist_gr_minus_banana", 0), 0.0, -2))
+                + _sigmoid(s.get("hist_gr_minus_banana", 0), 0.0, -2)
+                + _sigmoid(s.get("warm_hue_median", 0), 18.0, 0.3))
 
     if pair == frozenset(["mushroom", "golden_retriever"]):
         return ("mushroom",
                 _sigmoid(s.get("val", 1), 0.50, -4) + _sigmoid(s.get("sat_br", 0), 0.43, 5)
-                + _sigmoid(s.get("lap_var", 0), 8000, 0.0002) + _sigmoid(s.get("hue_yellow", 0), 0.12, 5),
+                + _sigmoid(s.get("lap_var", 0), 8000, 0.0002) + _sigmoid(s.get("hue_yellow", 0), 0.12, 5)
+                + _sigmoid(s.get("dct_high", 0), 0.20, 5)
+                + _sigmoid(s.get("dct_mid_over_low", 0), 0.40, 4),
                 "golden_retriever",
                 _sigmoid(s.get("val", 0), 0.50, 4) + _sigmoid(s.get("sat_br", 1), 0.43, -5)
-                + _sigmoid(s.get("lap_var", 99999), 8000, -0.0002) + _sigmoid(s.get("hue_yellow", 1), 0.12, -5))
+                + _sigmoid(s.get("lap_var", 99999), 8000, -0.0002) + _sigmoid(s.get("hue_yellow", 1), 0.12, -5)
+                + _sigmoid(s.get("dct_low", 0), 0.22, 4)
+                + _sigmoid(s.get("dct_mid_over_low", 1), 0.40, -4))
 
     if pair == frozenset(["orange", "golden_retriever"]):
         return ("orange",
@@ -329,30 +332,48 @@ def _compute_pair_signals(pair, s, _sigmoid):
     if pair == frozenset(["brown_bear", "school_bus"]):
         return ("brown_bear",
                 _sigmoid(s.get("green", 0), 0.15, 5) + _sigmoid(s.get("edge", 0), 0.30, 8)
-                + _sigmoid(s.get("grad_dir_entropy", 0), 0.96, 10) + _sigmoid(s.get("hue_cyan_blue", 1), 0.02, -8),
+                + _sigmoid(s.get("grad_dir_entropy", 0), 0.96, 10) + _sigmoid(s.get("hue_cyan_blue", 1), 0.02, -8)
+                + _sigmoid(s.get("autocorr_h", 1), 0.17, -6)
+                + _sigmoid(s.get("horiz_dominance", 1), 1.30, -3),
                 "school_bus",
                 _sigmoid(s.get("green", 1), 0.15, -5) + _sigmoid(s.get("edge", 1), 0.30, -8)
-                + _sigmoid(s.get("grad_dir_entropy", 1), 0.96, -10) + _sigmoid(s.get("hue_cyan_blue", 0), 0.02, 8))
+                + _sigmoid(s.get("grad_dir_entropy", 1), 0.96, -10) + _sigmoid(s.get("hue_cyan_blue", 0), 0.02, 8)
+                + _sigmoid(s.get("autocorr_h", 0), 0.17, 6)
+                + _sigmoid(s.get("horiz_dominance", 0), 1.30, 3))
 
     if pair == frozenset(["sports_car", "school_bus"]):
         return ("sports_car",
                 _sigmoid(s.get("hue_orange", 1), 0.30, -5) + _sigmoid(s.get("yellow", 1), 0.15, -5)
                 + _sigmoid(s.get("warm", 1), 0.30, -4) + _sigmoid(s.get("blob_lap_var", 1), 0.60, -3)
-                + _sigmoid(s.get("hist_sports_minus_bus", 0), -0.15, 2),
+                + _sigmoid(s.get("hist_sports_minus_bus", 0), -0.15, 2)
+                + _sigmoid(s.get("warm_bl", 1), 0.33, -4)
+                + _sigmoid(s.get("radial_warm_diff", 1), 0.10, -4)
+                + _sigmoid(s.get("blob_coverage", 1), 0.25, -4)
+                + _sigmoid(s.get("dct_high", 0), 0.195, 5)
+                + _sigmoid(s.get("vert_regularity", 0), 3.3, 3),
                 "school_bus",
                 _sigmoid(s.get("hue_orange", 0), 0.30, 5) + _sigmoid(s.get("yellow", 0), 0.15, 5)
                 + _sigmoid(s.get("warm", 0), 0.30, 4) + _sigmoid(s.get("blob_lap_var", 0), 0.60, 3)
-                + _sigmoid(s.get("hist_sports_minus_bus", 0), -0.15, -2))
+                + _sigmoid(s.get("hist_sports_minus_bus", 0), -0.15, -2)
+                + _sigmoid(s.get("warm_bl", 0), 0.33, 4)
+                + _sigmoid(s.get("radial_warm_diff", 0), 0.10, 4)
+                + _sigmoid(s.get("blob_coverage", 0), 0.25, 4)
+                + _sigmoid(s.get("dct_high", 1), 0.195, -5)
+                + _sigmoid(s.get("vert_regularity", 10), 3.3, -3))
 
     if pair == frozenset(["brown_bear", "golden_retriever"]):
         return ("brown_bear",
                 _sigmoid(s.get("textured_decentered", 0), 0.10, 8) + _sigmoid(s.get("center_surround", 1), 0.90, -4)
                 + _sigmoid(s.get("edge_tl", 0), 0.26, 8) + _sigmoid(s.get("warm_val_mean", 1), 0.51, -5)
-                + _sigmoid(s.get("hist_bear_minus_gr", 0), 0.0, 3),
+                + _sigmoid(s.get("hist_bear_minus_gr", 0), 0.0, 3)
+                + _sigmoid(s.get("dct_high", 0), 0.20, 4)
+                + _sigmoid(s.get("gabor_45_04_var", 0), 0.70, 3),
                 "golden_retriever",
                 _sigmoid(s.get("textured_decentered", 1), 0.10, -8) + _sigmoid(s.get("center_surround", 0), 0.90, 4)
                 + _sigmoid(s.get("edge_tl", 1), 0.26, -8) + _sigmoid(s.get("warm_val_mean", 0), 0.51, 5)
-                + _sigmoid(s.get("hist_bear_minus_gr", 0), 0.0, -3))
+                + _sigmoid(s.get("hist_bear_minus_gr", 0), 0.0, -3)
+                + _sigmoid(s.get("dct_low", 0), 0.22, 4)
+                + _sigmoid(s.get("gabor_45_04_var", 1), 0.70, -3))
 
     if pair == frozenset(["brown_bear", "banana"]):
         return ("brown_bear",
@@ -374,27 +395,51 @@ def _compute_pair_signals(pair, s, _sigmoid):
 
     if pair == frozenset(["teapot", "king_penguin"]):
         return ("teapot",
-                _sigmoid(s.get("hue_red", 0), 0.20, 5) + _sigmoid(s.get("warm", 0), 0.25, 4)
-                + _sigmoid(s.get("sat_bl", 0), 0.30, 4) + _sigmoid(s.get("hist_teapot_minus_kp", 0), 0.0, 3),
+                _sigmoid(s.get("hist_teapot_minus_kp", 0), -0.03, 4)
+                + _sigmoid(s.get("warm_bl", 0), 0.20, 5)
+                + _sigmoid(s.get("smooth_warm", 0), 0.06, 6)
+                + _sigmoid(s.get("horiz_dominance", 0), 1.05, 4)
+                + _sigmoid(s.get("autocorr_h", 0), 0.14, 6)
+                + _sigmoid(s.get("sat_br", 0), 0.25, 5)
+                + _sigmoid(s.get("mid_wider", 0), 0.5, 5)
+                + _sigmoid(s.get("mid_width_ratio", 0), 1.35, 3)
+                + _sigmoid(s.get("gabor_dominant_orient", 0), 0.20, 5),
                 "king_penguin",
-                _sigmoid(s.get("hue_red", 1), 0.20, -5) + _sigmoid(s.get("warm", 1), 0.25, -4)
-                + _sigmoid(s.get("sat_bl", 1), 0.30, -4) + _sigmoid(s.get("hist_teapot_minus_kp", 0), 0.0, -3))
+                _sigmoid(s.get("hist_teapot_minus_kp", 0), -0.03, -4)
+                + _sigmoid(s.get("warm_bl", 1), 0.20, -5)
+                + _sigmoid(s.get("smooth_warm", 1), 0.06, -6)
+                + _sigmoid(s.get("horiz_dominance", 1), 1.05, -4)
+                + _sigmoid(s.get("autocorr_h", 1), 0.14, -6)
+                + _sigmoid(s.get("sat_br", 1), 0.25, -5)
+                + _sigmoid(s.get("mid_wider", 1), 0.5, -5)
+                + _sigmoid(s.get("mid_width_ratio", 1), 1.35, -3)
+                + _sigmoid(s.get("gabor_dominant_orient", 1), 0.20, -5))
 
     if pair == frozenset(["teapot", "banana"]):
         return ("teapot",
-                _sigmoid(s.get("yellow", 1), 0.25, -5) + _sigmoid(s.get("edge", 1), 0.20, -8)
-                + _sigmoid(s.get("top_uniformity", 0), 0.70, 5) + _sigmoid(s.get("hist_teapot_minus_banana", 0), 0.0, 3),
+                _sigmoid(s.get("yellow", 1), 0.30, -5) + _sigmoid(s.get("edge", 1), 0.20, -8)
+                + _sigmoid(s.get("top_uniformity", 0), 0.70, 5) + _sigmoid(s.get("hist_teapot_minus_banana", 0), 0.0, 3)
+                + _sigmoid(s.get("sat", 1), 0.45, -5)
+                + _sigmoid(s.get("color_std", 1), 0.22, -5),
                 "banana",
-                _sigmoid(s.get("yellow", 0), 0.25, 5) + _sigmoid(s.get("edge", 0), 0.20, 8)
-                + _sigmoid(s.get("top_uniformity", 1), 0.70, -5) + _sigmoid(s.get("hist_teapot_minus_banana", 0), 0.0, -3))
+                _sigmoid(s.get("yellow", 0), 0.30, 5) + _sigmoid(s.get("edge", 0), 0.20, 8)
+                + _sigmoid(s.get("top_uniformity", 1), 0.70, -5) + _sigmoid(s.get("hist_teapot_minus_banana", 0), 0.0, -3)
+                + _sigmoid(s.get("sat", 0), 0.45, 5)
+                + _sigmoid(s.get("color_std", 0), 0.22, 5))
 
     if pair == frozenset(["banana", "mushroom"]):
         return ("banana",
                 _sigmoid(s.get("warm_val_mean", 0), 0.55, 5) + _sigmoid(s.get("smooth_warm", 0), 0.15, 5)
-                + _sigmoid(s.get("val", 0), 0.55, 4) + _sigmoid(s.get("hist_banana_minus_mushroom", 0), 0.0, 3),
+                + _sigmoid(s.get("val", 0), 0.55, 4) + _sigmoid(s.get("hist_banana_minus_mushroom", 0), 0.0, 3)
+                + _sigmoid(s.get("smooth_yellow", 0), 0.08, 8)
+                + _sigmoid(s.get("sat_smooth_warm", 0), 0.08, 6)
+                + _sigmoid(s.get("dct_low", 0), 0.23, 5),
                 "mushroom",
                 _sigmoid(s.get("round_edge", 0), 0.20, 6) + _sigmoid(s.get("edge", 0), 0.25, 6)
-                + _sigmoid(s.get("warm_blob_count", 0), 0.4, 4) + _sigmoid(s.get("hist_banana_minus_mushroom", 0), 0.0, -3))
+                + _sigmoid(s.get("warm_blob_count", 0), 0.4, 4) + _sigmoid(s.get("hist_banana_minus_mushroom", 0), 0.0, -3)
+                + _sigmoid(s.get("bot_edge", 0), 0.26, 5)
+                + _sigmoid(s.get("edge_br", 0), 0.26, 5)
+                + _sigmoid(s.get("dct_high", 0), 0.20, 5))
 
     if pair == frozenset(["golden_retriever", "teapot"]):
         return ("golden_retriever",
@@ -439,10 +484,12 @@ def _compute_pair_signals(pair, s, _sigmoid):
     if pair == frozenset(["golden_retriever", "king_penguin"]):
         return ("golden_retriever",
                 _sigmoid(s.get("warm", 0), 0.35, 5) + _sigmoid(s.get("blob_coverage", 0), 0.30, 4)
-                + _sigmoid(s.get("hue_red", 0), 0.25, 4) + _sigmoid(s.get("hist_gr_minus_kp", 0), 0.0, 3),
+                + _sigmoid(s.get("hue_red", 0), 0.25, 4) + _sigmoid(s.get("hist_gr_minus_kp", 0), 0.0, 3)
+                + _sigmoid(s.get("warm_hue_median", 1), 18.0, -0.3),
                 "king_penguin",
                 _sigmoid(s.get("warm", 1), 0.35, -5) + _sigmoid(s.get("blob_coverage", 1), 0.30, -4)
-                + _sigmoid(s.get("hue_red", 1), 0.25, -4) + _sigmoid(s.get("hist_gr_minus_kp", 0), 0.0, -3))
+                + _sigmoid(s.get("hue_red", 1), 0.25, -4) + _sigmoid(s.get("hist_gr_minus_kp", 0), 0.0, -3)
+                + _sigmoid(s.get("warm_hue_median", 0), 18.0, 0.3))
 
     return None
 

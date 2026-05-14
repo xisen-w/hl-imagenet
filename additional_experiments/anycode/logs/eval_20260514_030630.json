@@ -1,0 +1,288 @@
+{
+  "top1_accuracy": 0.869,
+  "correct": 1738,
+  "total": 2000,
+  "elapsed_s": 6.8,
+  "ms_per_image": 3.4,
+  "per_class": {
+    "golden_retriever": {
+      "accuracy": 0.91,
+      "correct": 182,
+      "total": 200
+    },
+    "mushroom": {
+      "accuracy": 0.86,
+      "correct": 172,
+      "total": 200
+    },
+    "teapot": {
+      "accuracy": 0.805,
+      "correct": 161,
+      "total": 200
+    },
+    "school_bus": {
+      "accuracy": 0.9,
+      "correct": 180,
+      "total": 200
+    },
+    "banana": {
+      "accuracy": 0.845,
+      "correct": 169,
+      "total": 200
+    },
+    "orange": {
+      "accuracy": 0.85,
+      "correct": 170,
+      "total": 200
+    },
+    "brown_bear": {
+      "accuracy": 0.895,
+      "correct": 179,
+      "total": 200
+    },
+    "king_penguin": {
+      "accuracy": 0.88,
+      "correct": 176,
+      "total": 200
+    },
+    "jellyfish": {
+      "accuracy": 0.865,
+      "correct": 173,
+      "total": 200
+    },
+    "sports_car": {
+      "accuracy": 0.88,
+      "correct": 176,
+      "total": 200
+    }
+  },
+  "top_confusions": [
+    {
+      "true": "banana",
+      "pred": "orange",
+      "count": 9
+    },
+    {
+      "true": "orange",
+      "pred": "teapot",
+      "count": 8
+    },
+    {
+      "true": "orange",
+      "pred": "banana",
+      "count": 8
+    },
+    {
+      "true": "king_penguin",
+      "pred": "golden_retriever",
+      "count": 8
+    },
+    {
+      "true": "jellyfish",
+      "pred": "teapot",
+      "count": 8
+    },
+    {
+      "true": "sports_car",
+      "pred": "school_bus",
+      "count": 8
+    },
+    {
+      "true": "teapot",
+      "pred": "orange",
+      "count": 7
+    },
+    {
+      "true": "banana",
+      "pred": "school_bus",
+      "count": 7
+    },
+    {
+      "true": "orange",
+      "pred": "brown_bear",
+      "count": 6
+    },
+    {
+      "true": "jellyfish",
+      "pred": "golden_retriever",
+      "count": 6
+    },
+    {
+      "true": "mushroom",
+      "pred": "king_penguin",
+      "count": 5
+    },
+    {
+      "true": "mushroom",
+      "pred": "banana",
+      "count": 5
+    },
+    {
+      "true": "teapot",
+      "pred": "banana",
+      "count": 5
+    },
+    {
+      "true": "teapot",
+      "pred": "brown_bear",
+      "count": 5
+    },
+    {
+      "true": "brown_bear",
+      "pred": "school_bus",
+      "count": 5
+    }
+  ],
+  "sample_errors": [
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_0.JPEG",
+      "true": "golden_retriever",
+      "pred": "orange"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_100.JPEG",
+      "true": "golden_retriever",
+      "pred": "brown_bear"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_104.JPEG",
+      "true": "golden_retriever",
+      "pred": "mushroom"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_138.JPEG",
+      "true": "golden_retriever",
+      "pred": "brown_bear"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_142.JPEG",
+      "true": "golden_retriever",
+      "pred": "mushroom"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_15.JPEG",
+      "true": "golden_retriever",
+      "pred": "teapot"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_164.JPEG",
+      "true": "golden_retriever",
+      "pred": "sports_car"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_173.JPEG",
+      "true": "golden_retriever",
+      "pred": "banana"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_177.JPEG",
+      "true": "golden_retriever",
+      "pred": "teapot"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_18.JPEG",
+      "true": "golden_retriever",
+      "pred": "brown_bear"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_180.JPEG",
+      "true": "golden_retriever",
+      "pred": "teapot"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_196.JPEG",
+      "true": "golden_retriever",
+      "pred": "king_penguin"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_21.JPEG",
+      "true": "golden_retriever",
+      "pred": "banana"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_221.JPEG",
+      "true": "golden_retriever",
+      "pred": "teapot"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_24.JPEG",
+      "true": "golden_retriever",
+      "pred": "king_penguin"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_246.JPEG",
+      "true": "golden_retriever",
+      "pred": "banana"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_267.JPEG",
+      "true": "golden_retriever",
+      "pred": "orange"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_272.JPEG",
+      "true": "golden_retriever",
+      "pred": "mushroom"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_106.JPEG",
+      "true": "mushroom",
+      "pred": "king_penguin"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_109.JPEG",
+      "true": "mushroom",
+      "pred": "golden_retriever"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_125.JPEG",
+      "true": "mushroom",
+      "pred": "banana"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_127.JPEG",
+      "true": "mushroom",
+      "pred": "school_bus"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_13.JPEG",
+      "true": "mushroom",
+      "pred": "sports_car"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_130.JPEG",
+      "true": "mushroom",
+      "pred": "teapot"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_138.JPEG",
+      "true": "mushroom",
+      "pred": "orange"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_140.JPEG",
+      "true": "mushroom",
+      "pred": "king_penguin"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_144.JPEG",
+      "true": "mushroom",
+      "pred": "banana"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_154.JPEG",
+      "true": "mushroom",
+      "pred": "golden_retriever"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_171.JPEG",
+      "true": "mushroom",
+      "pred": "king_penguin"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_181.JPEG",
+      "true": "mushroom",
+      "pred": "golden_retriever"
+    }
+  ]
+}
