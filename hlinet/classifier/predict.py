@@ -24,6 +24,13 @@ _builder = SceneGraphBuilder()
 
 _HIST_BLEND_W = 0.88
 
+_SCORE_CALIBRATION = {
+    "school_bus": -0.02,
+    "jellyfish": 0.02,
+    "king_penguin": 0.01,
+    "mushroom": 0.01,
+}
+
 _HIST_MEANS = {
     "banana": 1.233, "brown_bear": 1.331, "golden_retriever": 1.320,
     "jellyfish": 0.664, "king_penguin": 1.215, "mushroom": 1.363,
@@ -67,6 +74,13 @@ def predict(image: np.ndarray) -> Prediction:
         )
 
     candidates = _blend_hist_scores(candidates, image)
+    candidates = [
+        (label, score + _SCORE_CALIBRATION.get(label, 0.0), route)
+        for label, score, route in candidates
+    ]
+
+    candidates = _potential_field_repulsion(candidates, graph)
+
     candidates.sort(key=lambda x: x[1], reverse=True)
 
     candidates = _pairwise_rerank(candidates, graph)
@@ -144,10 +158,11 @@ def _pairwise_rerank(
         frozenset(["banana", "school_bus"]): 0.20,
         frozenset(["king_penguin", "teapot"]): 0.0,
         frozenset(["brown_bear", "school_bus"]): 0.10,
-        frozenset(["banana", "orange"]): 0.0,
-        frozenset(["king_penguin", "sports_car"]): 0.0,
+        frozenset(["banana", "orange"]): 0.10,
+        frozenset(["king_penguin", "sports_car"]): 0.15,
         frozenset(["golden_retriever", "orange"]): -0.05,
-        frozenset(["brown_bear", "golden_retriever"]): 0.0,
+        frozenset(["brown_bear", "golden_retriever"]): 0.10,
+        frozenset(["brown_bear", "mushroom"]): 0.10,
         frozenset(["golden_retriever", "sports_car"]): -0.05,
         frozenset(["banana", "golden_retriever"]): -0.05,
         frozenset(["mushroom", "school_bus"]): -0.05,
@@ -220,6 +235,66 @@ def _pairwise_rerank(
     return candidates
 
 
+_REPULSION_PAIRS = [
+    ("banana", "orange", 0.012),
+    ("sports_car", "school_bus", 0.012),
+    ("mushroom", "banana", 0.010),
+    ("teapot", "banana", 0.010),
+    ("brown_bear", "mushroom", 0.010),
+    ("teapot", "king_penguin", 0.012),
+    ("golden_retriever", "banana", 0.008),
+    ("golden_retriever", "king_penguin", 0.008),
+    ("brown_bear", "king_penguin", 0.008),
+]
+
+
+def _potential_field_repulsion(
+    candidates: list[tuple[str, float, list[str]]],
+    graph: SceneGraph,
+) -> list[tuple[str, float, list[str]]]:
+    """Apply potential field: boost winner, penalize loser between confused pairs.
+
+    When two classes both score high (proximity > 0.6), the discriminant winner
+    gets a small boost and the loser a small penalty. This spreads their scores
+    apart before ranking, making the downstream reranking's job easier.
+    """
+    from hlinet.features.compounds.phase2_signatures import _stats, _sigmoid
+    s = _stats(graph)
+
+    score_map = {label: score for label, score, _ in candidates}
+    adjustments = {label: 0.0 for label, _, _ in candidates}
+
+    for cls1, cls2, strength in _REPULSION_PAIRS:
+        s1 = score_map.get(cls1, 0)
+        s2 = score_map.get(cls2, 0)
+        if s1 < 0.25 or s2 < 0.25:
+            continue
+        proximity = min(s1, s2) / max(max(s1, s2), 0.01)
+        if proximity < 0.6:
+            continue
+
+        pair = frozenset([cls1, cls2])
+        signals = _compute_pair_signals(pair, s, _sigmoid)
+        if signals is None:
+            continue
+
+        c1, sig1, c2, sig2 = signals
+        disc_gap = abs(sig1 - sig2)
+        if disc_gap < 1.0:
+            continue
+
+        winner = c1 if sig1 > sig2 else c2
+        loser = c1 if sig1 < sig2 else c2
+        force = strength * proximity * min(disc_gap / 4.0, 1.0)
+        adjustments[winner] += force * 0.5
+        adjustments[loser] -= force * 0.5
+
+    return [
+        (label, score + adjustments.get(label, 0.0), route)
+        for label, score, route in candidates
+    ]
+
+
 def _local_verify(
     candidates: list[tuple[str, float, list[str]]],
     graph: SceneGraph,
@@ -245,17 +320,14 @@ def _compute_pair_signals(pair, s, _sigmoid):
                 + _sigmoid(s.get("hist_orange_minus_banana", 0), 0.0, 3)
                 + _sigmoid(s.get("warm_hue_mean", 1), 0.40, -6)
                 + _sigmoid(s.get("warm_val_mean", 0), 0.66, 5)
-                + _sigmoid(s.get("sat_color_std", 0), 0.25, 5)
-                + _sigmoid(s.get("warm_sat_cv", 1), 0.26, -5),
+                + _sigmoid(s.get("sat_color_std", 0), 0.25, 5),
                 "banana",
                 _sigmoid(s.get("hue_red", 1), 0.25, -6) + _sigmoid(s.get("color_std", 1), 0.35, -5)
                 + _sigmoid(s.get("bw", 0), 0.25, 5) + _sigmoid(s.get("grad_mean", 0), 0.80, 3)
                 + _sigmoid(s.get("hist_orange_minus_banana", 0), 0.0, -3)
                 + _sigmoid(s.get("warm_hue_mean", 0), 0.40, 6)
                 + _sigmoid(s.get("warm_val_mean", 1), 0.66, -5)
-                + _sigmoid(s.get("sat_color_std", 1), 0.25, -5)
-                + _sigmoid(s.get("warm_hue_median", 0), 17.0, 0.2)
-                + _sigmoid(s.get("warm_sat_cv", 0), 0.26, 5))
+                + _sigmoid(s.get("sat_color_std", 1), 0.25, -5))
 
     if pair == frozenset(["banana", "golden_retriever"]):
         return ("golden_retriever",
@@ -420,12 +492,16 @@ def _compute_pair_signals(pair, s, _sigmoid):
                 _sigmoid(s.get("yellow", 1), 0.30, -5) + _sigmoid(s.get("edge", 1), 0.20, -8)
                 + _sigmoid(s.get("top_uniformity", 0), 0.70, 5) + _sigmoid(s.get("hist_teapot_minus_banana", 0), 0.0, 3)
                 + _sigmoid(s.get("sat", 1), 0.45, -5)
-                + _sigmoid(s.get("color_std", 1), 0.22, -5),
+                + _sigmoid(s.get("color_std", 1), 0.22, -5)
+                + _sigmoid(s.get("mid_wider", 0), 0.5, 4)
+                + _sigmoid(s.get("gabor_dominant_orient", 0), 0.30, 4),
                 "banana",
                 _sigmoid(s.get("yellow", 0), 0.30, 5) + _sigmoid(s.get("edge", 0), 0.20, 8)
                 + _sigmoid(s.get("top_uniformity", 1), 0.70, -5) + _sigmoid(s.get("hist_teapot_minus_banana", 0), 0.0, -3)
                 + _sigmoid(s.get("sat", 0), 0.45, 5)
-                + _sigmoid(s.get("color_std", 0), 0.22, 5))
+                + _sigmoid(s.get("color_std", 0), 0.22, 5)
+                + _sigmoid(s.get("mid_wider", 1), 0.5, -4)
+                + _sigmoid(s.get("gabor_dominant_orient", 1), 0.30, -4))
 
     if pair == frozenset(["banana", "mushroom"]):
         return ("banana",

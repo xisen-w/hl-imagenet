@@ -1,0 +1,5047 @@
+{
+  "experiment": "cnn_symbolic_gap_mining",
+  "split": "val",
+  "checkpoint": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/additional_experiments/deep_learning/models/cnn_baseline_latest.pt",
+  "config": {
+    "image_size": 64,
+    "patch": 16,
+    "stride": 8,
+    "top_patches": 5,
+    "max_per_class": null,
+    "device": "cpu"
+  },
+  "elapsed_s": 402.161,
+  "totals": {
+    "samples": 2000,
+    "both_correct": 893,
+    "cnn_correct_symbolic_wrong": 543,
+    "symbolic_correct_cnn_wrong": 107,
+    "both_wrong": 457
+  },
+  "groups": [
+    {
+      "true_label": "orange",
+      "symbolic_label": "banana",
+      "summary": {
+        "count": 3,
+        "mean_cnn_true_prob": 0.9803,
+        "mean_symbolic_confidence": 0.657,
+        "top_occlusion_regions": [
+          [
+            "bottom_center",
+            4
+          ],
+          [
+            "middle_left",
+            2
+          ],
+          [
+            "center",
+            2
+          ],
+          [
+            "bottom_left",
+            1
+          ]
+        ],
+        "mean_top_patch_stats": {
+          "blue_frac": 0.0,
+          "edge_density": 0.211,
+          "green_frac": 0.0,
+          "mean_hue": 18.619,
+          "mean_sat": 0.898,
+          "mean_val": 0.939,
+          "texture_lap_var": 3253.722,
+          "warm_frac": 0.997,
+          "yellow_frac": 0.991
+        }
+      },
+      "feature_hint": "For true orange misread as banana, the CNN often relies on edge-dense, warm-color, yellow evidence in bottom_center, middle_left, center. Candidate symbolic direction: add a local patch/grid detector for this evidence and gate it against banana.",
+      "examples": [
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/orange/n07747607_39.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/orange_as_banana_1.jpg",
+          "true_label": "orange",
+          "symbolic_label": "banana",
+          "symbolic_confidence": 0.63888226799412,
+          "cnn_true_prob": 0.9903014898300171,
+          "cnn_pred_prob": 0.9903014898300171,
+          "cnn_margin": 0.9833271503448486,
+          "occlusion": {
+            "base_true_prob": 0.9903,
+            "top_patches": [
+              {
+                "bbox": [
+                  24,
+                  48,
+                  16,
+                  16
+                ],
+                "drop": 0.02038,
+                "masked_true_prob": 0.96992,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 16.87,
+                  "mean_sat": 0.866,
+                  "mean_val": 0.923,
+                  "warm_frac": 1.0,
+                  "yellow_frac": 1.0,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.367,
+                  "texture_lap_var": 5956.7
+                }
+              },
+              {
+                "bbox": [
+                  16,
+                  48,
+                  16,
+                  16
+                ],
+                "drop": 0.01939,
+                "masked_true_prob": 0.97091,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 17.2,
+                  "mean_sat": 0.873,
+                  "mean_val": 0.928,
+                  "warm_frac": 1.0,
+                  "yellow_frac": 1.0,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.34,
+                  "texture_lap_var": 5436.7
+                }
+              },
+              {
+                "bbox": [
+                  8,
+                  40,
+                  16,
+                  16
+                ],
+                "drop": 0.0161,
+                "masked_true_prob": 0.9742,
+                "region": "bottom_left",
+                "crop_stats": {
+                  "mean_hue": 17.07,
+                  "mean_sat": 0.889,
+                  "mean_val": 0.929,
+                  "warm_frac": 1.0,
+                  "yellow_frac": 0.969,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.379,
+                  "texture_lap_var": 3899.2
+                }
+              },
+              {
+                "bbox": [
+                  24,
+                  8,
+                  16,
+                  16
+                ],
+                "drop": 0.0146,
+                "masked_true_prob": 0.9757,
+                "region": "top_center",
+                "crop_stats": {
+                  "mean_hue": 16.38,
+                  "mean_sat": 0.821,
+                  "mean_val": 0.927,
+                  "warm_frac": 1.0,
+                  "yellow_frac": 0.891,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.348,
+                  "texture_lap_var": 8792.0
+                }
+              },
+              {
+                "bbox": [
+                  32,
+                  48,
+                  16,
+                  16
+                ],
+                "drop": 0.01433,
+                "masked_true_prob": 0.97597,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 16.9,
+                  "mean_sat": 0.86,
+                  "mean_val": 0.918,
+                  "warm_frac": 1.0,
+                  "yellow_frac": 1.0,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.398,
+                  "texture_lap_var": 9782.6
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/orange/n07747607_322.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/orange_as_banana_2.jpg",
+          "true_label": "orange",
+          "symbolic_label": "banana",
+          "symbolic_confidence": 0.7262918415197539,
+          "cnn_true_prob": 0.9795241951942444,
+          "cnn_pred_prob": 0.9795241951942444,
+          "cnn_margin": 0.9610551595687866,
+          "occlusion": {
+            "base_true_prob": 0.97952,
+            "top_patches": [
+              {
+                "bbox": [
+                  24,
+                  40,
+                  16,
+                  16
+                ],
+                "drop": 0.08388,
+                "masked_true_prob": 0.89564,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 18.71,
+                  "mean_sat": 0.894,
+                  "mean_val": 0.954,
+                  "warm_frac": 1.0,
+                  "yellow_frac": 1.0,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.191,
+                  "texture_lap_var": 1784.1
+                }
+              },
+              {
+                "bbox": [
+                  8,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.05809,
+                "masked_true_prob": 0.92144,
+                "region": "middle_left",
+                "crop_stats": {
+                  "mean_hue": 19.47,
+                  "mean_sat": 0.799,
+                  "mean_val": 0.964,
+                  "warm_frac": 0.98,
+                  "yellow_frac": 0.969,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.242,
+                  "texture_lap_var": 3199.7
+                }
+              },
+              {
+                "bbox": [
+                  16,
+                  40,
+                  16,
+                  16
+                ],
+                "drop": 0.05798,
+                "masked_true_prob": 0.92155,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 18.94,
+                  "mean_sat": 0.842,
+                  "mean_val": 0.951,
+                  "warm_frac": 1.0,
+                  "yellow_frac": 1.0,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.324,
+                  "texture_lap_var": 4924.3
+                }
+              },
+              {
+                "bbox": [
+                  24,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.0535,
+                "masked_true_prob": 0.92603,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 19.29,
+                  "mean_sat": 0.797,
+                  "mean_val": 0.946,
+                  "warm_frac": 1.0,
+                  "yellow_frac": 1.0,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.25,
+                  "texture_lap_var": 5939.8
+                }
+              },
+              {
+                "bbox": [
+                  40,
+                  8,
+                  16,
+                  16
+                ],
+                "drop": 0.05229,
+                "masked_true_prob": 0.92724,
+                "region": "top_right",
+                "crop_stats": {
+                  "mean_hue": 18.77,
+                  "mean_sat": 0.747,
+                  "mean_val": 0.932,
+                  "warm_frac": 1.0,
+                  "yellow_frac": 0.855,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.152,
+                  "texture_lap_var": 1355.0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/orange/n07747607_390.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/orange_as_banana_3.jpg",
+          "true_label": "orange",
+          "symbolic_label": "banana",
+          "symbolic_confidence": 0.605840331785457,
+          "cnn_true_prob": 0.9711686372756958,
+          "cnn_pred_prob": 0.9711686372756958,
+          "cnn_margin": 0.9509394764900208,
+          "occlusion": {
+            "base_true_prob": 0.97117,
+            "top_patches": [
+              {
+                "bbox": [
+                  24,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.1322,
+                "masked_true_prob": 0.83897,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 19.82,
+                  "mean_sat": 0.986,
+                  "mean_val": 0.947,
+                  "warm_frac": 1.0,
+                  "yellow_frac": 1.0,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.0,
+                  "texture_lap_var": 64.7
+                }
+              },
+              {
+                "bbox": [
+                  32,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.12524,
+                "masked_true_prob": 0.84593,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 20.3,
+                  "mean_sat": 0.949,
+                  "mean_val": 0.92,
+                  "warm_frac": 0.996,
+                  "yellow_frac": 0.984,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.031,
+                  "texture_lap_var": 3887.3
+                }
+              },
+              {
+                "bbox": [
+                  8,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.08111,
+                "masked_true_prob": 0.89006,
+                "region": "middle_left",
+                "crop_stats": {
+                  "mean_hue": 19.19,
+                  "mean_sat": 0.983,
+                  "mean_val": 0.937,
+                  "warm_frac": 1.0,
+                  "yellow_frac": 1.0,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.027,
+                  "texture_lap_var": 130.8
+                }
+              },
+              {
+                "bbox": [
+                  16,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.06781,
+                "masked_true_prob": 0.90336,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 19.47,
+                  "mean_sat": 0.984,
+                  "mean_val": 0.937,
+                  "warm_frac": 1.0,
+                  "yellow_frac": 1.0,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.027,
+                  "texture_lap_var": 165.0
+                }
+              },
+              {
+                "bbox": [
+                  0,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.06002,
+                "masked_true_prob": 0.91115,
+                "region": "middle_left",
+                "crop_stats": {
+                  "mean_hue": 21.44,
+                  "mean_sat": 0.965,
+                  "mean_val": 0.892,
+                  "warm_frac": 0.957,
+                  "yellow_frac": 0.941,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.039,
+                  "texture_lap_var": 2858.5
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "true_label": "sports_car",
+      "symbolic_label": "school_bus",
+      "summary": {
+        "count": 3,
+        "mean_cnn_true_prob": 0.9595,
+        "mean_symbolic_confidence": 0.7014,
+        "top_occlusion_regions": [
+          [
+            "middle_left",
+            2
+          ],
+          [
+            "center",
+            2
+          ],
+          [
+            "top_center",
+            2
+          ],
+          [
+            "bottom_right",
+            1
+          ],
+          [
+            "bottom_left",
+            1
+          ],
+          [
+            "bottom_center",
+            1
+          ]
+        ],
+        "mean_top_patch_stats": {
+          "blue_frac": 0.049,
+          "edge_density": 0.289,
+          "green_frac": 0.025,
+          "mean_hue": 66.079,
+          "mean_sat": 0.221,
+          "mean_val": 0.381,
+          "texture_lap_var": 15780.233,
+          "warm_frac": 0.156,
+          "yellow_frac": 0.113
+        }
+      },
+      "feature_hint": "For true sports_car misread as school_bus, the CNN often relies on edge-dense, high-texture evidence in middle_left, center, top_center. Candidate symbolic direction: add a local patch/grid detector for this evidence and gate it against school_bus.",
+      "examples": [
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/sports_car/n04285008_430.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/sports_car_as_school_bus_1.jpg",
+          "true_label": "sports_car",
+          "symbolic_label": "school_bus",
+          "symbolic_confidence": 0.7027134095769716,
+          "cnn_true_prob": 0.9867064356803894,
+          "cnn_pred_prob": 0.9867064356803894,
+          "cnn_margin": 0.9796244502067566,
+          "occlusion": {
+            "base_true_prob": 0.98671,
+            "top_patches": [
+              {
+                "bbox": [
+                  40,
+                  40,
+                  16,
+                  16
+                ],
+                "drop": 0.01789,
+                "masked_true_prob": 0.96882,
+                "region": "bottom_right",
+                "crop_stats": {
+                  "mean_hue": 88.78,
+                  "mean_sat": 0.117,
+                  "mean_val": 0.433,
+                  "warm_frac": 0.0,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.051,
+                  "green_frac": 0.0,
+                  "edge_density": 0.273,
+                  "texture_lap_var": 16106.1
+                }
+              },
+              {
+                "bbox": [
+                  8,
+                  40,
+                  16,
+                  16
+                ],
+                "drop": 0.01713,
+                "masked_true_prob": 0.96958,
+                "region": "bottom_left",
+                "crop_stats": {
+                  "mean_hue": 88.63,
+                  "mean_sat": 0.186,
+                  "mean_val": 0.364,
+                  "warm_frac": 0.0,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.031,
+                  "green_frac": 0.0,
+                  "edge_density": 0.234,
+                  "texture_lap_var": 4909.2
+                }
+              },
+              {
+                "bbox": [
+                  32,
+                  40,
+                  16,
+                  16
+                ],
+                "drop": 0.01642,
+                "masked_true_prob": 0.97029,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 93.88,
+                  "mean_sat": 0.133,
+                  "mean_val": 0.41,
+                  "warm_frac": 0.0,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.027,
+                  "green_frac": 0.0,
+                  "edge_density": 0.238,
+                  "texture_lap_var": 14910.6
+                }
+              },
+              {
+                "bbox": [
+                  0,
+                  40,
+                  16,
+                  16
+                ],
+                "drop": 0.01204,
+                "masked_true_prob": 0.97467,
+                "region": "bottom_left",
+                "crop_stats": {
+                  "mean_hue": 88.11,
+                  "mean_sat": 0.106,
+                  "mean_val": 0.45,
+                  "warm_frac": 0.004,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.004,
+                  "green_frac": 0.004,
+                  "edge_density": 0.246,
+                  "texture_lap_var": 14476.2
+                }
+              },
+              {
+                "bbox": [
+                  40,
+                  8,
+                  16,
+                  16
+                ],
+                "drop": 0.01177,
+                "masked_true_prob": 0.97493,
+                "region": "top_right",
+                "crop_stats": {
+                  "mean_hue": 62.15,
+                  "mean_sat": 0.2,
+                  "mean_val": 0.807,
+                  "warm_frac": 0.367,
+                  "yellow_frac": 0.188,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.262,
+                  "texture_lap_var": 5669.1
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/sports_car/n04285008_356.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/sports_car_as_school_bus_2.jpg",
+          "true_label": "sports_car",
+          "symbolic_label": "school_bus",
+          "symbolic_confidence": 0.6995453420299795,
+          "cnn_true_prob": 0.9486315250396729,
+          "cnn_pred_prob": 0.9486315250396729,
+          "cnn_margin": 0.9080069065093994,
+          "occlusion": {
+            "base_true_prob": 0.94863,
+            "top_patches": [
+              {
+                "bbox": [
+                  8,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.06991,
+                "masked_true_prob": 0.87872,
+                "region": "middle_left",
+                "crop_stats": {
+                  "mean_hue": 35.85,
+                  "mean_sat": 0.273,
+                  "mean_val": 0.268,
+                  "warm_frac": 0.32,
+                  "yellow_frac": 0.246,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.02,
+                  "edge_density": 0.207,
+                  "texture_lap_var": 13432.7
+                }
+              },
+              {
+                "bbox": [
+                  24,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.0592,
+                "masked_true_prob": 0.88943,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 29.26,
+                  "mean_sat": 0.459,
+                  "mean_val": 0.271,
+                  "warm_frac": 0.48,
+                  "yellow_frac": 0.352,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.055,
+                  "edge_density": 0.309,
+                  "texture_lap_var": 4890.3
+                }
+              },
+              {
+                "bbox": [
+                  16,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.04432,
+                "masked_true_prob": 0.90431,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 34.75,
+                  "mean_sat": 0.384,
+                  "mean_val": 0.266,
+                  "warm_frac": 0.402,
+                  "yellow_frac": 0.316,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.027,
+                  "edge_density": 0.219,
+                  "texture_lap_var": 9530.5
+                }
+              },
+              {
+                "bbox": [
+                  24,
+                  48,
+                  16,
+                  16
+                ],
+                "drop": 0.02295,
+                "masked_true_prob": 0.92568,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 28.57,
+                  "mean_sat": 0.546,
+                  "mean_val": 0.323,
+                  "warm_frac": 1.0,
+                  "yellow_frac": 0.746,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.137,
+                  "texture_lap_var": 193.3
+                }
+              },
+              {
+                "bbox": [
+                  8,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.01932,
+                "masked_true_prob": 0.92931,
+                "region": "middle_left",
+                "crop_stats": {
+                  "mean_hue": 62.22,
+                  "mean_sat": 0.191,
+                  "mean_val": 0.352,
+                  "warm_frac": 0.07,
+                  "yellow_frac": 0.027,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.016,
+                  "edge_density": 0.367,
+                  "texture_lap_var": 22415.1
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/sports_car/n04285008_447.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/sports_car_as_school_bus_3.jpg",
+          "true_label": "sports_car",
+          "symbolic_label": "school_bus",
+          "symbolic_confidence": 0.701864955774256,
+          "cnn_true_prob": 0.943228542804718,
+          "cnn_pred_prob": 0.943228542804718,
+          "cnn_margin": 0.9122270345687866,
+          "occlusion": {
+            "base_true_prob": 0.94323,
+            "top_patches": [
+              {
+                "bbox": [
+                  32,
+                  0,
+                  16,
+                  16
+                ],
+                "drop": 0.06694,
+                "masked_true_prob": 0.87629,
+                "region": "top_center",
+                "crop_stats": {
+                  "mean_hue": 97.51,
+                  "mean_sat": 0.153,
+                  "mean_val": 0.414,
+                  "warm_frac": 0.016,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.211,
+                  "green_frac": 0.027,
+                  "edge_density": 0.383,
+                  "texture_lap_var": 35373.1
+                }
+              },
+              {
+                "bbox": [
+                  24,
+                  0,
+                  16,
+                  16
+                ],
+                "drop": 0.06058,
+                "masked_true_prob": 0.88265,
+                "region": "top_center",
+                "crop_stats": {
+                  "mean_hue": 90.26,
+                  "mean_sat": 0.148,
+                  "mean_val": 0.375,
+                  "warm_frac": 0.035,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.121,
+                  "green_frac": 0.051,
+                  "edge_density": 0.387,
+                  "texture_lap_var": 33968.1
+                }
+              },
+              {
+                "bbox": [
+                  8,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.05982,
+                "masked_true_prob": 0.88341,
+                "region": "middle_left",
+                "crop_stats": {
+                  "mean_hue": 35.79,
+                  "mean_sat": 0.139,
+                  "mean_val": 0.624,
+                  "warm_frac": 0.152,
+                  "yellow_frac": 0.102,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.043,
+                  "edge_density": 0.348,
+                  "texture_lap_var": 8901.5
+                }
+              },
+              {
+                "bbox": [
+                  40,
+                  0,
+                  16,
+                  16
+                ],
+                "drop": 0.0503,
+                "masked_true_prob": 0.89293,
+                "region": "top_right",
+                "crop_stats": {
+                  "mean_hue": 108.18,
+                  "mean_sat": 0.186,
+                  "mean_val": 0.432,
+                  "warm_frac": 0.0,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.41,
+                  "green_frac": 0.047,
+                  "edge_density": 0.438,
+                  "texture_lap_var": 22664.1
+                }
+              },
+              {
+                "bbox": [
+                  16,
+                  0,
+                  16,
+                  16
+                ],
+                "drop": 0.0465,
+                "masked_true_prob": 0.89673,
+                "region": "top_center",
+                "crop_stats": {
+                  "mean_hue": 97.94,
+                  "mean_sat": 0.164,
+                  "mean_val": 0.371,
+                  "warm_frac": 0.035,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.203,
+                  "green_frac": 0.035,
+                  "edge_density": 0.406,
+                  "texture_lap_var": 34324.1
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "true_label": "brown_bear",
+      "symbolic_label": "mushroom",
+      "summary": {
+        "count": 3,
+        "mean_cnn_true_prob": 0.9432,
+        "mean_symbolic_confidence": 0.5277,
+        "top_occlusion_regions": [
+          [
+            "middle_right",
+            4
+          ],
+          [
+            "middle_left",
+            2
+          ],
+          [
+            "center",
+            2
+          ],
+          [
+            "bottom_center",
+            1
+          ]
+        ],
+        "mean_top_patch_stats": {
+          "blue_frac": 0.01,
+          "edge_density": 0.331,
+          "green_frac": 0.0,
+          "mean_hue": 29.6,
+          "mean_sat": 0.439,
+          "mean_val": 0.452,
+          "texture_lap_var": 7670.233,
+          "warm_frac": 0.672,
+          "yellow_frac": 0.179
+        }
+      },
+      "feature_hint": "For true brown_bear misread as mushroom, the CNN often relies on edge-dense, warm-color, yellow, high-texture evidence in middle_right, middle_left, center. Candidate symbolic direction: add a local patch/grid detector for this evidence and gate it against mushroom.",
+      "examples": [
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/brown_bear/n02132136_298.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/brown_bear_as_mushroom_1.jpg",
+          "true_label": "brown_bear",
+          "symbolic_label": "mushroom",
+          "symbolic_confidence": 0.513433977468537,
+          "cnn_true_prob": 0.9540428519248962,
+          "cnn_pred_prob": 0.9540428519248962,
+          "cnn_margin": 0.932856023311615,
+          "occlusion": {
+            "base_true_prob": 0.95404,
+            "top_patches": [
+              {
+                "bbox": [
+                  8,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.17348,
+                "masked_true_prob": 0.78056,
+                "region": "middle_left",
+                "crop_stats": {
+                  "mean_hue": 14.27,
+                  "mean_sat": 0.5,
+                  "mean_val": 0.288,
+                  "warm_frac": 0.574,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.168,
+                  "texture_lap_var": 586.0
+                }
+              },
+              {
+                "bbox": [
+                  8,
+                  16,
+                  16,
+                  16
+                ],
+                "drop": 0.14838,
+                "masked_true_prob": 0.80566,
+                "region": "middle_left",
+                "crop_stats": {
+                  "mean_hue": 8.46,
+                  "mean_sat": 0.428,
+                  "mean_val": 0.411,
+                  "warm_frac": 0.859,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.297,
+                  "texture_lap_var": 2481.8
+                }
+              },
+              {
+                "bbox": [
+                  16,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.13459,
+                "masked_true_prob": 0.81946,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 10.25,
+                  "mean_sat": 0.504,
+                  "mean_val": 0.307,
+                  "warm_frac": 0.688,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.336,
+                  "texture_lap_var": 841.7
+                }
+              },
+              {
+                "bbox": [
+                  0,
+                  16,
+                  16,
+                  16
+                ],
+                "drop": 0.13182,
+                "masked_true_prob": 0.82223,
+                "region": "middle_left",
+                "crop_stats": {
+                  "mean_hue": 10.83,
+                  "mean_sat": 0.416,
+                  "mean_val": 0.307,
+                  "warm_frac": 0.742,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.344,
+                  "texture_lap_var": 1982.4
+                }
+              },
+              {
+                "bbox": [
+                  32,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.13043,
+                "masked_true_prob": 0.82361,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 9.21,
+                  "mean_sat": 0.371,
+                  "mean_val": 0.541,
+                  "warm_frac": 0.988,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.422,
+                  "texture_lap_var": 3224.1
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/brown_bear/n02132136_33.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/brown_bear_as_mushroom_2.jpg",
+          "true_label": "brown_bear",
+          "symbolic_label": "mushroom",
+          "symbolic_confidence": 0.5492158529147215,
+          "cnn_true_prob": 0.9483470916748047,
+          "cnn_pred_prob": 0.9483470916748047,
+          "cnn_margin": 0.9201781749725342,
+          "occlusion": {
+            "base_true_prob": 0.94835,
+            "top_patches": [
+              {
+                "bbox": [
+                  48,
+                  16,
+                  16,
+                  16
+                ],
+                "drop": 0.11745,
+                "masked_true_prob": 0.83089,
+                "region": "middle_right",
+                "crop_stats": {
+                  "mean_hue": 13.55,
+                  "mean_sat": 0.55,
+                  "mean_val": 0.483,
+                  "warm_frac": 0.871,
+                  "yellow_frac": 0.32,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.371,
+                  "texture_lap_var": 11691.1
+                }
+              },
+              {
+                "bbox": [
+                  40,
+                  16,
+                  16,
+                  16
+                ],
+                "drop": 0.10879,
+                "masked_true_prob": 0.83956,
+                "region": "middle_right",
+                "crop_stats": {
+                  "mean_hue": 18.78,
+                  "mean_sat": 0.491,
+                  "mean_val": 0.517,
+                  "warm_frac": 0.922,
+                  "yellow_frac": 0.625,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.344,
+                  "texture_lap_var": 8177.0
+                }
+              },
+              {
+                "bbox": [
+                  40,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.10509,
+                "masked_true_prob": 0.84326,
+                "region": "middle_right",
+                "crop_stats": {
+                  "mean_hue": 15.8,
+                  "mean_sat": 0.572,
+                  "mean_val": 0.434,
+                  "warm_frac": 0.883,
+                  "yellow_frac": 0.426,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.363,
+                  "texture_lap_var": 10012.2
+                }
+              },
+              {
+                "bbox": [
+                  40,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.0796,
+                "masked_true_prob": 0.86875,
+                "region": "middle_right",
+                "crop_stats": {
+                  "mean_hue": 13.14,
+                  "mean_sat": 0.625,
+                  "mean_val": 0.393,
+                  "warm_frac": 0.934,
+                  "yellow_frac": 0.211,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.379,
+                  "texture_lap_var": 6949.9
+                }
+              },
+              {
+                "bbox": [
+                  32,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.07938,
+                "masked_true_prob": 0.86896,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 15.0,
+                  "mean_sat": 0.563,
+                  "mean_val": 0.525,
+                  "warm_frac": 0.984,
+                  "yellow_frac": 0.438,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.363,
+                  "texture_lap_var": 9149.6
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/brown_bear/n02132136_365.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/brown_bear_as_mushroom_3.jpg",
+          "true_label": "brown_bear",
+          "symbolic_label": "mushroom",
+          "symbolic_confidence": 0.520436812045231,
+          "cnn_true_prob": 0.9272342920303345,
+          "cnn_pred_prob": 0.9272342920303345,
+          "cnn_margin": 0.8703473806381226,
+          "occlusion": {
+            "base_true_prob": 0.92723,
+            "top_patches": [
+              {
+                "bbox": [
+                  32,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.16458,
+                "masked_true_prob": 0.76266,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 63.7,
+                  "mean_sat": 0.308,
+                  "mean_val": 0.541,
+                  "warm_frac": 0.52,
+                  "yellow_frac": 0.086,
+                  "blue_frac": 0.008,
+                  "green_frac": 0.0,
+                  "edge_density": 0.375,
+                  "texture_lap_var": 13012.6
+                }
+              },
+              {
+                "bbox": [
+                  40,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.15399,
+                "masked_true_prob": 0.77325,
+                "region": "middle_right",
+                "crop_stats": {
+                  "mean_hue": 57.44,
+                  "mean_sat": 0.347,
+                  "mean_val": 0.478,
+                  "warm_frac": 0.594,
+                  "yellow_frac": 0.145,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.363,
+                  "texture_lap_var": 11850.1
+                }
+              },
+              {
+                "bbox": [
+                  32,
+                  48,
+                  16,
+                  16
+                ],
+                "drop": 0.13885,
+                "masked_true_prob": 0.78838,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 64.15,
+                  "mean_sat": 0.255,
+                  "mean_val": 0.609,
+                  "warm_frac": 0.141,
+                  "yellow_frac": 0.008,
+                  "blue_frac": 0.078,
+                  "green_frac": 0.0,
+                  "edge_density": 0.359,
+                  "texture_lap_var": 10379.6
+                }
+              },
+              {
+                "bbox": [
+                  24,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.13685,
+                "masked_true_prob": 0.79038,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 38.8,
+                  "mean_sat": 0.205,
+                  "mean_val": 0.717,
+                  "warm_frac": 0.426,
+                  "yellow_frac": 0.078,
+                  "blue_frac": 0.031,
+                  "green_frac": 0.0,
+                  "edge_density": 0.359,
+                  "texture_lap_var": 14958.4
+                }
+              },
+              {
+                "bbox": [
+                  40,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.13557,
+                "masked_true_prob": 0.79166,
+                "region": "middle_right",
+                "crop_stats": {
+                  "mean_hue": 18.63,
+                  "mean_sat": 0.333,
+                  "mean_val": 0.655,
+                  "warm_frac": 0.863,
+                  "yellow_frac": 0.379,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.41,
+                  "texture_lap_var": 14915.3
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "true_label": "golden_retriever",
+      "symbolic_label": "banana",
+      "summary": {
+        "count": 3,
+        "mean_cnn_true_prob": 0.9341,
+        "mean_symbolic_confidence": 0.6001,
+        "top_occlusion_regions": [
+          [
+            "center",
+            4
+          ],
+          [
+            "middle_left",
+            2
+          ],
+          [
+            "top_left",
+            1
+          ],
+          [
+            "middle_right",
+            1
+          ],
+          [
+            "top_center",
+            1
+          ]
+        ],
+        "mean_top_patch_stats": {
+          "blue_frac": 0.001,
+          "edge_density": 0.317,
+          "green_frac": 0.0,
+          "mean_hue": 17.287,
+          "mean_sat": 0.523,
+          "mean_val": 0.493,
+          "texture_lap_var": 1155.944,
+          "warm_frac": 0.892,
+          "yellow_frac": 0.356
+        }
+      },
+      "feature_hint": "For true golden_retriever misread as banana, the CNN often relies on edge-dense, warm-color, yellow evidence in center, middle_left, top_left. Candidate symbolic direction: add a local patch/grid detector for this evidence and gate it against banana.",
+      "examples": [
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/golden_retriever/n02099601_420.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/golden_retriever_as_banana_1.jpg",
+          "true_label": "golden_retriever",
+          "symbolic_label": "banana",
+          "symbolic_confidence": 0.6235966726756644,
+          "cnn_true_prob": 0.9598642587661743,
+          "cnn_pred_prob": 0.9598642587661743,
+          "cnn_margin": 0.9477184414863586,
+          "occlusion": {
+            "base_true_prob": 0.95986,
+            "top_patches": [
+              {
+                "bbox": [
+                  24,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.05724,
+                "masked_true_prob": 0.90262,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 28.33,
+                  "mean_sat": 0.197,
+                  "mean_val": 0.635,
+                  "warm_frac": 0.578,
+                  "yellow_frac": 0.203,
+                  "blue_frac": 0.008,
+                  "green_frac": 0.0,
+                  "edge_density": 0.363,
+                  "texture_lap_var": 1344.8
+                }
+              },
+              {
+                "bbox": [
+                  32,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.03655,
+                "masked_true_prob": 0.92332,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 26.33,
+                  "mean_sat": 0.232,
+                  "mean_val": 0.609,
+                  "warm_frac": 0.66,
+                  "yellow_frac": 0.391,
+                  "blue_frac": 0.004,
+                  "green_frac": 0.0,
+                  "edge_density": 0.344,
+                  "texture_lap_var": 998.0
+                }
+              },
+              {
+                "bbox": [
+                  32,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.03645,
+                "masked_true_prob": 0.92341,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 19.31,
+                  "mean_sat": 0.286,
+                  "mean_val": 0.543,
+                  "warm_frac": 0.902,
+                  "yellow_frac": 0.504,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.355,
+                  "texture_lap_var": 881.2
+                }
+              },
+              {
+                "bbox": [
+                  16,
+                  16,
+                  16,
+                  16
+                ],
+                "drop": 0.03643,
+                "masked_true_prob": 0.92343,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 18.22,
+                  "mean_sat": 0.292,
+                  "mean_val": 0.6,
+                  "warm_frac": 0.742,
+                  "yellow_frac": 0.512,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.285,
+                  "texture_lap_var": 2138.7
+                }
+              },
+              {
+                "bbox": [
+                  16,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.03118,
+                "masked_true_prob": 0.92868,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 55.75,
+                  "mean_sat": 0.286,
+                  "mean_val": 0.486,
+                  "warm_frac": 0.297,
+                  "yellow_frac": 0.109,
+                  "blue_frac": 0.199,
+                  "green_frac": 0.0,
+                  "edge_density": 0.352,
+                  "texture_lap_var": 2244.2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/golden_retriever/n02099601_311.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/golden_retriever_as_banana_2.jpg",
+          "true_label": "golden_retriever",
+          "symbolic_label": "banana",
+          "symbolic_confidence": 0.5106310664583822,
+          "cnn_true_prob": 0.9276553988456726,
+          "cnn_pred_prob": 0.9276553988456726,
+          "cnn_margin": 0.8989372253417969,
+          "occlusion": {
+            "base_true_prob": 0.92766,
+            "top_patches": [
+              {
+                "bbox": [
+                  8,
+                  8,
+                  16,
+                  16
+                ],
+                "drop": 0.10511,
+                "masked_true_prob": 0.82255,
+                "region": "top_left",
+                "crop_stats": {
+                  "mean_hue": 12.84,
+                  "mean_sat": 0.675,
+                  "mean_val": 0.409,
+                  "warm_frac": 1.0,
+                  "yellow_frac": 0.086,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.305,
+                  "texture_lap_var": 1073.6
+                }
+              },
+              {
+                "bbox": [
+                  48,
+                  16,
+                  16,
+                  16
+                ],
+                "drop": 0.08688,
+                "masked_true_prob": 0.84078,
+                "region": "middle_right",
+                "crop_stats": {
+                  "mean_hue": 12.7,
+                  "mean_sat": 0.686,
+                  "mean_val": 0.36,
+                  "warm_frac": 0.898,
+                  "yellow_frac": 0.125,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.34,
+                  "texture_lap_var": 1072.5
+                }
+              },
+              {
+                "bbox": [
+                  8,
+                  16,
+                  16,
+                  16
+                ],
+                "drop": 0.0769,
+                "masked_true_prob": 0.85076,
+                "region": "middle_left",
+                "crop_stats": {
+                  "mean_hue": 12.07,
+                  "mean_sat": 0.716,
+                  "mean_val": 0.382,
+                  "warm_frac": 0.996,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.176,
+                  "texture_lap_var": 823.6
+                }
+              },
+              {
+                "bbox": [
+                  48,
+                  8,
+                  16,
+                  16
+                ],
+                "drop": 0.07582,
+                "masked_true_prob": 0.85184,
+                "region": "top_right",
+                "crop_stats": {
+                  "mean_hue": 12.36,
+                  "mean_sat": 0.711,
+                  "mean_val": 0.411,
+                  "warm_frac": 0.992,
+                  "yellow_frac": 0.027,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.297,
+                  "texture_lap_var": 1138.2
+                }
+              },
+              {
+                "bbox": [
+                  40,
+                  8,
+                  16,
+                  16
+                ],
+                "drop": 0.06174,
+                "masked_true_prob": 0.86591,
+                "region": "top_right",
+                "crop_stats": {
+                  "mean_hue": 12.8,
+                  "mean_sat": 0.625,
+                  "mean_val": 0.462,
+                  "warm_frac": 1.0,
+                  "yellow_frac": 0.094,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.277,
+                  "texture_lap_var": 706.6
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/golden_retriever/n02099601_305.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/golden_retriever_as_banana_3.jpg",
+          "true_label": "golden_retriever",
+          "symbolic_label": "banana",
+          "symbolic_confidence": 0.66613056379776,
+          "cnn_true_prob": 0.9146547913551331,
+          "cnn_pred_prob": 0.9146547913551331,
+          "cnn_margin": 0.8763324618339539,
+          "occlusion": {
+            "base_true_prob": 0.91465,
+            "top_patches": [
+              {
+                "bbox": [
+                  8,
+                  16,
+                  16,
+                  16
+                ],
+                "drop": 0.10402,
+                "masked_true_prob": 0.81063,
+                "region": "middle_left",
+                "crop_stats": {
+                  "mean_hue": 14.15,
+                  "mean_sat": 0.654,
+                  "mean_val": 0.463,
+                  "warm_frac": 1.0,
+                  "yellow_frac": 0.344,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.344,
+                  "texture_lap_var": 1234.2
+                }
+              },
+              {
+                "bbox": [
+                  16,
+                  16,
+                  16,
+                  16
+                ],
+                "drop": 0.07224,
+                "masked_true_prob": 0.84242,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 14.99,
+                  "mean_sat": 0.613,
+                  "mean_val": 0.511,
+                  "warm_frac": 0.996,
+                  "yellow_frac": 0.816,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.336,
+                  "texture_lap_var": 2073.5
+                }
+              },
+              {
+                "bbox": [
+                  24,
+                  8,
+                  16,
+                  16
+                ],
+                "drop": 0.0704,
+                "masked_true_prob": 0.84426,
+                "region": "top_center",
+                "crop_stats": {
+                  "mean_hue": 14.86,
+                  "mean_sat": 0.649,
+                  "mean_val": 0.527,
+                  "warm_frac": 0.996,
+                  "yellow_frac": 0.738,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.289,
+                  "texture_lap_var": 902.1
+                }
+              },
+              {
+                "bbox": [
+                  8,
+                  8,
+                  16,
+                  16
+                ],
+                "drop": 0.06889,
+                "masked_true_prob": 0.84576,
+                "region": "top_left",
+                "crop_stats": {
+                  "mean_hue": 14.84,
+                  "mean_sat": 0.67,
+                  "mean_val": 0.494,
+                  "warm_frac": 1.0,
+                  "yellow_frac": 0.609,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.289,
+                  "texture_lap_var": 1245.3
+                }
+              },
+              {
+                "bbox": [
+                  32,
+                  40,
+                  16,
+                  16
+                ],
+                "drop": 0.06817,
+                "masked_true_prob": 0.84648,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 23.75,
+                  "mean_sat": 0.262,
+                  "mean_val": 0.545,
+                  "warm_frac": 0.723,
+                  "yellow_frac": 0.477,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.32,
+                  "texture_lap_var": 2682.6
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "true_label": "brown_bear",
+      "symbolic_label": "golden_retriever",
+      "summary": {
+        "count": 3,
+        "mean_cnn_true_prob": 0.898,
+        "mean_symbolic_confidence": 0.5801,
+        "top_occlusion_regions": [
+          [
+            "middle_left",
+            4
+          ],
+          [
+            "center",
+            4
+          ],
+          [
+            "bottom_left",
+            1
+          ]
+        ],
+        "mean_top_patch_stats": {
+          "blue_frac": 0.0,
+          "edge_density": 0.274,
+          "green_frac": 0.0,
+          "mean_hue": 22.843,
+          "mean_sat": 0.559,
+          "mean_val": 0.272,
+          "texture_lap_var": 3524.378,
+          "warm_frac": 0.444,
+          "yellow_frac": 0.137
+        }
+      },
+      "feature_hint": "For true brown_bear misread as golden_retriever, the CNN often relies on edge-dense, warm-color evidence in middle_left, center, bottom_left. Candidate symbolic direction: add a local patch/grid detector for this evidence and gate it against golden_retriever.",
+      "examples": [
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/brown_bear/n02132136_338.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/brown_bear_as_golden_retriever_1.jpg",
+          "true_label": "brown_bear",
+          "symbolic_label": "golden_retriever",
+          "symbolic_confidence": 0.501988885834474,
+          "cnn_true_prob": 0.9361637830734253,
+          "cnn_pred_prob": 0.9361637830734253,
+          "cnn_margin": 0.9052643179893494,
+          "occlusion": {
+            "base_true_prob": 0.93616,
+            "top_patches": [
+              {
+                "bbox": [
+                  8,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.16624,
+                "masked_true_prob": 0.76992,
+                "region": "middle_left",
+                "crop_stats": {
+                  "mean_hue": 18.01,
+                  "mean_sat": 0.655,
+                  "mean_val": 0.195,
+                  "warm_frac": 0.352,
+                  "yellow_frac": 0.152,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.18,
+                  "texture_lap_var": 2437.6
+                }
+              },
+              {
+                "bbox": [
+                  8,
+                  16,
+                  16,
+                  16
+                ],
+                "drop": 0.15862,
+                "masked_true_prob": 0.77755,
+                "region": "middle_left",
+                "crop_stats": {
+                  "mean_hue": 17.79,
+                  "mean_sat": 0.642,
+                  "mean_val": 0.197,
+                  "warm_frac": 0.438,
+                  "yellow_frac": 0.141,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.332,
+                  "texture_lap_var": 3103.9
+                }
+              },
+              {
+                "bbox": [
+                  8,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.15601,
+                "masked_true_prob": 0.78016,
+                "region": "middle_left",
+                "crop_stats": {
+                  "mean_hue": 17.94,
+                  "mean_sat": 0.634,
+                  "mean_val": 0.2,
+                  "warm_frac": 0.395,
+                  "yellow_frac": 0.184,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.176,
+                  "texture_lap_var": 1584.2
+                }
+              },
+              {
+                "bbox": [
+                  40,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.14332,
+                "masked_true_prob": 0.79285,
+                "region": "middle_right",
+                "crop_stats": {
+                  "mean_hue": 14.99,
+                  "mean_sat": 0.307,
+                  "mean_val": 0.7,
+                  "warm_frac": 0.867,
+                  "yellow_frac": 0.375,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.312,
+                  "texture_lap_var": 7913.3
+                }
+              },
+              {
+                "bbox": [
+                  16,
+                  16,
+                  16,
+                  16
+                ],
+                "drop": 0.14278,
+                "masked_true_prob": 0.79338,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 17.52,
+                  "mean_sat": 0.582,
+                  "mean_val": 0.238,
+                  "warm_frac": 0.562,
+                  "yellow_frac": 0.141,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.289,
+                  "texture_lap_var": 1712.1
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/brown_bear/n02132136_435.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/brown_bear_as_golden_retriever_2.jpg",
+          "true_label": "brown_bear",
+          "symbolic_label": "golden_retriever",
+          "symbolic_confidence": 0.5986913320067091,
+          "cnn_true_prob": 0.8812947273254395,
+          "cnn_pred_prob": 0.8812947273254395,
+          "cnn_margin": 0.8008157014846802,
+          "occlusion": {
+            "base_true_prob": 0.88129,
+            "top_patches": [
+              {
+                "bbox": [
+                  24,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.28617,
+                "masked_true_prob": 0.59512,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 11.95,
+                  "mean_sat": 0.422,
+                  "mean_val": 0.389,
+                  "warm_frac": 0.719,
+                  "yellow_frac": 0.023,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.32,
+                  "texture_lap_var": 4693.9
+                }
+              },
+              {
+                "bbox": [
+                  32,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.28509,
+                "masked_true_prob": 0.59621,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 21.12,
+                  "mean_sat": 0.299,
+                  "mean_val": 0.367,
+                  "warm_frac": 0.602,
+                  "yellow_frac": 0.164,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.348,
+                  "texture_lap_var": 2673.1
+                }
+              },
+              {
+                "bbox": [
+                  24,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.28449,
+                "masked_true_prob": 0.5968,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 13.64,
+                  "mean_sat": 0.404,
+                  "mean_val": 0.567,
+                  "warm_frac": 0.887,
+                  "yellow_frac": 0.348,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.379,
+                  "texture_lap_var": 4701.8
+                }
+              },
+              {
+                "bbox": [
+                  24,
+                  40,
+                  16,
+                  16
+                ],
+                "drop": 0.26572,
+                "masked_true_prob": 0.61558,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 18.49,
+                  "mean_sat": 0.456,
+                  "mean_val": 0.28,
+                  "warm_frac": 0.527,
+                  "yellow_frac": 0.023,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.301,
+                  "texture_lap_var": 7953.6
+                }
+              },
+              {
+                "bbox": [
+                  32,
+                  16,
+                  16,
+                  16
+                ],
+                "drop": 0.25901,
+                "masked_true_prob": 0.62229,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 21.89,
+                  "mean_sat": 0.361,
+                  "mean_val": 0.622,
+                  "warm_frac": 0.828,
+                  "yellow_frac": 0.516,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.379,
+                  "texture_lap_var": 12364.2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/brown_bear/n02132136_356.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/brown_bear_as_golden_retriever_3.jpg",
+          "true_label": "brown_bear",
+          "symbolic_label": "golden_retriever",
+          "symbolic_confidence": 0.639605506724739,
+          "cnn_true_prob": 0.8764092326164246,
+          "cnn_pred_prob": 0.8764092326164246,
+          "cnn_margin": 0.775051474571228,
+          "occlusion": {
+            "base_true_prob": 0.87641,
+            "top_patches": [
+              {
+                "bbox": [
+                  8,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.32638,
+                "masked_true_prob": 0.55003,
+                "region": "middle_left",
+                "crop_stats": {
+                  "mean_hue": 32.71,
+                  "mean_sat": 0.696,
+                  "mean_val": 0.116,
+                  "warm_frac": 0.152,
+                  "yellow_frac": 0.062,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.262,
+                  "texture_lap_var": 3672.2
+                }
+              },
+              {
+                "bbox": [
+                  8,
+                  40,
+                  16,
+                  16
+                ],
+                "drop": 0.20284,
+                "masked_true_prob": 0.67357,
+                "region": "bottom_left",
+                "crop_stats": {
+                  "mean_hue": 50.39,
+                  "mean_sat": 0.811,
+                  "mean_val": 0.086,
+                  "warm_frac": 0.113,
+                  "yellow_frac": 0.047,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.172,
+                  "texture_lap_var": 844.1
+                }
+              },
+              {
+                "bbox": [
+                  16,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.19342,
+                "masked_true_prob": 0.68299,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 22.04,
+                  "mean_sat": 0.467,
+                  "mean_val": 0.328,
+                  "warm_frac": 0.34,
+                  "yellow_frac": 0.113,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.297,
+                  "texture_lap_var": 8008.6
+                }
+              },
+              {
+                "bbox": [
+                  16,
+                  48,
+                  16,
+                  16
+                ],
+                "drop": 0.19164,
+                "masked_true_prob": 0.68477,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 23.43,
+                  "mean_sat": 0.568,
+                  "mean_val": 0.352,
+                  "warm_frac": 0.672,
+                  "yellow_frac": 0.395,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.336,
+                  "texture_lap_var": 5947.5
+                }
+              },
+              {
+                "bbox": [
+                  24,
+                  48,
+                  16,
+                  16
+                ],
+                "drop": 0.19097,
+                "masked_true_prob": 0.68544,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 13.55,
+                  "mean_sat": 0.449,
+                  "mean_val": 0.379,
+                  "warm_frac": 0.789,
+                  "yellow_frac": 0.328,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.379,
+                  "texture_lap_var": 8133.4
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "true_label": "mushroom",
+      "symbolic_label": "brown_bear",
+      "summary": {
+        "count": 3,
+        "mean_cnn_true_prob": 0.8114,
+        "mean_symbolic_confidence": 0.5684,
+        "top_occlusion_regions": [
+          [
+            "bottom_center",
+            4
+          ],
+          [
+            "bottom_left",
+            2
+          ],
+          [
+            "bottom_right",
+            1
+          ],
+          [
+            "middle_right",
+            1
+          ],
+          [
+            "middle_left",
+            1
+          ]
+        ],
+        "mean_top_patch_stats": {
+          "blue_frac": 0.01,
+          "edge_density": 0.361,
+          "green_frac": 0.087,
+          "mean_hue": 49.98,
+          "mean_sat": 0.404,
+          "mean_val": 0.266,
+          "texture_lap_var": 16821.9,
+          "warm_frac": 0.219,
+          "yellow_frac": 0.071
+        }
+      },
+      "feature_hint": "For true mushroom misread as brown_bear, the CNN often relies on edge-dense, high-texture evidence in bottom_center, bottom_left, bottom_right. Candidate symbolic direction: add a local patch/grid detector for this evidence and gate it against brown_bear.",
+      "examples": [
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/mushroom/n07734744_357.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/mushroom_as_brown_bear_1.jpg",
+          "true_label": "mushroom",
+          "symbolic_label": "brown_bear",
+          "symbolic_confidence": 0.5690690748058916,
+          "cnn_true_prob": 0.8386770486831665,
+          "cnn_pred_prob": 0.8386770486831665,
+          "cnn_margin": 0.7596832513809204,
+          "occlusion": {
+            "base_true_prob": 0.83868,
+            "top_patches": [
+              {
+                "bbox": [
+                  32,
+                  48,
+                  16,
+                  16
+                ],
+                "drop": 0.21199,
+                "masked_true_prob": 0.62668,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 68.39,
+                  "mean_sat": 0.249,
+                  "mean_val": 0.226,
+                  "warm_frac": 0.016,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.004,
+                  "green_frac": 0.109,
+                  "edge_density": 0.43,
+                  "texture_lap_var": 26770.2
+                }
+              },
+              {
+                "bbox": [
+                  24,
+                  48,
+                  16,
+                  16
+                ],
+                "drop": 0.19865,
+                "masked_true_prob": 0.64003,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 64.05,
+                  "mean_sat": 0.212,
+                  "mean_val": 0.25,
+                  "warm_frac": 0.031,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.004,
+                  "green_frac": 0.129,
+                  "edge_density": 0.426,
+                  "texture_lap_var": 21665.2
+                }
+              },
+              {
+                "bbox": [
+                  16,
+                  48,
+                  16,
+                  16
+                ],
+                "drop": 0.19792,
+                "masked_true_prob": 0.64075,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 55.49,
+                  "mean_sat": 0.19,
+                  "mean_val": 0.29,
+                  "warm_frac": 0.023,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.223,
+                  "edge_density": 0.41,
+                  "texture_lap_var": 22987.2
+                }
+              },
+              {
+                "bbox": [
+                  8,
+                  48,
+                  16,
+                  16
+                ],
+                "drop": 0.18548,
+                "masked_true_prob": 0.6532,
+                "region": "bottom_left",
+                "crop_stats": {
+                  "mean_hue": 58.42,
+                  "mean_sat": 0.162,
+                  "mean_val": 0.343,
+                  "warm_frac": 0.0,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.172,
+                  "edge_density": 0.359,
+                  "texture_lap_var": 35073.3
+                }
+              },
+              {
+                "bbox": [
+                  40,
+                  48,
+                  16,
+                  16
+                ],
+                "drop": 0.18245,
+                "masked_true_prob": 0.65623,
+                "region": "bottom_right",
+                "crop_stats": {
+                  "mean_hue": 66.44,
+                  "mean_sat": 0.341,
+                  "mean_val": 0.187,
+                  "warm_frac": 0.008,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.004,
+                  "green_frac": 0.164,
+                  "edge_density": 0.398,
+                  "texture_lap_var": 25902.2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/mushroom/n07734744_358.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/mushroom_as_brown_bear_2.jpg",
+          "true_label": "mushroom",
+          "symbolic_label": "brown_bear",
+          "symbolic_confidence": 0.5621308440428737,
+          "cnn_true_prob": 0.8129239678382874,
+          "cnn_pred_prob": 0.8129239678382874,
+          "cnn_margin": 0.7709126472473145,
+          "occlusion": {
+            "base_true_prob": 0.81292,
+            "top_patches": [
+              {
+                "bbox": [
+                  40,
+                  48,
+                  16,
+                  16
+                ],
+                "drop": 0.16607,
+                "masked_true_prob": 0.64686,
+                "region": "bottom_right",
+                "crop_stats": {
+                  "mean_hue": 80.89,
+                  "mean_sat": 0.352,
+                  "mean_val": 0.182,
+                  "warm_frac": 0.0,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.07,
+                  "green_frac": 0.062,
+                  "edge_density": 0.359,
+                  "texture_lap_var": 15924.8
+                }
+              },
+              {
+                "bbox": [
+                  0,
+                  48,
+                  16,
+                  16
+                ],
+                "drop": 0.16455,
+                "masked_true_prob": 0.64838,
+                "region": "bottom_left",
+                "crop_stats": {
+                  "mean_hue": 81.25,
+                  "mean_sat": 0.347,
+                  "mean_val": 0.177,
+                  "warm_frac": 0.121,
+                  "yellow_frac": 0.031,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.367,
+                  "texture_lap_var": 14811.7
+                }
+              },
+              {
+                "bbox": [
+                  32,
+                  48,
+                  16,
+                  16
+                ],
+                "drop": 0.14389,
+                "masked_true_prob": 0.66903,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 47.75,
+                  "mean_sat": 0.383,
+                  "mean_val": 0.23,
+                  "warm_frac": 0.023,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.012,
+                  "green_frac": 0.156,
+                  "edge_density": 0.359,
+                  "texture_lap_var": 17518.0
+                }
+              },
+              {
+                "bbox": [
+                  48,
+                  48,
+                  16,
+                  16
+                ],
+                "drop": 0.14039,
+                "masked_true_prob": 0.67254,
+                "region": "bottom_right",
+                "crop_stats": {
+                  "mean_hue": 113.11,
+                  "mean_sat": 0.327,
+                  "mean_val": 0.213,
+                  "warm_frac": 0.0,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.242,
+                  "green_frac": 0.0,
+                  "edge_density": 0.395,
+                  "texture_lap_var": 14068.9
+                }
+              },
+              {
+                "bbox": [
+                  24,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.11719,
+                "masked_true_prob": 0.69573,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 28.54,
+                  "mean_sat": 0.456,
+                  "mean_val": 0.656,
+                  "warm_frac": 0.742,
+                  "yellow_frac": 0.008,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.418,
+                  "texture_lap_var": 21644.5
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/mushroom/n07734744_31.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/mushroom_as_brown_bear_3.jpg",
+          "true_label": "mushroom",
+          "symbolic_label": "brown_bear",
+          "symbolic_confidence": 0.5739646652191761,
+          "cnn_true_prob": 0.7824600338935852,
+          "cnn_pred_prob": 0.7824600338935852,
+          "cnn_margin": 0.703163206577301,
+          "occlusion": {
+            "base_true_prob": 0.78246,
+            "top_patches": [
+              {
+                "bbox": [
+                  8,
+                  40,
+                  16,
+                  16
+                ],
+                "drop": 0.28466,
+                "masked_true_prob": 0.4978,
+                "region": "bottom_left",
+                "crop_stats": {
+                  "mean_hue": 15.96,
+                  "mean_sat": 0.619,
+                  "mean_val": 0.365,
+                  "warm_frac": 0.652,
+                  "yellow_frac": 0.23,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.293,
+                  "texture_lap_var": 8632.8
+                }
+              },
+              {
+                "bbox": [
+                  40,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.26216,
+                "masked_true_prob": 0.5203,
+                "region": "middle_right",
+                "crop_stats": {
+                  "mean_hue": 13.11,
+                  "mean_sat": 0.749,
+                  "mean_val": 0.187,
+                  "warm_frac": 0.359,
+                  "yellow_frac": 0.078,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.293,
+                  "texture_lap_var": 6615.9
+                }
+              },
+              {
+                "bbox": [
+                  8,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.24618,
+                "masked_true_prob": 0.53628,
+                "region": "middle_left",
+                "crop_stats": {
+                  "mean_hue": 22.93,
+                  "mean_sat": 0.539,
+                  "mean_val": 0.487,
+                  "warm_frac": 0.746,
+                  "yellow_frac": 0.301,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.102,
+                  "edge_density": 0.316,
+                  "texture_lap_var": 16471.3
+                }
+              },
+              {
+                "bbox": [
+                  16,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.23087,
+                "masked_true_prob": 0.55159,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 26.34,
+                  "mean_sat": 0.666,
+                  "mean_val": 0.3,
+                  "warm_frac": 0.543,
+                  "yellow_frac": 0.266,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.105,
+                  "edge_density": 0.277,
+                  "texture_lap_var": 14717.2
+                }
+              },
+              {
+                "bbox": [
+                  16,
+                  40,
+                  16,
+                  16
+                ],
+                "drop": 0.22923,
+                "masked_true_prob": 0.55323,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 26.64,
+                  "mean_sat": 0.73,
+                  "mean_val": 0.183,
+                  "warm_frac": 0.344,
+                  "yellow_frac": 0.168,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.004,
+                  "edge_density": 0.199,
+                  "texture_lap_var": 8465.3
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "true_label": "sports_car",
+      "symbolic_label": "king_penguin",
+      "summary": {
+        "count": 3,
+        "mean_cnn_true_prob": 0.9712,
+        "mean_symbolic_confidence": 0.5905,
+        "top_occlusion_regions": [
+          [
+            "middle_left",
+            3
+          ],
+          [
+            "center",
+            2
+          ],
+          [
+            "top_right",
+            1
+          ],
+          [
+            "top_center",
+            1
+          ],
+          [
+            "bottom_right",
+            1
+          ],
+          [
+            "bottom_center",
+            1
+          ]
+        ],
+        "mean_top_patch_stats": {
+          "blue_frac": 0.07,
+          "edge_density": 0.257,
+          "green_frac": 0.003,
+          "mean_hue": 84.692,
+          "mean_sat": 0.317,
+          "mean_val": 0.391,
+          "texture_lap_var": 15357.011,
+          "warm_frac": 0.021,
+          "yellow_frac": 0.009
+        }
+      },
+      "feature_hint": "For true sports_car misread as king_penguin, the CNN often relies on edge-dense, high-texture evidence in middle_left, center, top_right. Candidate symbolic direction: add a local patch/grid detector for this evidence and gate it against king_penguin.",
+      "examples": [
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/sports_car/n04285008_360.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/sports_car_as_king_penguin_1.jpg",
+          "true_label": "sports_car",
+          "symbolic_label": "king_penguin",
+          "symbolic_confidence": 0.6802550170425976,
+          "cnn_true_prob": 0.9736507534980774,
+          "cnn_pred_prob": 0.9736507534980774,
+          "cnn_margin": 0.9578547477722168,
+          "occlusion": {
+            "base_true_prob": 0.97365,
+            "top_patches": [
+              {
+                "bbox": [
+                  40,
+                  0,
+                  16,
+                  16
+                ],
+                "drop": 0.02823,
+                "masked_true_prob": 0.94542,
+                "region": "top_right",
+                "crop_stats": {
+                  "mean_hue": 106.36,
+                  "mean_sat": 0.371,
+                  "mean_val": 0.293,
+                  "warm_frac": 0.02,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.332,
+                  "green_frac": 0.0,
+                  "edge_density": 0.398,
+                  "texture_lap_var": 41759.7
+                }
+              },
+              {
+                "bbox": [
+                  32,
+                  0,
+                  16,
+                  16
+                ],
+                "drop": 0.02565,
+                "masked_true_prob": 0.948,
+                "region": "top_center",
+                "crop_stats": {
+                  "mean_hue": 92.93,
+                  "mean_sat": 0.449,
+                  "mean_val": 0.305,
+                  "warm_frac": 0.035,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.289,
+                  "green_frac": 0.004,
+                  "edge_density": 0.312,
+                  "texture_lap_var": 44302.8
+                }
+              },
+              {
+                "bbox": [
+                  0,
+                  16,
+                  16,
+                  16
+                ],
+                "drop": 0.02008,
+                "masked_true_prob": 0.95357,
+                "region": "middle_left",
+                "crop_stats": {
+                  "mean_hue": 50.18,
+                  "mean_sat": 0.389,
+                  "mean_val": 0.219,
+                  "warm_frac": 0.137,
+                  "yellow_frac": 0.078,
+                  "blue_frac": 0.012,
+                  "green_frac": 0.02,
+                  "edge_density": 0.273,
+                  "texture_lap_var": 19133.2
+                }
+              },
+              {
+                "bbox": [
+                  16,
+                  16,
+                  16,
+                  16
+                ],
+                "drop": 0.01925,
+                "masked_true_prob": 0.9544,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 39.37,
+                  "mean_sat": 0.42,
+                  "mean_val": 0.214,
+                  "warm_frac": 0.184,
+                  "yellow_frac": 0.074,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.078,
+                  "edge_density": 0.309,
+                  "texture_lap_var": 26254.2
+                }
+              },
+              {
+                "bbox": [
+                  8,
+                  16,
+                  16,
+                  16
+                ],
+                "drop": 0.01872,
+                "masked_true_prob": 0.95493,
+                "region": "middle_left",
+                "crop_stats": {
+                  "mean_hue": 44.58,
+                  "mean_sat": 0.381,
+                  "mean_val": 0.217,
+                  "warm_frac": 0.141,
+                  "yellow_frac": 0.047,
+                  "blue_frac": 0.004,
+                  "green_frac": 0.051,
+                  "edge_density": 0.297,
+                  "texture_lap_var": 29370.0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/sports_car/n04285008_343.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/sports_car_as_king_penguin_2.jpg",
+          "true_label": "sports_car",
+          "symbolic_label": "king_penguin",
+          "symbolic_confidence": 0.5692864021308838,
+          "cnn_true_prob": 0.9707280993461609,
+          "cnn_pred_prob": 0.9707280993461609,
+          "cnn_margin": 0.9478978514671326,
+          "occlusion": {
+            "base_true_prob": 0.97073,
+            "top_patches": [
+              {
+                "bbox": [
+                  40,
+                  40,
+                  16,
+                  16
+                ],
+                "drop": 0.07745,
+                "masked_true_prob": 0.89327,
+                "region": "bottom_right",
+                "crop_stats": {
+                  "mean_hue": 22.47,
+                  "mean_sat": 0.168,
+                  "mean_val": 0.388,
+                  "warm_frac": 0.0,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.223,
+                  "texture_lap_var": 16573.5
+                }
+              },
+              {
+                "bbox": [
+                  16,
+                  40,
+                  16,
+                  16
+                ],
+                "drop": 0.07638,
+                "masked_true_prob": 0.89434,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 18.11,
+                  "mean_sat": 0.077,
+                  "mean_val": 0.513,
+                  "warm_frac": 0.0,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.148,
+                  "texture_lap_var": 2082.1
+                }
+              },
+              {
+                "bbox": [
+                  8,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.06117,
+                "masked_true_prob": 0.90956,
+                "region": "middle_left",
+                "crop_stats": {
+                  "mean_hue": 75.81,
+                  "mean_sat": 0.063,
+                  "mean_val": 0.345,
+                  "warm_frac": 0.0,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.199,
+                  "texture_lap_var": 4671.9
+                }
+              },
+              {
+                "bbox": [
+                  24,
+                  40,
+                  16,
+                  16
+                ],
+                "drop": 0.06008,
+                "masked_true_prob": 0.91065,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 21.62,
+                  "mean_sat": 0.117,
+                  "mean_val": 0.458,
+                  "warm_frac": 0.0,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.219,
+                  "texture_lap_var": 11153.6
+                }
+              },
+              {
+                "bbox": [
+                  16,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.05621,
+                "masked_true_prob": 0.91451,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 72.6,
+                  "mean_sat": 0.07,
+                  "mean_val": 0.329,
+                  "warm_frac": 0.0,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.184,
+                  "texture_lap_var": 2090.9
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/sports_car/n04285008_307.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/sports_car_as_king_penguin_3.jpg",
+          "true_label": "sports_car",
+          "symbolic_label": "king_penguin",
+          "symbolic_confidence": 0.5219819756257918,
+          "cnn_true_prob": 0.9692808389663696,
+          "cnn_pred_prob": 0.9692808389663696,
+          "cnn_margin": 0.9557746648788452,
+          "occlusion": {
+            "base_true_prob": 0.96928,
+            "top_patches": [
+              {
+                "bbox": [
+                  16,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.07033,
+                "masked_true_prob": 0.89895,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 133.9,
+                  "mean_sat": 0.458,
+                  "mean_val": 0.493,
+                  "warm_frac": 0.0,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.258,
+                  "texture_lap_var": 2739.1
+                }
+              },
+              {
+                "bbox": [
+                  8,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.06513,
+                "masked_true_prob": 0.90416,
+                "region": "middle_left",
+                "crop_stats": {
+                  "mean_hue": 127.32,
+                  "mean_sat": 0.458,
+                  "mean_val": 0.468,
+                  "warm_frac": 0.0,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.227,
+                  "texture_lap_var": 3855.2
+                }
+              },
+              {
+                "bbox": [
+                  24,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.05739,
+                "masked_true_prob": 0.91189,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 135.15,
+                  "mean_sat": 0.421,
+                  "mean_val": 0.494,
+                  "warm_frac": 0.0,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.273,
+                  "texture_lap_var": 3095.6
+                }
+              },
+              {
+                "bbox": [
+                  40,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.05566,
+                "masked_true_prob": 0.91362,
+                "region": "middle_right",
+                "crop_stats": {
+                  "mean_hue": 144.32,
+                  "mean_sat": 0.434,
+                  "mean_val": 0.529,
+                  "warm_frac": 0.008,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.012,
+                  "green_frac": 0.023,
+                  "edge_density": 0.246,
+                  "texture_lap_var": 4407.2
+                }
+              },
+              {
+                "bbox": [
+                  32,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.04593,
+                "masked_true_prob": 0.92335,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 145.52,
+                  "mean_sat": 0.428,
+                  "mean_val": 0.495,
+                  "warm_frac": 0.0,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.297,
+                  "texture_lap_var": 4043.5
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "true_label": "banana",
+      "symbolic_label": "school_bus",
+      "summary": {
+        "count": 3,
+        "mean_cnn_true_prob": 0.9223,
+        "mean_symbolic_confidence": 0.4863,
+        "top_occlusion_regions": [
+          [
+            "top_center",
+            2
+          ],
+          [
+            "middle_right",
+            2
+          ],
+          [
+            "bottom_center",
+            2
+          ],
+          [
+            "middle_left",
+            1
+          ],
+          [
+            "center",
+            1
+          ],
+          [
+            "bottom_right",
+            1
+          ]
+        ],
+        "mean_top_patch_stats": {
+          "blue_frac": 0.002,
+          "edge_density": 0.268,
+          "green_frac": 0.291,
+          "mean_hue": 31.053,
+          "mean_sat": 0.657,
+          "mean_val": 0.776,
+          "texture_lap_var": 9634.889,
+          "warm_frac": 0.867,
+          "yellow_frac": 0.805
+        }
+      },
+      "feature_hint": "For true banana misread as school_bus, the CNN often relies on edge-dense, warm-color, yellow, green-context, high-texture evidence in top_center, middle_right, bottom_center. Candidate symbolic direction: add a local patch/grid detector for this evidence and gate it against school_bus.",
+      "examples": [
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/banana/n07753592_406.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/banana_as_school_bus_1.jpg",
+          "true_label": "banana",
+          "symbolic_label": "school_bus",
+          "symbolic_confidence": 0.35175609299228255,
+          "cnn_true_prob": 0.988373875617981,
+          "cnn_pred_prob": 0.988373875617981,
+          "cnn_margin": 0.9836956858634949,
+          "occlusion": {
+            "base_true_prob": 0.98837,
+            "top_patches": [
+              {
+                "bbox": [
+                  24,
+                  8,
+                  16,
+                  16
+                ],
+                "drop": 0.02069,
+                "masked_true_prob": 0.96769,
+                "region": "top_center",
+                "crop_stats": {
+                  "mean_hue": 40.24,
+                  "mean_sat": 0.807,
+                  "mean_val": 0.579,
+                  "warm_frac": 0.871,
+                  "yellow_frac": 0.793,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.84,
+                  "edge_density": 0.277,
+                  "texture_lap_var": 11595.6
+                }
+              },
+              {
+                "bbox": [
+                  40,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.01953,
+                "masked_true_prob": 0.96885,
+                "region": "middle_right",
+                "crop_stats": {
+                  "mean_hue": 36.68,
+                  "mean_sat": 0.736,
+                  "mean_val": 0.74,
+                  "warm_frac": 0.98,
+                  "yellow_frac": 0.977,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.793,
+                  "edge_density": 0.363,
+                  "texture_lap_var": 12455.2
+                }
+              },
+              {
+                "bbox": [
+                  32,
+                  40,
+                  16,
+                  16
+                ],
+                "drop": 0.0157,
+                "masked_true_prob": 0.97267,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 40.37,
+                  "mean_sat": 0.805,
+                  "mean_val": 0.586,
+                  "warm_frac": 0.863,
+                  "yellow_frac": 0.828,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.949,
+                  "edge_density": 0.34,
+                  "texture_lap_var": 17497.7
+                }
+              },
+              {
+                "bbox": [
+                  8,
+                  40,
+                  16,
+                  16
+                ],
+                "drop": 0.01489,
+                "masked_true_prob": 0.97349,
+                "region": "bottom_left",
+                "crop_stats": {
+                  "mean_hue": 40.22,
+                  "mean_sat": 0.832,
+                  "mean_val": 0.42,
+                  "warm_frac": 0.703,
+                  "yellow_frac": 0.594,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.742,
+                  "edge_density": 0.305,
+                  "texture_lap_var": 13253.3
+                }
+              },
+              {
+                "bbox": [
+                  32,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.01422,
+                "masked_true_prob": 0.97415,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 39.91,
+                  "mean_sat": 0.759,
+                  "mean_val": 0.603,
+                  "warm_frac": 0.84,
+                  "yellow_frac": 0.797,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.824,
+                  "edge_density": 0.328,
+                  "texture_lap_var": 12026.9
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/banana/n07753592_376.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/banana_as_school_bus_2.jpg",
+          "true_label": "banana",
+          "symbolic_label": "school_bus",
+          "symbolic_confidence": 0.5173251866741823,
+          "cnn_true_prob": 0.9379402995109558,
+          "cnn_pred_prob": 0.9379402995109558,
+          "cnn_margin": 0.8865514397621155,
+          "occlusion": {
+            "base_true_prob": 0.93794,
+            "top_patches": [
+              {
+                "bbox": [
+                  8,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.07583,
+                "masked_true_prob": 0.86211,
+                "region": "middle_left",
+                "crop_stats": {
+                  "mean_hue": 31.27,
+                  "mean_sat": 0.47,
+                  "mean_val": 0.89,
+                  "warm_frac": 0.816,
+                  "yellow_frac": 0.727,
+                  "blue_frac": 0.02,
+                  "green_frac": 0.016,
+                  "edge_density": 0.246,
+                  "texture_lap_var": 2014.3
+                }
+              },
+              {
+                "bbox": [
+                  16,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.07215,
+                "masked_true_prob": 0.86579,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 26.73,
+                  "mean_sat": 0.538,
+                  "mean_val": 0.916,
+                  "warm_frac": 0.906,
+                  "yellow_frac": 0.844,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.184,
+                  "texture_lap_var": 2241.4
+                }
+              },
+              {
+                "bbox": [
+                  24,
+                  8,
+                  16,
+                  16
+                ],
+                "drop": 0.06894,
+                "masked_true_prob": 0.869,
+                "region": "top_center",
+                "crop_stats": {
+                  "mean_hue": 27.77,
+                  "mean_sat": 0.278,
+                  "mean_val": 0.984,
+                  "warm_frac": 0.555,
+                  "yellow_frac": 0.414,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.02,
+                  "edge_density": 0.066,
+                  "texture_lap_var": 171.7
+                }
+              },
+              {
+                "bbox": [
+                  8,
+                  16,
+                  16,
+                  16
+                ],
+                "drop": 0.06081,
+                "masked_true_prob": 0.87713,
+                "region": "middle_left",
+                "crop_stats": {
+                  "mean_hue": 32.06,
+                  "mean_sat": 0.343,
+                  "mean_val": 0.944,
+                  "warm_frac": 0.727,
+                  "yellow_frac": 0.602,
+                  "blue_frac": 0.02,
+                  "green_frac": 0.016,
+                  "edge_density": 0.254,
+                  "texture_lap_var": 1738.1
+                }
+              },
+              {
+                "bbox": [
+                  16,
+                  8,
+                  16,
+                  16
+                ],
+                "drop": 0.05757,
+                "masked_true_prob": 0.88037,
+                "region": "top_center",
+                "crop_stats": {
+                  "mean_hue": 35.15,
+                  "mean_sat": 0.234,
+                  "mean_val": 0.96,
+                  "warm_frac": 0.441,
+                  "yellow_frac": 0.348,
+                  "blue_frac": 0.027,
+                  "green_frac": 0.023,
+                  "edge_density": 0.23,
+                  "texture_lap_var": 1766.2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/banana/n07753592_438.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/banana_as_school_bus_3.jpg",
+          "true_label": "banana",
+          "symbolic_label": "school_bus",
+          "symbolic_confidence": 0.5899587707145396,
+          "cnn_true_prob": 0.8406557440757751,
+          "cnn_pred_prob": 0.8406557440757751,
+          "cnn_margin": 0.7725545167922974,
+          "occlusion": {
+            "base_true_prob": 0.84066,
+            "top_patches": [
+              {
+                "bbox": [
+                  40,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.25368,
+                "masked_true_prob": 0.58697,
+                "region": "middle_right",
+                "crop_stats": {
+                  "mean_hue": 23.11,
+                  "mean_sat": 0.793,
+                  "mean_val": 0.749,
+                  "warm_frac": 0.988,
+                  "yellow_frac": 0.934,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.297,
+                  "texture_lap_var": 11151.8
+                }
+              },
+              {
+                "bbox": [
+                  40,
+                  40,
+                  16,
+                  16
+                ],
+                "drop": 0.21804,
+                "masked_true_prob": 0.62261,
+                "region": "bottom_right",
+                "crop_stats": {
+                  "mean_hue": 24.58,
+                  "mean_sat": 0.712,
+                  "mean_val": 0.797,
+                  "warm_frac": 0.93,
+                  "yellow_frac": 0.875,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.297,
+                  "texture_lap_var": 13911.1
+                }
+              },
+              {
+                "bbox": [
+                  32,
+                  40,
+                  16,
+                  16
+                ],
+                "drop": 0.21455,
+                "masked_true_prob": 0.62611,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 28.73,
+                  "mean_sat": 0.776,
+                  "mean_val": 0.743,
+                  "warm_frac": 0.898,
+                  "yellow_frac": 0.852,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.34,
+                  "texture_lap_var": 15675.2
+                }
+              },
+              {
+                "bbox": [
+                  48,
+                  40,
+                  16,
+                  16
+                ],
+                "drop": 0.19302,
+                "masked_true_prob": 0.64763,
+                "region": "bottom_right",
+                "crop_stats": {
+                  "mean_hue": 23.44,
+                  "mean_sat": 0.637,
+                  "mean_val": 0.825,
+                  "warm_frac": 0.867,
+                  "yellow_frac": 0.645,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.281,
+                  "texture_lap_var": 8096.4
+                }
+              },
+              {
+                "bbox": [
+                  48,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.19021,
+                "masked_true_prob": 0.65044,
+                "region": "middle_right",
+                "crop_stats": {
+                  "mean_hue": 24.75,
+                  "mean_sat": 0.7,
+                  "mean_val": 0.694,
+                  "warm_frac": 0.82,
+                  "yellow_frac": 0.598,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.305,
+                  "texture_lap_var": 12307.1
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "true_label": "brown_bear",
+      "symbolic_label": "king_penguin",
+      "summary": {
+        "count": 3,
+        "mean_cnn_true_prob": 0.7431,
+        "mean_symbolic_confidence": 0.4635,
+        "top_occlusion_regions": [
+          [
+            "center",
+            7
+          ],
+          [
+            "middle_left",
+            1
+          ],
+          [
+            "bottom_center",
+            1
+          ]
+        ],
+        "mean_top_patch_stats": {
+          "blue_frac": 0.188,
+          "edge_density": 0.303,
+          "green_frac": 0.11,
+          "mean_hue": 73.766,
+          "mean_sat": 0.22,
+          "mean_val": 0.305,
+          "texture_lap_var": 5843.5,
+          "warm_frac": 0.01,
+          "yellow_frac": 0.0
+        }
+      },
+      "feature_hint": "For true brown_bear misread as king_penguin, the CNN often relies on edge-dense, blue/purple, high-texture evidence in center, middle_left, bottom_center. Candidate symbolic direction: add a local patch/grid detector for this evidence and gate it against king_penguin.",
+      "examples": [
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/brown_bear/n02132136_337.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/brown_bear_as_king_penguin_1.jpg",
+          "true_label": "brown_bear",
+          "symbolic_label": "king_penguin",
+          "symbolic_confidence": 0.6474262060374403,
+          "cnn_true_prob": 0.7538127899169922,
+          "cnn_pred_prob": 0.7538127899169922,
+          "cnn_margin": 0.6837769746780396,
+          "occlusion": {
+            "base_true_prob": 0.75381,
+            "top_patches": [
+              {
+                "bbox": [
+                  24,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.4401,
+                "masked_true_prob": 0.31371,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 93.2,
+                  "mean_sat": 0.143,
+                  "mean_val": 0.228,
+                  "warm_frac": 0.0,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.227,
+                  "green_frac": 0.0,
+                  "edge_density": 0.324,
+                  "texture_lap_var": 2789.0
+                }
+              },
+              {
+                "bbox": [
+                  32,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.43182,
+                "masked_true_prob": 0.32199,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 96.98,
+                  "mean_sat": 0.083,
+                  "mean_val": 0.268,
+                  "warm_frac": 0.0,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.074,
+                  "green_frac": 0.0,
+                  "edge_density": 0.281,
+                  "texture_lap_var": 5266.4
+                }
+              },
+              {
+                "bbox": [
+                  24,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.34094,
+                "masked_true_prob": 0.41287,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 71.7,
+                  "mean_sat": 0.093,
+                  "mean_val": 0.195,
+                  "warm_frac": 0.008,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.027,
+                  "green_frac": 0.004,
+                  "edge_density": 0.145,
+                  "texture_lap_var": 755.4
+                }
+              },
+              {
+                "bbox": [
+                  32,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.31144,
+                "masked_true_prob": 0.44237,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 78.15,
+                  "mean_sat": 0.055,
+                  "mean_val": 0.236,
+                  "warm_frac": 0.0,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.152,
+                  "texture_lap_var": 1218.9
+                }
+              },
+              {
+                "bbox": [
+                  16,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.30035,
+                "masked_true_prob": 0.45346,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 85.99,
+                  "mean_sat": 0.171,
+                  "mean_val": 0.233,
+                  "warm_frac": 0.004,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.25,
+                  "green_frac": 0.0,
+                  "edge_density": 0.25,
+                  "texture_lap_var": 3580.2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/brown_bear/n02132136_325.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/brown_bear_as_king_penguin_2.jpg",
+          "true_label": "brown_bear",
+          "symbolic_label": "king_penguin",
+          "symbolic_confidence": 0.3407351018994903,
+          "cnn_true_prob": 0.7430640459060669,
+          "cnn_pred_prob": 0.7430640459060669,
+          "cnn_margin": 0.5499261617660522,
+          "occlusion": {
+            "base_true_prob": 0.74306,
+            "top_patches": [
+              {
+                "bbox": [
+                  8,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.23452,
+                "masked_true_prob": 0.50855,
+                "region": "middle_left",
+                "crop_stats": {
+                  "mean_hue": 81.38,
+                  "mean_sat": 0.367,
+                  "mean_val": 0.403,
+                  "warm_frac": 0.02,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.59,
+                  "green_frac": 0.051,
+                  "edge_density": 0.387,
+                  "texture_lap_var": 2665.1
+                }
+              },
+              {
+                "bbox": [
+                  24,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.23025,
+                "masked_true_prob": 0.51282,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 76.53,
+                  "mean_sat": 0.351,
+                  "mean_val": 0.326,
+                  "warm_frac": 0.0,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.465,
+                  "green_frac": 0.109,
+                  "edge_density": 0.305,
+                  "texture_lap_var": 2428.7
+                }
+              },
+              {
+                "bbox": [
+                  24,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.22919,
+                "masked_true_prob": 0.51387,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 46.57,
+                  "mean_sat": 0.202,
+                  "mean_val": 0.379,
+                  "warm_frac": 0.0,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.117,
+                  "green_frac": 0.184,
+                  "edge_density": 0.344,
+                  "texture_lap_var": 1865.1
+                }
+              },
+              {
+                "bbox": [
+                  24,
+                  40,
+                  16,
+                  16
+                ],
+                "drop": 0.22003,
+                "masked_true_prob": 0.52303,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 84.27,
+                  "mean_sat": 0.324,
+                  "mean_val": 0.354,
+                  "warm_frac": 0.004,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.57,
+                  "green_frac": 0.23,
+                  "edge_density": 0.27,
+                  "texture_lap_var": 2471.8
+                }
+              },
+              {
+                "bbox": [
+                  32,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.19694,
+                "masked_true_prob": 0.54612,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 89.98,
+                  "mean_sat": 0.351,
+                  "mean_val": 0.438,
+                  "warm_frac": 0.0,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.645,
+                  "green_frac": 0.078,
+                  "edge_density": 0.273,
+                  "texture_lap_var": 3348.3
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/brown_bear/n02132136_415.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/brown_bear_as_king_penguin_3.jpg",
+          "true_label": "brown_bear",
+          "symbolic_label": "king_penguin",
+          "symbolic_confidence": 0.40241674243275366,
+          "cnn_true_prob": 0.732537031173706,
+          "cnn_pred_prob": 0.732537031173706,
+          "cnn_margin": 0.6320917010307312,
+          "occlusion": {
+            "base_true_prob": 0.73254,
+            "top_patches": [
+              {
+                "bbox": [
+                  24,
+                  40,
+                  16,
+                  16
+                ],
+                "drop": 0.35818,
+                "masked_true_prob": 0.37436,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 53.13,
+                  "mean_sat": 0.2,
+                  "mean_val": 0.379,
+                  "warm_frac": 0.008,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.016,
+                  "green_frac": 0.176,
+                  "edge_density": 0.379,
+                  "texture_lap_var": 18982.3
+                }
+              },
+              {
+                "bbox": [
+                  32,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.3374,
+                "masked_true_prob": 0.39514,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 57.2,
+                  "mean_sat": 0.261,
+                  "mean_val": 0.392,
+                  "warm_frac": 0.047,
+                  "yellow_frac": 0.004,
+                  "blue_frac": 0.121,
+                  "green_frac": 0.445,
+                  "edge_density": 0.344,
+                  "texture_lap_var": 16619.0
+                }
+              },
+              {
+                "bbox": [
+                  16,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.3182,
+                "masked_true_prob": 0.41433,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 87.2,
+                  "mean_sat": 0.282,
+                  "mean_val": 0.178,
+                  "warm_frac": 0.004,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.059,
+                  "green_frac": 0.02,
+                  "edge_density": 0.215,
+                  "texture_lap_var": 1220.5
+                }
+              },
+              {
+                "bbox": [
+                  16,
+                  16,
+                  16,
+                  16
+                ],
+                "drop": 0.31687,
+                "masked_true_prob": 0.41567,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 65.21,
+                  "mean_sat": 0.311,
+                  "mean_val": 0.242,
+                  "warm_frac": 0.035,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.379,
+                  "edge_density": 0.395,
+                  "texture_lap_var": 6567.5
+                }
+              },
+              {
+                "bbox": [
+                  32,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.31513,
+                "masked_true_prob": 0.41741,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 53.4,
+                  "mean_sat": 0.282,
+                  "mean_val": 0.306,
+                  "warm_frac": 0.059,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.109,
+                  "green_frac": 0.262,
+                  "edge_density": 0.359,
+                  "texture_lap_var": 11780.0
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "true_label": "mushroom",
+      "symbolic_label": "banana",
+      "summary": {
+        "count": 3,
+        "mean_cnn_true_prob": 0.8239,
+        "mean_symbolic_confidence": 0.577,
+        "top_occlusion_regions": [
+          [
+            "center",
+            3
+          ],
+          [
+            "bottom_center",
+            2
+          ],
+          [
+            "bottom_left",
+            2
+          ],
+          [
+            "top_center",
+            1
+          ],
+          [
+            "top_left",
+            1
+          ]
+        ],
+        "mean_top_patch_stats": {
+          "blue_frac": 0.0,
+          "edge_density": 0.289,
+          "green_frac": 0.398,
+          "mean_hue": 27.797,
+          "mean_sat": 0.561,
+          "mean_val": 0.5,
+          "texture_lap_var": 9064.389,
+          "warm_frac": 0.83,
+          "yellow_frac": 0.378
+        }
+      },
+      "feature_hint": "For true mushroom misread as banana, the CNN often relies on edge-dense, warm-color, yellow, green-context, high-texture evidence in center, bottom_center, bottom_left. Candidate symbolic direction: add a local patch/grid detector for this evidence and gate it against banana.",
+      "examples": [
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/mushroom/n07734744_454.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/mushroom_as_banana_1.jpg",
+          "true_label": "mushroom",
+          "symbolic_label": "banana",
+          "symbolic_confidence": 0.56075246380554,
+          "cnn_true_prob": 0.8477552533149719,
+          "cnn_pred_prob": 0.8477552533149719,
+          "cnn_margin": 0.8054500818252563,
+          "occlusion": {
+            "base_true_prob": 0.84776,
+            "top_patches": [
+              {
+                "bbox": [
+                  32,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.16636,
+                "masked_true_prob": 0.6814,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 34.63,
+                  "mean_sat": 0.212,
+                  "mean_val": 0.759,
+                  "warm_frac": 0.344,
+                  "yellow_frac": 0.191,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.168,
+                  "texture_lap_var": 6381.3
+                }
+              },
+              {
+                "bbox": [
+                  16,
+                  48,
+                  16,
+                  16
+                ],
+                "drop": 0.14315,
+                "masked_true_prob": 0.70461,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 34.89,
+                  "mean_sat": 0.586,
+                  "mean_val": 0.356,
+                  "warm_frac": 0.879,
+                  "yellow_frac": 0.613,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.559,
+                  "edge_density": 0.32,
+                  "texture_lap_var": 14111.7
+                }
+              },
+              {
+                "bbox": [
+                  8,
+                  48,
+                  16,
+                  16
+                ],
+                "drop": 0.13725,
+                "masked_true_prob": 0.7105,
+                "region": "bottom_left",
+                "crop_stats": {
+                  "mean_hue": 35.16,
+                  "mean_sat": 0.6,
+                  "mean_val": 0.344,
+                  "warm_frac": 0.887,
+                  "yellow_frac": 0.656,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.777,
+                  "edge_density": 0.359,
+                  "texture_lap_var": 13318.6
+                }
+              },
+              {
+                "bbox": [
+                  32,
+                  48,
+                  16,
+                  16
+                ],
+                "drop": 0.13622,
+                "masked_true_prob": 0.71153,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 32.4,
+                  "mean_sat": 0.541,
+                  "mean_val": 0.422,
+                  "warm_frac": 0.891,
+                  "yellow_frac": 0.637,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.184,
+                  "edge_density": 0.387,
+                  "texture_lap_var": 23640.1
+                }
+              },
+              {
+                "bbox": [
+                  40,
+                  48,
+                  16,
+                  16
+                ],
+                "drop": 0.13514,
+                "masked_true_prob": 0.71261,
+                "region": "bottom_right",
+                "crop_stats": {
+                  "mean_hue": 34.61,
+                  "mean_sat": 0.606,
+                  "mean_val": 0.322,
+                  "warm_frac": 0.777,
+                  "yellow_frac": 0.461,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.531,
+                  "edge_density": 0.391,
+                  "texture_lap_var": 21185.3
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/mushroom/n07734744_436.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/mushroom_as_banana_2.jpg",
+          "true_label": "mushroom",
+          "symbolic_label": "banana",
+          "symbolic_confidence": 0.580099935103578,
+          "cnn_true_prob": 0.8426404595375061,
+          "cnn_pred_prob": 0.8426404595375061,
+          "cnn_margin": 0.809052586555481,
+          "occlusion": {
+            "base_true_prob": 0.84264,
+            "top_patches": [
+              {
+                "bbox": [
+                  16,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.18537,
+                "masked_true_prob": 0.65727,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 19.08,
+                  "mean_sat": 0.585,
+                  "mean_val": 0.402,
+                  "warm_frac": 0.832,
+                  "yellow_frac": 0.168,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.215,
+                  "edge_density": 0.348,
+                  "texture_lap_var": 8191.6
+                }
+              },
+              {
+                "bbox": [
+                  24,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.15636,
+                "masked_true_prob": 0.68628,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 15.43,
+                  "mean_sat": 0.62,
+                  "mean_val": 0.394,
+                  "warm_frac": 0.832,
+                  "yellow_frac": 0.082,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.102,
+                  "edge_density": 0.336,
+                  "texture_lap_var": 7260.8
+                }
+              },
+              {
+                "bbox": [
+                  8,
+                  48,
+                  16,
+                  16
+                ],
+                "drop": 0.13431,
+                "masked_true_prob": 0.70834,
+                "region": "bottom_left",
+                "crop_stats": {
+                  "mean_hue": 42.81,
+                  "mean_sat": 0.509,
+                  "mean_val": 0.319,
+                  "warm_frac": 0.957,
+                  "yellow_frac": 0.863,
+                  "blue_frac": 0.0,
+                  "green_frac": 1.0,
+                  "edge_density": 0.113,
+                  "texture_lap_var": 584.9
+                }
+              },
+              {
+                "bbox": [
+                  40,
+                  48,
+                  16,
+                  16
+                ],
+                "drop": 0.12209,
+                "masked_true_prob": 0.72055,
+                "region": "bottom_right",
+                "crop_stats": {
+                  "mean_hue": 40.19,
+                  "mean_sat": 0.524,
+                  "mean_val": 0.315,
+                  "warm_frac": 0.996,
+                  "yellow_frac": 0.816,
+                  "blue_frac": 0.0,
+                  "green_frac": 1.0,
+                  "edge_density": 0.117,
+                  "texture_lap_var": 153.4
+                }
+              },
+              {
+                "bbox": [
+                  16,
+                  48,
+                  16,
+                  16
+                ],
+                "drop": 0.11712,
+                "masked_true_prob": 0.72552,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 39.91,
+                  "mean_sat": 0.412,
+                  "mean_val": 0.393,
+                  "warm_frac": 0.957,
+                  "yellow_frac": 0.699,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.93,
+                  "edge_density": 0.27,
+                  "texture_lap_var": 2454.4
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/mushroom/n07734744_447.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/mushroom_as_banana_3.jpg",
+          "true_label": "mushroom",
+          "symbolic_label": "banana",
+          "symbolic_confidence": 0.5900957751690068,
+          "cnn_true_prob": 0.7811750769615173,
+          "cnn_pred_prob": 0.7811750769615173,
+          "cnn_margin": 0.681801438331604,
+          "occlusion": {
+            "base_true_prob": 0.78118,
+            "top_patches": [
+              {
+                "bbox": [
+                  16,
+                  8,
+                  16,
+                  16
+                ],
+                "drop": 0.24551,
+                "masked_true_prob": 0.53567,
+                "region": "top_center",
+                "crop_stats": {
+                  "mean_hue": 10.25,
+                  "mean_sat": 0.605,
+                  "mean_val": 0.792,
+                  "warm_frac": 0.949,
+                  "yellow_frac": 0.023,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.395,
+                  "texture_lap_var": 17026.7
+                }
+              },
+              {
+                "bbox": [
+                  8,
+                  8,
+                  16,
+                  16
+                ],
+                "drop": 0.20966,
+                "masked_true_prob": 0.57152,
+                "region": "top_left",
+                "crop_stats": {
+                  "mean_hue": 19.51,
+                  "mean_sat": 0.681,
+                  "mean_val": 0.778,
+                  "warm_frac": 0.887,
+                  "yellow_frac": 0.023,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.34,
+                  "texture_lap_var": 14020.9
+                }
+              },
+              {
+                "bbox": [
+                  24,
+                  48,
+                  16,
+                  16
+                ],
+                "drop": 0.20902,
+                "masked_true_prob": 0.57215,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 38.41,
+                  "mean_sat": 0.655,
+                  "mean_val": 0.353,
+                  "warm_frac": 0.902,
+                  "yellow_frac": 0.781,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.93,
+                  "edge_density": 0.219,
+                  "texture_lap_var": 683.0
+                }
+              },
+              {
+                "bbox": [
+                  16,
+                  16,
+                  16,
+                  16
+                ],
+                "drop": 0.20681,
+                "masked_true_prob": 0.57436,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 10.36,
+                  "mean_sat": 0.791,
+                  "mean_val": 0.679,
+                  "warm_frac": 0.996,
+                  "yellow_frac": 0.141,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.191,
+                  "texture_lap_var": 9481.5
+                }
+              },
+              {
+                "bbox": [
+                  8,
+                  48,
+                  16,
+                  16
+                ],
+                "drop": 0.20302,
+                "masked_true_prob": 0.57815,
+                "region": "bottom_left",
+                "crop_stats": {
+                  "mean_hue": 36.35,
+                  "mean_sat": 0.795,
+                  "mean_val": 0.42,
+                  "warm_frac": 1.0,
+                  "yellow_frac": 0.992,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.98,
+                  "edge_density": 0.23,
+                  "texture_lap_var": 7058.3
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "true_label": "teapot",
+      "symbolic_label": "banana",
+      "summary": {
+        "count": 3,
+        "mean_cnn_true_prob": 0.6614,
+        "mean_symbolic_confidence": 0.6705,
+        "top_occlusion_regions": [
+          [
+            "bottom_center",
+            3
+          ],
+          [
+            "top_center",
+            2
+          ],
+          [
+            "center",
+            2
+          ],
+          [
+            "top_right",
+            1
+          ],
+          [
+            "bottom_left",
+            1
+          ]
+        ],
+        "mean_top_patch_stats": {
+          "blue_frac": 0.0,
+          "edge_density": 0.179,
+          "green_frac": 0.0,
+          "mean_hue": 18.93,
+          "mean_sat": 0.564,
+          "mean_val": 0.49,
+          "texture_lap_var": 2782.567,
+          "warm_frac": 0.849,
+          "yellow_frac": 0.543
+        }
+      },
+      "feature_hint": "For true teapot misread as banana, the CNN often relies on warm-color, yellow evidence in bottom_center, top_center, center. Candidate symbolic direction: add a local patch/grid detector for this evidence and gate it against banana.",
+      "examples": [
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/teapot/n04398044_394.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/teapot_as_banana_1.jpg",
+          "true_label": "teapot",
+          "symbolic_label": "banana",
+          "symbolic_confidence": 0.6958963474164384,
+          "cnn_true_prob": 0.7740165591239929,
+          "cnn_pred_prob": 0.7740165591239929,
+          "cnn_margin": 0.7050862908363342,
+          "occlusion": {
+            "base_true_prob": 0.77402,
+            "top_patches": [
+              {
+                "bbox": [
+                  16,
+                  8,
+                  16,
+                  16
+                ],
+                "drop": 0.01678,
+                "masked_true_prob": 0.75723,
+                "region": "top_center",
+                "crop_stats": {
+                  "mean_hue": 14.95,
+                  "mean_sat": 0.603,
+                  "mean_val": 0.523,
+                  "warm_frac": 0.996,
+                  "yellow_frac": 0.758,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.242,
+                  "texture_lap_var": 3574.6
+                }
+              },
+              {
+                "bbox": [
+                  48,
+                  0,
+                  16,
+                  16
+                ],
+                "drop": 0.01088,
+                "masked_true_prob": 0.76314,
+                "region": "top_right",
+                "crop_stats": {
+                  "mean_hue": 14.67,
+                  "mean_sat": 0.629,
+                  "mean_val": 0.426,
+                  "warm_frac": 1.0,
+                  "yellow_frac": 0.598,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.035,
+                  "texture_lap_var": 61.0
+                }
+              },
+              {
+                "bbox": [
+                  24,
+                  8,
+                  16,
+                  16
+                ],
+                "drop": 0.00819,
+                "masked_true_prob": 0.76583,
+                "region": "top_center",
+                "crop_stats": {
+                  "mean_hue": 14.81,
+                  "mean_sat": 0.592,
+                  "mean_val": 0.529,
+                  "warm_frac": 1.0,
+                  "yellow_frac": 0.699,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.238,
+                  "texture_lap_var": 4581.1
+                }
+              },
+              {
+                "bbox": [
+                  8,
+                  40,
+                  16,
+                  16
+                ],
+                "drop": 0.00669,
+                "masked_true_prob": 0.76733,
+                "region": "bottom_left",
+                "crop_stats": {
+                  "mean_hue": 16.52,
+                  "mean_sat": 0.557,
+                  "mean_val": 0.588,
+                  "warm_frac": 1.0,
+                  "yellow_frac": 1.0,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.129,
+                  "texture_lap_var": 1653.0
+                }
+              },
+              {
+                "bbox": [
+                  40,
+                  0,
+                  16,
+                  16
+                ],
+                "drop": 0.00491,
+                "masked_true_prob": 0.7691,
+                "region": "top_right",
+                "crop_stats": {
+                  "mean_hue": 14.69,
+                  "mean_sat": 0.635,
+                  "mean_val": 0.462,
+                  "warm_frac": 1.0,
+                  "yellow_frac": 0.668,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.0,
+                  "texture_lap_var": 8.4
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/teapot/n04398044_429.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/teapot_as_banana_2.jpg",
+          "true_label": "teapot",
+          "symbolic_label": "banana",
+          "symbolic_confidence": 0.6705939958792763,
+          "cnn_true_prob": 0.7137004137039185,
+          "cnn_pred_prob": 0.7137004137039185,
+          "cnn_margin": 0.5928713083267212,
+          "occlusion": {
+            "base_true_prob": 0.7137,
+            "top_patches": [
+              {
+                "bbox": [
+                  24,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.15092,
+                "masked_true_prob": 0.56279,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 20.37,
+                  "mean_sat": 0.32,
+                  "mean_val": 0.652,
+                  "warm_frac": 0.91,
+                  "yellow_frac": 0.664,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.25,
+                  "texture_lap_var": 3738.4
+                }
+              },
+              {
+                "bbox": [
+                  16,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.10064,
+                "masked_true_prob": 0.61306,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 20.23,
+                  "mean_sat": 0.324,
+                  "mean_val": 0.656,
+                  "warm_frac": 0.906,
+                  "yellow_frac": 0.664,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.25,
+                  "texture_lap_var": 2052.7
+                }
+              },
+              {
+                "bbox": [
+                  24,
+                  40,
+                  16,
+                  16
+                ],
+                "drop": 0.05844,
+                "masked_true_prob": 0.65526,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 21.46,
+                  "mean_sat": 0.31,
+                  "mean_val": 0.693,
+                  "warm_frac": 0.996,
+                  "yellow_frac": 0.566,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.234,
+                  "texture_lap_var": 1531.1
+                }
+              },
+              {
+                "bbox": [
+                  32,
+                  16,
+                  16,
+                  16
+                ],
+                "drop": 0.02359,
+                "masked_true_prob": 0.69011,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 21.15,
+                  "mean_sat": 0.353,
+                  "mean_val": 0.576,
+                  "warm_frac": 0.98,
+                  "yellow_frac": 0.773,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.203,
+                  "texture_lap_var": 2657.3
+                }
+              },
+              {
+                "bbox": [
+                  32,
+                  40,
+                  16,
+                  16
+                ],
+                "drop": 0.02276,
+                "masked_true_prob": 0.69094,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 21.63,
+                  "mean_sat": 0.322,
+                  "mean_val": 0.673,
+                  "warm_frac": 1.0,
+                  "yellow_frac": 0.598,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.082,
+                  "texture_lap_var": 716.5
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/teapot/n04398044_449.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/teapot_as_banana_3.jpg",
+          "true_label": "teapot",
+          "symbolic_label": "banana",
+          "symbolic_confidence": 0.644864989603529,
+          "cnn_true_prob": 0.49638068675994873,
+          "cnn_pred_prob": 0.49638068675994873,
+          "cnn_margin": 0.2876048982143402,
+          "occlusion": {
+            "base_true_prob": 0.49638,
+            "top_patches": [
+              {
+                "bbox": [
+                  8,
+                  40,
+                  16,
+                  16
+                ],
+                "drop": 0.09279,
+                "masked_true_prob": 0.40359,
+                "region": "bottom_left",
+                "crop_stats": {
+                  "mean_hue": 20.75,
+                  "mean_sat": 0.837,
+                  "mean_val": 0.187,
+                  "warm_frac": 0.48,
+                  "yellow_frac": 0.105,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.113,
+                  "texture_lap_var": 4137.0
+                }
+              },
+              {
+                "bbox": [
+                  16,
+                  40,
+                  16,
+                  16
+                ],
+                "drop": 0.0888,
+                "masked_true_prob": 0.40758,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 19.72,
+                  "mean_sat": 0.824,
+                  "mean_val": 0.235,
+                  "warm_frac": 0.672,
+                  "yellow_frac": 0.254,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.125,
+                  "texture_lap_var": 3901.4
+                }
+              },
+              {
+                "bbox": [
+                  16,
+                  48,
+                  16,
+                  16
+                ],
+                "drop": 0.08576,
+                "masked_true_prob": 0.41063,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 23.41,
+                  "mean_sat": 0.641,
+                  "mean_val": 0.509,
+                  "warm_frac": 0.68,
+                  "yellow_frac": 0.582,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.125,
+                  "texture_lap_var": 1465.8
+                }
+              },
+              {
+                "bbox": [
+                  8,
+                  48,
+                  16,
+                  16
+                ],
+                "drop": 0.07226,
+                "masked_true_prob": 0.42412,
+                "region": "bottom_left",
+                "crop_stats": {
+                  "mean_hue": 24.14,
+                  "mean_sat": 0.646,
+                  "mean_val": 0.47,
+                  "warm_frac": 0.598,
+                  "yellow_frac": 0.562,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.125,
+                  "texture_lap_var": 1243.0
+                }
+              },
+              {
+                "bbox": [
+                  0,
+                  40,
+                  16,
+                  16
+                ],
+                "drop": 0.02403,
+                "masked_true_prob": 0.47235,
+                "region": "bottom_left",
+                "crop_stats": {
+                  "mean_hue": 18.92,
+                  "mean_sat": 0.849,
+                  "mean_val": 0.174,
+                  "warm_frac": 0.316,
+                  "yellow_frac": 0.094,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.113,
+                  "texture_lap_var": 4157.2
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "true_label": "king_penguin",
+      "symbolic_label": "sports_car",
+      "summary": {
+        "count": 3,
+        "mean_cnn_true_prob": 0.9716,
+        "mean_symbolic_confidence": 0.5057,
+        "top_occlusion_regions": [
+          [
+            "middle_left",
+            3
+          ],
+          [
+            "bottom_right",
+            2
+          ],
+          [
+            "center",
+            2
+          ],
+          [
+            "bottom_left",
+            2
+          ]
+        ],
+        "mean_top_patch_stats": {
+          "blue_frac": 0.106,
+          "edge_density": 0.194,
+          "green_frac": 0.173,
+          "mean_hue": 79.158,
+          "mean_sat": 0.19,
+          "mean_val": 0.605,
+          "texture_lap_var": 8125.067,
+          "warm_frac": 0.101,
+          "yellow_frac": 0.053
+        }
+      },
+      "feature_hint": "For true king_penguin misread as sports_car, the CNN often relies on green-context, high-texture evidence in middle_left, bottom_right, center. Candidate symbolic direction: add a local patch/grid detector for this evidence and gate it against sports_car.",
+      "examples": [
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/king_penguin/n02056570_327.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/king_penguin_as_sports_car_1.jpg",
+          "true_label": "king_penguin",
+          "symbolic_label": "sports_car",
+          "symbolic_confidence": 0.4730180772707394,
+          "cnn_true_prob": 0.9884660243988037,
+          "cnn_pred_prob": 0.9884660243988037,
+          "cnn_margin": 0.9841358661651611,
+          "occlusion": {
+            "base_true_prob": 0.98847,
+            "top_patches": [
+              {
+                "bbox": [
+                  8,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.03466,
+                "masked_true_prob": 0.9538,
+                "region": "middle_left",
+                "crop_stats": {
+                  "mean_hue": 74.57,
+                  "mean_sat": 0.05,
+                  "mean_val": 0.515,
+                  "warm_frac": 0.0,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.145,
+                  "texture_lap_var": 6991.3
+                }
+              },
+              {
+                "bbox": [
+                  8,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.03176,
+                "masked_true_prob": 0.95671,
+                "region": "middle_left",
+                "crop_stats": {
+                  "mean_hue": 83.34,
+                  "mean_sat": 0.042,
+                  "mean_val": 0.57,
+                  "warm_frac": 0.0,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.141,
+                  "texture_lap_var": 6585.0
+                }
+              },
+              {
+                "bbox": [
+                  0,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.02669,
+                "masked_true_prob": 0.96178,
+                "region": "middle_left",
+                "crop_stats": {
+                  "mean_hue": 94.86,
+                  "mean_sat": 0.032,
+                  "mean_val": 0.779,
+                  "warm_frac": 0.0,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.137,
+                  "texture_lap_var": 5539.8
+                }
+              },
+              {
+                "bbox": [
+                  0,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.02647,
+                "masked_true_prob": 0.962,
+                "region": "middle_left",
+                "crop_stats": {
+                  "mean_hue": 108.07,
+                  "mean_sat": 0.022,
+                  "mean_val": 0.708,
+                  "warm_frac": 0.0,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.188,
+                  "texture_lap_var": 10914.2
+                }
+              },
+              {
+                "bbox": [
+                  32,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.02256,
+                "masked_true_prob": 0.9659,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 105.39,
+                  "mean_sat": 0.217,
+                  "mean_val": 0.489,
+                  "warm_frac": 0.0,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.398,
+                  "green_frac": 0.0,
+                  "edge_density": 0.301,
+                  "texture_lap_var": 11536.2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/king_penguin/n02056570_323.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/king_penguin_as_sports_car_2.jpg",
+          "true_label": "king_penguin",
+          "symbolic_label": "sports_car",
+          "symbolic_confidence": 0.4606519554661006,
+          "cnn_true_prob": 0.981654167175293,
+          "cnn_pred_prob": 0.981654167175293,
+          "cnn_margin": 0.9763659238815308,
+          "occlusion": {
+            "base_true_prob": 0.98165,
+            "top_patches": [
+              {
+                "bbox": [
+                  40,
+                  40,
+                  16,
+                  16
+                ],
+                "drop": 0.05499,
+                "masked_true_prob": 0.92667,
+                "region": "bottom_right",
+                "crop_stats": {
+                  "mean_hue": 68.71,
+                  "mean_sat": 0.243,
+                  "mean_val": 0.561,
+                  "warm_frac": 0.102,
+                  "yellow_frac": 0.043,
+                  "blue_frac": 0.27,
+                  "green_frac": 0.352,
+                  "edge_density": 0.25,
+                  "texture_lap_var": 6842.1
+                }
+              },
+              {
+                "bbox": [
+                  32,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.04645,
+                "masked_true_prob": 0.9352,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 44.71,
+                  "mean_sat": 0.205,
+                  "mean_val": 0.619,
+                  "warm_frac": 0.242,
+                  "yellow_frac": 0.035,
+                  "blue_frac": 0.008,
+                  "green_frac": 0.754,
+                  "edge_density": 0.109,
+                  "texture_lap_var": 2670.1
+                }
+              },
+              {
+                "bbox": [
+                  32,
+                  16,
+                  16,
+                  16
+                ],
+                "drop": 0.03642,
+                "masked_true_prob": 0.94524,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 44.29,
+                  "mean_sat": 0.368,
+                  "mean_val": 0.721,
+                  "warm_frac": 0.566,
+                  "yellow_frac": 0.395,
+                  "blue_frac": 0.086,
+                  "green_frac": 0.449,
+                  "edge_density": 0.18,
+                  "texture_lap_var": 4160.9
+                }
+              },
+              {
+                "bbox": [
+                  40,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.03426,
+                "masked_true_prob": 0.94739,
+                "region": "middle_right",
+                "crop_stats": {
+                  "mean_hue": 38.69,
+                  "mean_sat": 0.237,
+                  "mean_val": 0.502,
+                  "warm_frac": 0.312,
+                  "yellow_frac": 0.129,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.379,
+                  "edge_density": 0.238,
+                  "texture_lap_var": 6182.0
+                }
+              },
+              {
+                "bbox": [
+                  40,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.0294,
+                "masked_true_prob": 0.95225,
+                "region": "middle_right",
+                "crop_stats": {
+                  "mean_hue": 30.09,
+                  "mean_sat": 0.277,
+                  "mean_val": 0.525,
+                  "warm_frac": 0.508,
+                  "yellow_frac": 0.289,
+                  "blue_frac": 0.004,
+                  "green_frac": 0.258,
+                  "edge_density": 0.289,
+                  "texture_lap_var": 6245.8
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/king_penguin/n02056570_34.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_182256/visuals/king_penguin_as_sports_car_3.jpg",
+          "true_label": "king_penguin",
+          "symbolic_label": "sports_car",
+          "symbolic_confidence": 0.5835013366362299,
+          "cnn_true_prob": 0.9445407390594482,
+          "cnn_pred_prob": 0.9445407390594482,
+          "cnn_margin": 0.9267435073852539,
+          "occlusion": {
+            "base_true_prob": 0.94454,
+            "top_patches": [
+              {
+                "bbox": [
+                  0,
+                  40,
+                  16,
+                  16
+                ],
+                "drop": 0.17902,
+                "masked_true_prob": 0.76552,
+                "region": "bottom_left",
+                "crop_stats": {
+                  "mean_hue": 97.35,
+                  "mean_sat": 0.304,
+                  "mean_val": 0.533,
+                  "warm_frac": 0.0,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.105,
+                  "green_frac": 0.0,
+                  "edge_density": 0.195,
+                  "texture_lap_var": 14908.6
+                }
+              },
+              {
+                "bbox": [
+                  8,
+                  40,
+                  16,
+                  16
+                ],
+                "drop": 0.13104,
+                "masked_true_prob": 0.8135,
+                "region": "bottom_left",
+                "crop_stats": {
+                  "mean_hue": 106.32,
+                  "mean_sat": 0.327,
+                  "mean_val": 0.453,
+                  "warm_frac": 0.0,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.41,
+                  "green_frac": 0.0,
+                  "edge_density": 0.266,
+                  "texture_lap_var": 10216.3
+                }
+              },
+              {
+                "bbox": [
+                  48,
+                  40,
+                  16,
+                  16
+                ],
+                "drop": 0.12192,
+                "masked_true_prob": 0.82262,
+                "region": "bottom_right",
+                "crop_stats": {
+                  "mean_hue": 98.27,
+                  "mean_sat": 0.137,
+                  "mean_val": 0.695,
+                  "warm_frac": 0.0,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.074,
+                  "green_frac": 0.004,
+                  "edge_density": 0.32,
+                  "texture_lap_var": 15211.5
+                }
+              },
+              {
+                "bbox": [
+                  0,
+                  32,
+                  16,
+                  16
+                ],
+                "drop": 0.11486,
+                "masked_true_prob": 0.82968,
+                "region": "middle_left",
+                "crop_stats": {
+                  "mean_hue": 81.38,
+                  "mean_sat": 0.314,
+                  "mean_val": 0.479,
+                  "warm_frac": 0.016,
+                  "yellow_frac": 0.004,
+                  "blue_frac": 0.105,
+                  "green_frac": 0.023,
+                  "edge_density": 0.277,
+                  "texture_lap_var": 22255.9
+                }
+              },
+              {
+                "bbox": [
+                  0,
+                  48,
+                  16,
+                  16
+                ],
+                "drop": 0.11286,
+                "masked_true_prob": 0.83168,
+                "region": "bottom_left",
+                "crop_stats": {
+                  "mean_hue": 102.7,
+                  "mean_sat": 0.29,
+                  "mean_val": 0.584,
+                  "warm_frac": 0.0,
+                  "yellow_frac": 0.0,
+                  "blue_frac": 0.059,
+                  "green_frac": 0.0,
+                  "edge_density": 0.16,
+                  "texture_lap_var": 16184.9
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

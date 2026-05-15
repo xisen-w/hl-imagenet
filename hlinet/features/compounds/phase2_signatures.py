@@ -370,6 +370,7 @@ def _stats(graph: SceneGraph) -> dict[str, float]:
         result["hist_orange_minus_teapot"] = ho - ht
         result["hist_bear_minus_teapot"] = hbb - ht
         result["hist_gr_minus_kp"] = hg - hk
+        result["hist_gr_minus_mushroom"] = hg - hm
 
     return result
 

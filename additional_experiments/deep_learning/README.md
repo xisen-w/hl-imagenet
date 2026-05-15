@@ -141,3 +141,50 @@ additional_experiments/deep_learning/models/cnn_baseline_latest.pt
 ```
 
 CNN top validation confusions are available in the JSON report.
+
+## CNN-Guided Symbolic Feature Mining
+
+Run:
+
+```bash
+additional_experiments/deep_learning/.venv/bin/python \
+  additional_experiments/deep_learning/mine_cnn_symbolic_gaps.py \
+  --split val \
+  --max-groups 12 \
+  --examples-per-group 3 \
+  --device cpu
+```
+
+Latest report:
+
+```text
+additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_183343/report.md
+additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_183343/report.json
+```
+
+Outcome counts on validation:
+
+| Outcome | Count |
+|---|---:|
+| Both correct | 892 |
+| CNN correct, symbolic wrong | 544 |
+| Symbolic correct, CNN wrong | 109 |
+| Both wrong | 455 |
+
+Top cases where the CNN is correct and symbolic is wrong:
+
+| True class | Symbolic prediction | Count | Candidate direction |
+|---|---|---:|---|
+| orange | banana | 26 | Local high-saturation warm/yellow patch structure, especially lower/central regions |
+| sports_car | school_bus | 24 | Local edge-dense/high-texture vehicle structure outside pure yellow-bus cues |
+| brown_bear | mushroom | 23 | Local warm, edge-dense, textured animal patches distinct from mushroom caps |
+| golden_retriever | banana | 17 | Center warm fur texture/edge evidence to counter banana warm-yellow bias |
+| brown_bear | golden_retriever | 17 | Darker local warm texture patches to separate bear fur from retriever fur |
+| mushroom | brown_bear | 16 | Bottom/center high-texture cap/stem evidence with green-context handling |
+| sports_car | king_penguin | 16 | Local structured vehicle edges/high texture to counter low-saturation penguin bias |
+| banana | orange | 15 | Elongated/local yellow structure rather than global orange saturation |
+| banana | school_bus | 15 | Local yellow fruit patches plus non-vehicle context/shape cues |
+| brown_bear | king_penguin | 15 | Center texture evidence to counter dark/low-saturation penguin confusion |
+
+The script writes annotated images under `visuals/`. Red/orange/yellow boxes mark
+patches whose occlusion most reduced the CNN's true-class probability.

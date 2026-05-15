@@ -352,3 +352,24 @@ because they measure fundamentally different image properties. The gains are sma
 (+0.15 to +0.40pp per deployment) but cumulative and stable. The old approach of tweaking 
 sigmoid thresholds on existing features was near-zero-sum; the new approach of expanding 
 the representation space along orthogonal axes is the path forward.
+
+### Iter: warm_hue_median in GR discriminants → 51.4%
+Added `warm_hue_median` (median hue in warm pixels) and `warm_sat_cv` (saturation CV in warm region).
+GR warm pixels peak at hue~16 (red-orange), banana at ~18 (yellow-orange), KP at ~20.5.
+Added to GR-banana and GR-KP discriminants. GR 38.5→39.5%. No regressions.
+
+### Iter: Score calibration → 51.6%
+Per-class additive offset: bus=-0.02, jelly=+0.02, KP=+0.01, mushroom=+0.01.
+Bus was the biggest sink (mean score 0.539 vs jellyfish 0.319).
+Jelly +1.5%, mushroom +1%, KP +1.5%, bus -3% (acceptable trade). Net +4 correct.
+
+### Iter: Potential field repulsion v1-v2 → 51.5% (regression)
+Concept: when two classes both score high, penalize the one with weaker discriminant evidence.
+Failed because it double-counted with pairwise reranking — both use the same discriminants.
+
+### Iter: Potential field v3 (balanced push/pull) → 51.65%
+Changed to symmetric: winner gets +force/2, loser gets -force/2. Only activates when
+disc_gap > 1.0 (very high confidence). This spreads scores before ranking without
+over-correcting. Sports_car +1%, mushroom +0.5%.
+
+### Current best: 51.65% train (1033/2000)

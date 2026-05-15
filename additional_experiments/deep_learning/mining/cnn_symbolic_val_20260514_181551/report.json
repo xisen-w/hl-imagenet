@@ -1,0 +1,489 @@
+{
+  "experiment": "cnn_symbolic_gap_mining",
+  "split": "val",
+  "checkpoint": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/additional_experiments/deep_learning/models/cnn_baseline_latest.pt",
+  "config": {
+    "image_size": 64,
+    "patch": 16,
+    "stride": 8,
+    "top_patches": 5,
+    "max_per_class": 2,
+    "device": "cpu"
+  },
+  "elapsed_s": 12.962,
+  "totals": {
+    "samples": 20,
+    "both_correct": 12,
+    "cnn_correct_symbolic_wrong": 5,
+    "symbolic_correct_cnn_wrong": 0,
+    "both_wrong": 3
+  },
+  "groups": [
+    {
+      "true_label": "golden_retriever",
+      "symbolic_label": "mushroom",
+      "summary": {
+        "count": 1,
+        "mean_cnn_true_prob": 0.3775,
+        "mean_symbolic_confidence": 0.6308,
+        "top_occlusion_regions": [
+          [
+            "center",
+            2
+          ],
+          [
+            "middle_left",
+            1
+          ]
+        ],
+        "mean_top_patch_stats": {
+          "blue_frac": 0.0,
+          "edge_density": 0.341,
+          "green_frac": 0.0,
+          "mean_hue": 16.797,
+          "mean_sat": 0.515,
+          "mean_val": 0.642,
+          "texture_lap_var": 7549.733,
+          "warm_frac": 0.943,
+          "yellow_frac": 0.806
+        }
+      },
+      "feature_hint": "For true golden_retriever misread as mushroom, the CNN often relies on edge-dense, warm-color, yellow, high-texture evidence in center, middle_left. Candidate symbolic direction: add a local patch/grid detector for this evidence and gate it against mushroom.",
+      "examples": [
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/golden_retriever/n02099601_28.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_181551/visuals/golden_retriever_as_mushroom_1.jpg",
+          "true_label": "golden_retriever",
+          "symbolic_label": "mushroom",
+          "symbolic_confidence": 0.6308449249303192,
+          "cnn_true_prob": 0.3774559795856476,
+          "cnn_pred_prob": 0.3774559795856476,
+          "cnn_margin": 0.06342673301696777,
+          "occlusion": {
+            "base_true_prob": 0.37746,
+            "top_patches": [
+              {
+                "bbox": [
+                  16,
+                  16,
+                  16,
+                  16
+                ],
+                "drop": 0.12935,
+                "masked_true_prob": 0.24811,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 17.57,
+                  "mean_sat": 0.467,
+                  "mean_val": 0.713,
+                  "warm_frac": 0.945,
+                  "yellow_frac": 0.898,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.312,
+                  "texture_lap_var": 6990.4
+                }
+              },
+              {
+                "bbox": [
+                  16,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.11083,
+                "masked_true_prob": 0.26663,
+                "region": "center",
+                "crop_stats": {
+                  "mean_hue": 15.27,
+                  "mean_sat": 0.57,
+                  "mean_val": 0.545,
+                  "warm_frac": 0.934,
+                  "yellow_frac": 0.656,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.371,
+                  "texture_lap_var": 8874.4
+                }
+              },
+              {
+                "bbox": [
+                  8,
+                  16,
+                  16,
+                  16
+                ],
+                "drop": 0.09235,
+                "masked_true_prob": 0.2851,
+                "region": "middle_left",
+                "crop_stats": {
+                  "mean_hue": 17.55,
+                  "mean_sat": 0.508,
+                  "mean_val": 0.668,
+                  "warm_frac": 0.949,
+                  "yellow_frac": 0.863,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.34,
+                  "texture_lap_var": 6784.4
+                }
+              },
+              {
+                "bbox": [
+                  8,
+                  24,
+                  16,
+                  16
+                ],
+                "drop": 0.05856,
+                "masked_true_prob": 0.31889,
+                "region": "middle_left",
+                "crop_stats": {
+                  "mean_hue": 15.23,
+                  "mean_sat": 0.595,
+                  "mean_val": 0.515,
+                  "warm_frac": 0.945,
+                  "yellow_frac": 0.609,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.352,
+                  "texture_lap_var": 7706.1
+                }
+              },
+              {
+                "bbox": [
+                  16,
+                  8,
+                  16,
+                  16
+                ],
+                "drop": 0.04701,
+                "masked_true_prob": 0.33045,
+                "region": "top_center",
+                "crop_stats": {
+                  "mean_hue": 20.09,
+                  "mean_sat": 0.477,
+                  "mean_val": 0.721,
+                  "warm_frac": 0.949,
+                  "yellow_frac": 0.934,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.047,
+                  "edge_density": 0.289,
+                  "texture_lap_var": 7751.7
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "true_label": "mushroom",
+      "symbolic_label": "golden_retriever",
+      "summary": {
+        "count": 1,
+        "mean_cnn_true_prob": 0.3394,
+        "mean_symbolic_confidence": 0.5871,
+        "top_occlusion_regions": [
+          [
+            "bottom_center",
+            3
+          ]
+        ],
+        "mean_top_patch_stats": {
+          "blue_frac": 0.0,
+          "edge_density": 0.28,
+          "green_frac": 0.0,
+          "mean_hue": 25.433,
+          "mean_sat": 0.624,
+          "mean_val": 0.194,
+          "texture_lap_var": 2542.533,
+          "warm_frac": 0.444,
+          "yellow_frac": 0.038
+        }
+      },
+      "feature_hint": "For true mushroom misread as golden_retriever, the CNN often relies on edge-dense, warm-color evidence in bottom_center. Candidate symbolic direction: add a local patch/grid detector for this evidence and gate it against golden_retriever.",
+      "examples": [
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/mushroom/n07734744_279.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_181551/visuals/mushroom_as_golden_retriever_1.jpg",
+          "true_label": "mushroom",
+          "symbolic_label": "golden_retriever",
+          "symbolic_confidence": 0.5870889825641841,
+          "cnn_true_prob": 0.33937546610832214,
+          "cnn_pred_prob": 0.33937546610832214,
+          "cnn_margin": 0.03896230459213257,
+          "occlusion": {
+            "base_true_prob": 0.33938,
+            "top_patches": [
+              {
+                "bbox": [
+                  24,
+                  48,
+                  16,
+                  16
+                ],
+                "drop": 0.23215,
+                "masked_true_prob": 0.10723,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 30.44,
+                  "mean_sat": 0.659,
+                  "mean_val": 0.146,
+                  "warm_frac": 0.312,
+                  "yellow_frac": 0.027,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.285,
+                  "texture_lap_var": 2476.6
+                }
+              },
+              {
+                "bbox": [
+                  32,
+                  48,
+                  16,
+                  16
+                ],
+                "drop": 0.20724,
+                "masked_true_prob": 0.13214,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 31.68,
+                  "mean_sat": 0.602,
+                  "mean_val": 0.153,
+                  "warm_frac": 0.363,
+                  "yellow_frac": 0.066,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.258,
+                  "texture_lap_var": 1474.3
+                }
+              },
+              {
+                "bbox": [
+                  16,
+                  48,
+                  16,
+                  16
+                ],
+                "drop": 0.19808,
+                "masked_true_prob": 0.14129,
+                "region": "bottom_center",
+                "crop_stats": {
+                  "mean_hue": 14.18,
+                  "mean_sat": 0.61,
+                  "mean_val": 0.282,
+                  "warm_frac": 0.656,
+                  "yellow_frac": 0.02,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.297,
+                  "texture_lap_var": 3676.7
+                }
+              },
+              {
+                "bbox": [
+                  40,
+                  48,
+                  16,
+                  16
+                ],
+                "drop": 0.18514,
+                "masked_true_prob": 0.15424,
+                "region": "bottom_right",
+                "crop_stats": {
+                  "mean_hue": 19.25,
+                  "mean_sat": 0.54,
+                  "mean_val": 0.18,
+                  "warm_frac": 0.41,
+                  "yellow_frac": 0.07,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.293,
+                  "texture_lap_var": 1304.2
+                }
+              },
+              {
+                "bbox": [
+                  48,
+                  48,
+                  16,
+                  16
+                ],
+                "drop": 0.15507,
+                "masked_true_prob": 0.1843,
+                "region": "bottom_right",
+                "crop_stats": {
+                  "mean_hue": 22.82,
+                  "mean_sat": 0.445,
+                  "mean_val": 0.159,
+                  "warm_frac": 0.254,
+                  "yellow_frac": 0.031,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.004,
+                  "edge_density": 0.336,
+                  "texture_lap_var": 1474.8
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "true_label": "teapot",
+      "symbolic_label": "banana",
+      "summary": {
+        "count": 1,
+        "mean_cnn_true_prob": 0.3782,
+        "mean_symbolic_confidence": 0.6162,
+        "top_occlusion_regions": [
+          [
+            "top_center",
+            3
+          ]
+        ],
+        "mean_top_patch_stats": {
+          "blue_frac": 0.0,
+          "edge_density": 0.229,
+          "green_frac": 0.0,
+          "mean_hue": 15.253,
+          "mean_sat": 0.352,
+          "mean_val": 0.403,
+          "texture_lap_var": 1773.867,
+          "warm_frac": 0.775,
+          "yellow_frac": 0.638
+        }
+      },
+      "feature_hint": "For true teapot misread as banana, the CNN often relies on edge-dense, warm-color, yellow evidence in top_center. Candidate symbolic direction: add a local patch/grid detector for this evidence and gate it against banana.",
+      "examples": [
+        {
+          "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/val/teapot/n04398044_279.JPEG",
+          "visual_path": "additional_experiments/deep_learning/mining/cnn_symbolic_val_20260514_181551/visuals/teapot_as_banana_1.jpg",
+          "true_label": "teapot",
+          "symbolic_label": "banana",
+          "symbolic_confidence": 0.6162462038195082,
+          "cnn_true_prob": 0.3781721591949463,
+          "cnn_pred_prob": 0.3781721591949463,
+          "cnn_margin": 0.11120492219924927,
+          "occlusion": {
+            "base_true_prob": 0.37817,
+            "top_patches": [
+              {
+                "bbox": [
+                  24,
+                  0,
+                  16,
+                  16
+                ],
+                "drop": 0.10824,
+                "masked_true_prob": 0.26993,
+                "region": "top_center",
+                "crop_stats": {
+                  "mean_hue": 15.0,
+                  "mean_sat": 0.381,
+                  "mean_val": 0.382,
+                  "warm_frac": 0.938,
+                  "yellow_frac": 0.762,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.215,
+                  "texture_lap_var": 1218.4
+                }
+              },
+              {
+                "bbox": [
+                  24,
+                  8,
+                  16,
+                  16
+                ],
+                "drop": 0.10367,
+                "masked_true_prob": 0.2745,
+                "region": "top_center",
+                "crop_stats": {
+                  "mean_hue": 15.77,
+                  "mean_sat": 0.289,
+                  "mean_val": 0.452,
+                  "warm_frac": 0.445,
+                  "yellow_frac": 0.336,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.254,
+                  "texture_lap_var": 2830.6
+                }
+              },
+              {
+                "bbox": [
+                  32,
+                  0,
+                  16,
+                  16
+                ],
+                "drop": 0.07634,
+                "masked_true_prob": 0.30183,
+                "region": "top_center",
+                "crop_stats": {
+                  "mean_hue": 14.99,
+                  "mean_sat": 0.387,
+                  "mean_val": 0.375,
+                  "warm_frac": 0.941,
+                  "yellow_frac": 0.816,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.219,
+                  "texture_lap_var": 1272.6
+                }
+              },
+              {
+                "bbox": [
+                  32,
+                  8,
+                  16,
+                  16
+                ],
+                "drop": 0.06937,
+                "masked_true_prob": 0.3088,
+                "region": "top_center",
+                "crop_stats": {
+                  "mean_hue": 15.11,
+                  "mean_sat": 0.306,
+                  "mean_val": 0.432,
+                  "warm_frac": 0.625,
+                  "yellow_frac": 0.395,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.336,
+                  "texture_lap_var": 2486.8
+                }
+              },
+              {
+                "bbox": [
+                  48,
+                  8,
+                  16,
+                  16
+                ],
+                "drop": 0.04837,
+                "masked_true_prob": 0.3298,
+                "region": "top_right",
+                "crop_stats": {
+                  "mean_hue": 15.55,
+                  "mean_sat": 0.346,
+                  "mean_val": 0.391,
+                  "warm_frac": 0.938,
+                  "yellow_frac": 0.863,
+                  "blue_frac": 0.0,
+                  "green_frac": 0.0,
+                  "edge_density": 0.094,
+                  "texture_lap_var": 249.2
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
