@@ -277,3 +277,115 @@ Xisen Wang, May 2026.
 ## References
 
 Weng, J. (2026). *Learning Beyond Gradients*. https://trinkle23897.github.io/learning-beyond-gradients/
+
+---
+
+<!-- RCC-AI-README:START -->
+
+# PART II - AI / RCC Agent README
+
+## AI version tracking contract
+
+Current repository context:
+
+- Repository: hl-imagenet
+- Purpose: heuristic-learning image classification demo without neural networks.
+- Primary package: hlinet.
+- Primary docs: README.md, docs/blog.md, docs/result1.md, docs/experiment_report.md, docs/design.md.
+- Primary scripts: scripts/run_eval.py, scripts/predict_image.py, scripts/generate_plots.py, scripts/demo.py.
+- Phase 1 claim boundary: 86.1 percent is development-set accuracy after iterative tuning.
+- Phase 1 hard-class boundary: 84 percent is development-set accuracy on the 4 real hard classes.
+- Validation-folder result: 54 percent on 4 hard classes.
+- Stricter non-overlapping validation subset: 51.4 percent.
+- Phase 2 is the proper train/validation/test split direction.
+- RCC mode in this change: documentation-only context layer.
+- No source behavior is changed by this RCC layer.
+
+AI agents must update this section only when repository purpose, evaluation claims, command surface, package structure, or phase status changes.
+
+## AI operating contract
+
+Any AI agent reading or modifying this repository must follow this order:
+
+1. Read the root README first.
+2. Read the mini README in the target folder.
+3. Inspect only relevant source, docs, logs, or scripts.
+4. Preserve the distinction between development-set tuning and held-out validation.
+5. Preserve the no-neural-network and no-gradient-descent claim boundary unless code behavior changes.
+6. Treat logs and plots as evidence artifacts, not independent proof.
+7. Patch the smallest necessary surface.
+8. Run the relevant command before claiming behavior changed.
+9. Update local README context if folder purpose, hooks, artifacts, or invariants change.
+
+## RCC documentation contract
+
+RCC means Repository Context Canon. In this repository, RCC is implemented as a documentation topology where the root README provides global context and subfolder READMEs expose local purpose, hooks, artifacts, theory or method basis, invariants, and examples.
+
+RCC module fields:
+
+- S = formal specification
+- H = hooks and integration edges
+- A = artifacts and code units
+- T = theory or method basis
+- I = invariants
+- E = example
+
+AI agents should reconstruct repository context through bounded README surfaces first, then inspect relevant files.
+
+## AI file routing guide
+
+- hlinet/sensors: raw pixel-to-atom extraction.
+- hlinet/scene: scene graph construction and spatial relations.
+- hlinet/features: symbolic feature predicates.
+- hlinet/classifier: scoring, tiebreakers, prototypes, and prediction behavior.
+- hlinet/proof: proof trace rendering.
+- hlinet/eval: dataset loading, metrics, and evaluation execution.
+- hlinet/agent: heuristic-learning loop mechanics.
+- hlinet/algebra: visual concept algebra operators and routing helpers.
+- scripts: human-facing commands.
+- docs: explanation, reports, plots, and design notes.
+- logs: generated run records and historical reasoning snapshots.
+
+## AI non-claim lock
+
+Never claim or imply:
+
+- Phase 1 is a standard ImageNet benchmark.
+- 86.1 percent is held-out accuracy.
+- Development-set tuning proves generalization.
+- Synthetic easy classes are equivalent to real Tiny ImageNet classes.
+- Symbolic heuristics beat neural networks generally.
+- There are no learned quantities when prototypes or tuned thresholds are being discussed.
+- Plots or logs prove correctness without evaluation context.
+- RCC documentation proves source correctness.
+
+## AI interpretation of current evidence
+
+HL-ImageNet is a preliminary heuristic-learning demo showing that a coding agent can iteratively maintain a symbolic image classifier using classical vision features, scoring rules, tiebreakers, logs, and proof traces. Phase 1 demonstrates confusion-driven improvement and representation-saturation behavior, but its headline accuracy is development-set accuracy, not a clean held-out benchmark. The stricter validation numbers must remain visible whenever results are summarized.
+
+## Required local verification
+
+After documentation-only RCC changes, run:
+
+    git diff -- README.md
+    git status
+
+After source changes, run the relevant local command from the repository root:
+
+    pip install -e .
+    python -m hlinet.eval.runner
+    python scripts/predict_image.py path/to/image.jpg
+
+If plots are changed, regenerate them through the plotting script rather than editing generated images directly:
+
+    python scripts/generate_plots.py
+
+## README maintenance rule
+
+When adding a new major folder, create a mini README with Purpose, S, H, A, T, I, and E fields.
+
+## Final AI warning
+
+This repository is strongest when claim boundaries stay visible. Do not optimize documentation to sound stronger than the evidence. Preserve the development-set versus validation-set distinction, the synthetic-class caveat, the Phase 2 direction, and the fact that RCC improves navigation rather than proving code correctness.
+
+<!-- RCC-AI-README:END -->
