@@ -14,7 +14,13 @@ from hlinet.registry import get_feature, register_feature
 from hlinet.types import FeatureValue, Region, SceneGraph
 
 
+_stats_cache_graph = None
+_stats_cache_result = None
+
 def _stats(graph: SceneGraph) -> dict[str, float]:
+    global _stats_cache_graph, _stats_cache_result
+    if graph is _stats_cache_graph and _stats_cache_result is not None:
+        return _stats_cache_result
     image = graph.raw_image
     if image is None:
         return {}
@@ -132,9 +138,84 @@ def _stats(graph: SceneGraph) -> dict[str, float]:
         orient_energies.append(float(np.abs(cv2.filter2D(gray, cv2.CV_64F, k)).mean()))
     gabor_dominant_orient = float(np.argmax(orient_energies)) / 4.0
 
+    # FFT horizontal/vertical energy ratio
+    gray_sq = cv2.resize(gray, (64, 64)) if gray.shape != (64, 64) else gray
+    fft_mag = np.abs(np.fft.fftshift(np.fft.fft2(gray_sq.astype(np.float32))))
+    cy, cx = 32, 32
+    h_band = float(fft_mag[cy - 2:cy + 3, :].sum())
+    v_band = float(fft_mag[:, cx - 2:cx + 3].sum())
+    fft_hv_ratio = h_band / max(v_band, 1e-9)
+
+    # Edge spatial distribution
+    q1h, q3h = h // 4, 3 * h // 4
+    q1w, q3w = w // 4, 3 * w // 4
+    center_edge_px = edges[q1h:q3h, q1w:q3w].sum() / 255
+    total_edge_px = edges.sum() / 255 + 1e-9
+    center_area = (q3h - q1h) * (q3w - q1w)
+    total_area_px = h * w
+    edge_concentration = (center_edge_px / center_area) / (total_edge_px / total_area_px + 1e-9)
+    grid_16 = np.zeros(16)
+    gh, gw = h // 4, w // 4
+    for gi in range(4):
+        for gj in range(4):
+            grid_16[gi * 4 + gj] = edges[gi * gh:(gi + 1) * gh, gj * gw:(gj + 1) * gw].sum() / 255
+    grid_16 = grid_16 / (grid_16.sum() + 1e-9)
+    edge_entropy = float(-np.sum(grid_16[grid_16 > 0] * np.log2(grid_16[grid_16 > 0])))
+
     # Color channel std (high = colorful/diverse hues)
     b_ch, g_ch, r_ch = cv2.split(graph.raw_image)
     color_std = float(np.std([r_ch.mean(), g_ch.mean(), b_ch.mean()])) / 100
+
+    # LAB color moments (orthogonal to HSV-based features)
+    lab = cv2.cvtColor(image, cv2.COLOR_BGR2LAB).astype(np.float32)
+    lab_a = lab[:, :, 1]
+    lab_b = lab[:, :, 2]
+    cm_a_std = float(lab_a.std()) / 255
+    cm_b_std = float(lab_b.std()) / 255
+    lab_center = lab[h // 4:3 * h // 4, w // 4:3 * w // 4]
+    cm_center_a = float(lab_center[:, :, 1].mean()) / 255
+    cm_center_b = float(lab_center[:, :, 2].mean()) / 255
+    b_mean_raw, b_std_raw = lab_b.mean(), lab_b.std() + 1e-9
+    cm_b_skew = float(((lab_b - b_mean_raw) ** 3).mean() / (b_std_raw ** 3))
+
+    lab_l = lab[:, :, 0].astype(np.float32) / 255.0
+    lab_a_norm = lab_a / 255.0
+    lab_b_norm = lab_b / 255.0
+    chroma = np.sqrt((lab_a_norm - 0.5)**2 + (lab_b_norm - 0.5)**2)
+    color_purity = float(chroma.mean()) / max(float(lab_l.mean()), 0.01)
+
+    lab_a_raw = lab[:, :, 1].astype(np.float32) / 255.0
+    warm_a = lab_a_raw[warm] if warm.sum() > 100 else np.array([0.5])
+    cool_mask = ((hue >= 75) & (hue <= 145)) & (sat > 30)
+    cool_a = lab_a_raw[cool_mask] if cool_mask.sum() > 100 else np.array([0.5])
+    warm_cool_a_diff = float(warm_a.mean() - cool_a.mean())
+
+    # Hu moments of edge image (shape descriptors, orthogonal to edge density)
+    edge_moments = cv2.moments(edges)
+    hu_raw = cv2.HuMoments(edge_moments)
+    hu1 = float(-np.sign(hu_raw[0][0]) * np.log10(abs(hu_raw[0][0]) + 1e-12))
+    hu2 = float(-np.sign(hu_raw[1][0]) * np.log10(abs(hu_raw[1][0]) + 1e-12))
+
+    # GLCM contrast (horizontal adjacency texture)
+    g1 = gray[:, :-1].astype(np.float32)
+    g2 = gray[:, 1:].astype(np.float32)
+    glcm_contrast = float(((g1 - g2) ** 2).mean()) / (255 * 255)
+
+    # Binary complexity (Otsu threshold, transition density)
+    _, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    _h_trans = np.sum(np.abs(np.diff(binary.astype(np.float32), axis=1)) > 0) / (h * (w - 1))
+    _v_trans = np.sum(np.abs(np.diff(binary.astype(np.float32), axis=0)) > 0) / ((h - 1) * w)
+    binary_complexity = float(_h_trans + _v_trans)
+
+    # Orient entropy (gradient direction diversity, weighted by magnitude)
+    _sobel_x = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=3)
+    _sobel_y = cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=3)
+    _grad_mag = np.sqrt(_sobel_x**2 + _sobel_y**2)
+    _grad_ang = np.arctan2(_sobel_y, _sobel_x) * 180 / np.pi
+    _strong = _grad_mag > np.percentile(_grad_mag, 50)
+    _orient_hist = np.histogram(_grad_ang[_strong], bins=8, range=(-180, 180), weights=_grad_mag[_strong])[0]
+    _orient_hist = _orient_hist / (_orient_hist.sum() + 1e-9)
+    orient_entropy = float(-np.sum(_orient_hist * np.log2(_orient_hist + 1e-9)))
 
     # Center-surround brightness ratio
     center_region = gray[h//4:3*h//4, w//4:3*w//4]
@@ -171,6 +252,8 @@ def _stats(graph: SceneGraph) -> dict[str, float]:
     else:
         hue_hist = np.zeros(12)
     hue_spread = float(np.sum(hue_hist > 0.05))
+    hh = hue_hist[hue_hist > 0]
+    hue_entropy = float(-np.sum(hh * np.log2(hh))) if len(hh) > 0 else 0.0
 
     # --- 2x2 spatial pyramid ---
     mid_y, mid_x = h // 2, w // 2
@@ -264,6 +347,7 @@ def _stats(graph: SceneGraph) -> dict[str, float]:
         "hue_cyan_blue": float(hue_hist[7]),
         "hue_blue": float(hue_hist[8]),
         "hue_spread": hue_spread,
+        "hue_entropy": hue_entropy,
         "sat_pixels_ratio": sat_pixels_ratio,
         # --- NEW: spatial pyramid (2x2) ---
         "warm_tl": quad_warm["tl"],
@@ -306,6 +390,7 @@ def _stats(graph: SceneGraph) -> dict[str, float]:
         "warm_hue_mean": float(hue[warm].mean()) / 45 if warm.sum() > 100 else 0.5,
         "warm_hue_median": float(np.median(hue[warm])) if warm.sum() > 100 else 15.0,
         "warm_sat_cv": float(sat[warm].std() / max(sat[warm].mean(), 1)) if warm.sum() > 100 else 0.3,
+        "warm_sat_std": float(sat[warm].std()) / 255 if warm.sum() > 100 else 0.15,
         "horiz_dominance": horiz_dominance,
         "autocorr_h": autocorr_h,
         "autocorr_x_warm_bl": autocorr_h * quad_warm["bl"],
@@ -320,7 +405,38 @@ def _stats(graph: SceneGraph) -> dict[str, float]:
         "gabor_45_04_var": gabor_45_04_var,
         "gabor_90_01_mean": gabor_90_01_mean,
         "gabor_dominant_orient": gabor_dominant_orient,
+        "fft_hv_ratio": fft_hv_ratio,
+        "edge_concentration": edge_concentration,
+        "edge_entropy": edge_entropy,
+        "cm_a_std": cm_a_std,
+        "cm_b_std": cm_b_std,
+        "cm_center_a": cm_center_a,
+        "cm_center_b": cm_center_b,
+        "cm_b_skew": cm_b_skew,
+        "hu1": hu1,
+        "hu2": hu2,
+        "glcm_contrast": glcm_contrast,
+        "binary_complexity": binary_complexity,
+        "orient_entropy": orient_entropy,
+        "color_purity": color_purity,
+        "warm_cool_a_diff": warm_cool_a_diff,
     }
+
+    third = h // 3
+    warm_top = float(warm[:third, :].sum()) / max(third * w, 1)
+    warm_mid = float(warm[third:2*third, :].sum()) / max(third * w, 1)
+    warm_bot = float(warm[2*third:, :].sum()) / max((h - 2*third) * w, 1)
+    warm_total = max(warm_top + warm_mid + warm_bot, 0.001)
+    result["warm_vert_top"] = warm_top / warm_total
+    result["warm_vert_mid"] = warm_mid / warm_total
+    result["warm_vert_bot"] = warm_bot / warm_total
+    result["warm_vert_concentration"] = max(warm_top, warm_mid, warm_bot) / warm_total
+
+    edge_top = float(edges[:third, :].sum() / 255) / max(third * w, 1)
+    edge_mid = float(edges[third:2*third, :].sum() / 255) / max(third * w, 1)
+    edge_bot = float(edges[2*third:, :].sum() / 255) / max((h - 2*third) * w, 1)
+    edge_total = max(edge_top + edge_mid + edge_bot, 0.001)
+    result["edge_vert_mid_ratio"] = edge_mid / edge_total
 
     # Width profile: is the middle third wider than top/bottom in edge spread?
     widths = np.zeros(h)
@@ -372,6 +488,37 @@ def _stats(graph: SceneGraph) -> dict[str, float]:
         result["hist_gr_minus_kp"] = hg - hk
         result["hist_gr_minus_mushroom"] = hg - hm
 
+    b_ch, g_ch, r_ch = cv2.split(image)
+    bf = b_ch.flatten().astype(np.float32)
+    gf = g_ch.flatten().astype(np.float32)
+    rf = r_ch.flatten().astype(np.float32)
+    n = len(bf)
+    if n > 100:
+        rb_cov = np.dot(rf - rf.mean(), bf - bf.mean()) / n
+        rb_std = (rf.std() * bf.std())
+        result["rb_corr"] = float(rb_cov / rb_std) if rb_std > 1e-6 else 0.0
+        gb_cov = np.dot(gf - gf.mean(), bf - bf.mean()) / n
+        gb_std = (gf.std() * bf.std())
+        result["gb_corr"] = float(gb_cov / gb_std) if gb_std > 1e-6 else 0.0
+        rg_cov = np.dot(rf - rf.mean(), gf - gf.mean()) / n
+        rg_std = (rf.std() * gf.std())
+        result["rg_corr"] = float(rg_cov / rg_std) if rg_std > 1e-6 else 0.0
+        result["mean_ch_corr"] = (result["rb_corr"] + result["gb_corr"] + result["rg_corr"]) / 3.0
+
+    b_mean = image[:,:,0].mean()
+    g_mean = image[:,:,1].mean()
+    r_mean = image[:,:,2].mean()
+    result["rb_ratio"] = float(r_mean / max(b_mean, 1.0))
+    result["gb_ratio"] = float(g_mean / max(b_mean, 1.0))
+
+    gray_f = gray.astype(np.float32)
+    ch4, cw4 = h // 4, w // 4
+    center_region = gray_f[ch4:3*ch4, cw4:3*cw4]
+    full_mean = gray_f.mean()
+    result["center_bright_ratio"] = float(center_region.mean() / max(full_mean, 1.0))
+
+    _stats_cache_graph = graph
+    _stats_cache_result = result
     return result
 
 
