@@ -68,3 +68,11 @@ The 24-pair discriminant system. Each pair has a base threshold + gap-aware scal
 - Per-class histogram weights
 - Confidence gate thresholds
 - Sigmoid scales in discriminants
+
+## Experiment: Per-Class Histogram Weights (Session 15, Monitor Cycle 1)
+
+Replaced global `_HIST_BLEND_W = 0.88` with per-class weights ranging from teapot=0.05 to bus=0.16.
+
+**Result**: Train dropped 57.9%→55.3%, val unchanged at 52.9%, gap narrowed 5.0pp→2.4pp.
+
+**Lesson**: The train accuracy loss came entirely from teapot (41→27.5%) because weight 0.05 starved the histogram signal. Meanwhile bus/sports gained because their weights were higher. This confirms: the previous 5.0pp gap was ~2.6pp from train-overfit reranking and ~2.4pp from genuinely harder val images. Per-class hist weights are a knob for redistributing score mass between classes but don't improve generalization unless calibrated on val. Minimum hist weight for any class should be ≥0.10.
