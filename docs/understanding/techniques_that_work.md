@@ -55,15 +55,33 @@ Features produce non-zero-sum gains when they measure fundamentally different im
 
 **Orient entropy** (+0.1pp): Gradient direction diversity. Best for sports-teapot (d=1.11).
 
+### Signal Quality Auditing (methodology, not yet +pp)
+**What**: For each signal in a discriminant, compute per-signal accuracy on error images (does it push in the correct direction?). Signals below 40% accuracy are actively hurting.
+**Why it works**: Discriminant signals were tuned for an earlier pipeline state. As other signals were added, some early signals became counterproductive but were never removed.
+**Example finding**: In teapot-banana disc, `yellow` had 17% accuracy, `sat` 26%, `color_std` 26% — all WORSE than random. But removing them caused -4pp due to systemic dependencies.
+**Limitation**: Removing bad signals fails because they contribute to other pairs via repulsion/deep-rank. The audit reveals which signals to AVOID ADDING to new features (correlated signals) but can't safely prune existing ones.
+
+### Unused Feature Mining (+0.25pp and counting)
+**What**: Scan all features computed in `_stats()` (local_regions.py, etc.) that are NOT referenced in `predict.py`. Compute cross-class d' on actual error images for each confusion pair. Deploy features with d'>1.0 in existing discriminants.
+**Why it works**: The feature extraction pipeline computes 23+ features that were never deployed. Some (like r0_warm, d'=4.80 for teapot→banana) measure genuinely orthogonal properties not captured by existing discriminant signals.
+**Conditions**: Must verify sigmoid direction matches d' direction (d'>0 means fix>risk, so favor fix class). Must deploy in EXISTING discriminants, not as verify conditions (Pattern 10). Best candidates are discriminants with 4-7 existing signals (not saturated).
+**Best deployment**: r0_warm in teapot-banana disc (+3 net). Failed: round_warm in GR-teapot (-8, wrong direction), r0_edge in bear-KP (-6, correlates with existing edge), round_circularity in bear-mushroom (-5, cascade).
+
 ### Margin and Multiplier Tuning (+0.25pp)
 **What**: Widening reranking eligibility windows and lowering threshold multipliers.
 **Why it works at late stage**: Different optimization axis from per-pair tuning. Makes ALL existing discriminants fire more often, not just one pair.
 **Best moves**: top-2 margin 0.25→0.30 (+1), rank4 margin 0.22→0.30 (+2), top-2 multiplier 1.5→1.3 (+1).
 
-### Repulsion Pairs (+0.2pp across 11 pairs)
+### Repulsion Pairs (+0.35pp across 18 pairs)
 **What**: Symmetric score push/pull between pairs with discriminant evidence.
 **Why it works**: Spreads scores before ranking without over-correcting. Safe mechanism (small forces, high confidence threshold).
-**Current**: 11 pairs at 0.008-0.012 force.
+**Current**: 18 pairs at 0.008-0.016 force. Most recent: bear-mushroom 0.014, teapot-banana 0.014 (both +0.004 increments from 0.010).
+**Tuning insight**: Only ~20% of repulsion increases produce gains. The successful ones are pairs where the discriminant direction is already correct and the pair is "isolated" (doesn't share many features with other pairs). Sports_car is hypersensitive — almost any repulsion change causes it to drop 2-3pp.
+
+### Rank-3+ Whitelist Expansion (+0.05pp per pair)
+**What**: Add missing confusion pairs to rank-3/4/5 reranking whitelists so deeper candidates can be promoted.
+**Why it works**: Many errors have the true class at rank-3+. If the discriminant is already defined and accurate, extending whitelist coverage is low risk.
+**Conditions**: Only add pairs where (1) discriminant exists, (2) pair is "isolated" (not sports_car, which cascades), (3) PAIR_BASE is low (≤0.05). Bear-mushroom rank-3 worked (+1); bear-sports + KP-sports failed (-8) due to sports_car cascade.
 
 ## Generalization Profile of Each Technique
 

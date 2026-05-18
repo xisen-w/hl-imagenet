@@ -517,6 +517,16 @@ def _stats(graph: SceneGraph) -> dict[str, float]:
     full_mean = gray_f.mean()
     result["center_bright_ratio"] = float(center_region.mean() / max(full_mean, 1.0))
 
+    contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    n_contours = len(contours)
+    result["n_contours_norm"] = min(n_contours, 80) / 80.0
+    if contours:
+        mask = np.zeros_like(gray)
+        cv2.drawContours(mask, contours, -1, 255, -1)
+        result["contour_fill_ratio"] = float(np.count_nonzero(mask)) / (h * w)
+    else:
+        result["contour_fill_ratio"] = 0.0
+
     _stats_cache_graph = graph
     _stats_cache_result = result
     return result

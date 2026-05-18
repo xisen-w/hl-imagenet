@@ -214,7 +214,7 @@ def _pairwise_rerank(
     top2_label, top2_score, _ = candidates[1]
 
     _PAIR_BASE = {
-        frozenset(["banana", "teapot"]): 0.10,
+        frozenset(["banana", "teapot"]): 0.30,
         frozenset(["banana", "school_bus"]): 0.20,
         frozenset(["king_penguin", "teapot"]): 0.0,
         frozenset(["brown_bear", "school_bus"]): 0.10,
@@ -238,17 +238,18 @@ def _pairwise_rerank(
         frozenset(["mushroom", "king_penguin"]): 0.0,
         frozenset(["orange", "mushroom"]): 0.0,
         frozenset(["teapot", "school_bus"]): 0.0,
+        frozenset(["mushroom", "sports_car"]): 0.0,
     }
 
     margin12 = top1_score - top2_score
-    if margin12 <= 0.25:
+    if margin12 <= 0.30:
         pair12 = frozenset([top1_label, top2_label])
         signals = _compute_pair_signals(pair12, s, _sigmoid)
         if signals is not None:
             cls1, sig1, cls2, sig2 = signals
             disc_margin = abs(sig1 - sig2)
             base = _PAIR_BASE.get(pair12, 0.05)
-            threshold = base + margin12 * 1.5
+            threshold = base + margin12 * 1.3
             if disc_margin > threshold:
                 winner = cls1 if sig1 > sig2 else cls2
                 if winner == top2_label:
@@ -276,19 +277,21 @@ def _pairwise_rerank(
         frozenset(["mushroom", "king_penguin"]),
         frozenset(["orange", "mushroom"]),
         frozenset(["teapot", "school_bus"]),
+        frozenset(["brown_bear", "mushroom"]),
+
     }
     if len(candidates) >= 3:
         top1_label, top1_score, _ = candidates[0]
         top3_label, top3_score, _ = candidates[2]
         margin13 = top1_score - top3_score
         pair13 = frozenset([top1_label, top3_label])
-        if margin13 <= 0.25 and pair13 in _RANK3_WHITELIST:
+        if margin13 <= 0.28 and pair13 in _RANK3_WHITELIST:
             signals = _compute_pair_signals(pair13, s, _sigmoid)
             if signals is not None:
                 cls1, sig1, cls2, sig2 = signals
                 disc_margin = abs(sig1 - sig2)
                 base = _PAIR_BASE.get(pair13, 0.0)
-                threshold = base + margin13 * 2.0
+                threshold = base + margin13 * 1.9
                 if disc_margin > threshold:
                     winner = cls1 if sig1 > sig2 else cls2
                     if winner == top3_label:
@@ -306,19 +309,21 @@ def _pairwise_rerank(
         frozenset(["teapot", "king_penguin"]),
         frozenset(["golden_retriever", "brown_bear"]),
         frozenset(["golden_retriever", "king_penguin"]),
+
+
     }
     if len(candidates) >= 4:
         top1_label, top1_score, _ = candidates[0]
         top4_label, top4_score, _ = candidates[3]
         margin14 = top1_score - top4_score
         pair14 = frozenset([top1_label, top4_label])
-        if margin14 <= 0.22 and pair14 in _RANK4_WHITELIST:
+        if margin14 <= 0.30 and pair14 in _RANK4_WHITELIST:
             signals = _compute_pair_signals(pair14, s, _sigmoid)
             if signals is not None:
                 cls1, sig1, cls2, sig2 = signals
                 disc_margin = abs(sig1 - sig2)
                 base = _PAIR_BASE.get(pair14, 0.0)
-                threshold = base + margin14 * 3.0
+                threshold = base + margin14 * 2.8
                 if disc_margin > threshold:
                     winner = cls1 if sig1 > sig2 else cls2
                     if winner == top4_label:
@@ -335,13 +340,18 @@ def _pairwise_rerank(
         frozenset(["brown_bear", "king_penguin"]),
         frozenset(["golden_retriever", "king_penguin"]),
         frozenset(["banana", "orange"]),
+        frozenset(["orange", "teapot"]),
+        frozenset(["banana", "golden_retriever"]),
+        frozenset(["orange", "mushroom"]),
+
+
     }
     if len(candidates) >= 5:
         top1_label, top1_score, _ = candidates[0]
         top5_label, top5_score, _ = candidates[4]
         margin15 = top1_score - top5_score
         pair15 = frozenset([top1_label, top5_label])
-        if margin15 <= 0.12 and pair15 in _RANK5_WHITELIST:
+        if margin15 <= 0.15 and pair15 in _RANK5_WHITELIST:
             signals = _compute_pair_signals(pair15, s, _sigmoid)
             if signals is not None:
                 cls1, sig1, cls2, sig2 = signals
@@ -360,8 +370,8 @@ _REPULSION_PAIRS = [
     ("banana", "orange", 0.012),
     ("sports_car", "school_bus", 0.012),
     ("mushroom", "banana", 0.010),
-    ("teapot", "banana", 0.010),
-    ("brown_bear", "mushroom", 0.010),
+    ("teapot", "banana", 0.014),
+    ("brown_bear", "mushroom", 0.014),
     ("teapot", "king_penguin", 0.012),
     ("golden_retriever", "banana", 0.008),
     ("golden_retriever", "king_penguin", 0.008),
@@ -372,6 +382,10 @@ _REPULSION_PAIRS = [
     ("golden_retriever", "mushroom", 0.010),
     ("brown_bear", "golden_retriever", 0.012),
     ("orange", "teapot", 0.008),
+    ("sports_car", "teapot", 0.012),
+    ("brown_bear", "sports_car", 0.012),
+    ("banana", "king_penguin", 0.012),
+    ("mushroom", "sports_car", 0.010),
 ]
 
 
@@ -426,7 +440,7 @@ _CONFIDENCE_GATES = {
     "sports_car": 0.40,
     "banana": 0.42,
     "mushroom": 0.42,
-    "golden_retriever": 0.35,
+    "golden_retriever": 0.37,
     "orange": 0.42,
     "teapot": 0.35,
 }
@@ -467,13 +481,42 @@ def _local_verify(
     s = _stats(graph)
 
     margin = top_score - sec_score
-    if margin < 0.15:
-        pair = frozenset([top_label, sec_label])
+    pair = frozenset([top_label, sec_label])
+    _WIDE_MARGIN = {
+        frozenset(["teapot", "banana"]): 0.30,
+        frozenset(["mushroom", "banana"]): 0.25,
+        frozenset(["orange", "banana"]): 0.25,
+        frozenset(["golden_retriever", "banana"]): 0.25,
+    }
+    margin_gate = _WIDE_MARGIN.get(pair, 0.15)
+    if margin < margin_gate:
         if pair == frozenset(["teapot", "banana"]):
             cm_b = s.get("cm_center_b", 0.5)
             orient_e = s.get("orient_entropy", 3.0)
+            cmbs = s.get("cm_b_std", 0.0)
+            acorr_tb = s.get("autocorr_h", 0.1)
             if cm_b < 0.57 and orient_e > 2.85:
                 idx = 0 if top_label == "teapot" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif cmbs > 0.075:
+                idx = 0 if top_label == "banana" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif acorr_tb < 0.069:
+                idx = 0 if top_label == "banana" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("cm_b_skew", 0.0) > 1.0362:
+                idx = 0 if top_label == "banana" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("hist_orange", 0.0) > 1.3175:
+                idx = 0 if top_label == "banana" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("hist_bear_minus_teapot", 0.0) < -0.2037:
+                idx = 0 if top_label == "banana" else 1
                 if idx == 1:
                     candidates[0], candidates[1] = candidates[1], candidates[0]
         elif pair == frozenset(["teapot", "king_penguin"]):
@@ -488,10 +531,23 @@ def _local_verify(
                 idx = 0 if top_label == "king_penguin" else 1
                 if idx == 1:
                     candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("cm_b_skew", 0.0) > 3.1083:
+                idx = 0 if top_label == "king_penguin" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("grad_dir_entropy", 0.0) > 0.9916:
+                idx = 0 if top_label == "teapot" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
         elif pair == frozenset(["jellyfish", "teapot"]):
             sat_v = s.get("sat", 0.4)
             color_std_v = s.get("color_std", 0.1)
+            ec = s.get("edge_concentration", 1.0)
             if sat_v > 0.50 and color_std_v > 0.20:
+                idx = 0 if top_label == "jellyfish" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif ec > 1.3:
                 idx = 0 if top_label == "jellyfish" else 1
                 if idx == 1:
                     candidates[0], candidates[1] = candidates[1], candidates[0]
@@ -502,10 +558,18 @@ def _local_verify(
                 idx = 0 if top_label == "teapot" else 1
                 if idx == 1:
                     candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("hist_mushroom", 0.0) > 1.8272:
+                idx = 0 if top_label == "teapot" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
         elif pair == frozenset(["orange", "teapot"]):
             sat_v = s.get("sat", 0.4)
             cm_a = s.get("cm_center_a", 0.52)
             if sat_v > 0.55 and cm_a > 0.56:
+                idx = 0 if top_label == "orange" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif cm_a > 0.62:
                 idx = 0 if top_label == "orange" else 1
                 if idx == 1:
                     candidates[0], candidates[1] = candidates[1], candidates[0]
@@ -522,11 +586,56 @@ def _local_verify(
                 idx = 0 if top_label == "banana" else 1
                 if idx == 1:
                     candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif cmbs > 0.0673:
+                idx = 0 if top_label == "banana" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("hist_jellyfish", 0.0) > 0.6012:
+                idx = 0 if top_label == "banana" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("hue_cyan_blue", 0.0) > 0.0012:
+                idx = 0 if top_label == "banana" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
         elif pair == frozenset(["orange", "banana"]):
-            pass
+            dwr = s.get("dark_warm_ratio", 0.0)
+            if dwr > 0.6686:
+                idx = 0 if top_label == "banana" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("hist_sports_car", 0.0) > 1.561:
+                idx = 0 if top_label == "orange" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("radial_warm_diff", 0.0) < -0.1301:
+                idx = 0 if top_label == "banana" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+        elif pair == frozenset(["golden_retriever", "school_bus"]):
+            acorr_gs = s.get("autocorr_h", 0.1)
+            if acorr_gs < 0.064:
+                idx = 0 if top_label == "golden_retriever" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+        elif pair == frozenset(["golden_retriever", "banana"]):
+            warm_gb = s.get("warm", 0.0)
+            if warm_gb > 0.863:
+                idx = 0 if top_label == "golden_retriever" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("warm_bl", 0.0) > 0.9097:
+                idx = 0 if top_label == "golden_retriever" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("blob_coverage", 0.0) > 0.8606:
+                idx = 0 if top_label == "golden_retriever" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
         elif pair == frozenset(["teapot", "brown_bear"]):
             hu1_v = s.get("hu1", 3.0)
             hr = s.get("hue_red", 0.0)
+            acorr = s.get("autocorr_h", 0.2)
             if hu1_v < 2.62:
                 idx = 0 if top_label == "teapot" else 1
                 if idx == 1:
@@ -535,11 +644,49 @@ def _local_verify(
                 idx = 0 if top_label == "brown_bear" else 1
                 if idx == 1:
                     candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif acorr < 0.10:
+                idx = 0 if top_label == "teapot" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("r0_warm", 0) > 0.986:
+                idx = 0 if top_label == "brown_bear" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("vert_regularity", 0.0) > 5.2081:
+                idx = 0 if top_label == "brown_bear" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("cm_b_skew", 0.0) > 1.1705:
+                idx = 0 if top_label == "brown_bear" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
         elif pair == frozenset(["golden_retriever", "brown_bear"]):
             sat_v = s.get("sat", 0.4)
             dh = s.get("dct_high", 0.25)
+            horiz = s.get("horiz_dominance", 1.0)
+            acorr = s.get("autocorr_h", 0.1)
             if sat_v < 0.28 and dh < 0.20:
                 idx = 0 if top_label == "golden_retriever" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif horiz > 1.10 and acorr > 0.13:
+                idx = 0 if top_label == "brown_bear" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("hist_jellyfish", 0.0) > 0.7915:
+                idx = 0 if top_label == "golden_retriever" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif acorr > 0.1784:
+                idx = 0 if top_label == "golden_retriever" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("grad_mean", 0.0) > 1.7735:
+                idx = 0 if top_label == "golden_retriever" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("mean_ch_corr", 0.0) > 0.9845:
+                idx = 0 if top_label == "brown_bear" else 1
                 if idx == 1:
                     candidates[0], candidates[1] = candidates[1], candidates[0]
         elif pair == frozenset(["sports_car", "school_bus"]):
@@ -560,6 +707,10 @@ def _local_verify(
                 idx = 0 if top_label == "school_bus" else 1
                 if idx == 1:
                     candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("edge_tl", 0.0) > 0.3569:
+                idx = 0 if top_label == "sports_car" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
         elif pair == frozenset(["banana", "school_bus"]):
             acorr = s.get("autocorr_h", 0.2)
             if acorr < 0.08:
@@ -571,6 +722,10 @@ def _local_verify(
             cstd = s.get("color_std", 0.1)
             if green_v > 0.50 and cstd > 0.18:
                 idx = 0 if top_label == "brown_bear" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("cm_center_a", 0.0) > 0.5243:
+                idx = 0 if top_label == "mushroom" else 1
                 if idx == 1:
                     candidates[0], candidates[1] = candidates[1], candidates[0]
         elif pair == frozenset(["king_penguin", "sports_car"]):
@@ -587,6 +742,28 @@ def _local_verify(
                 idx = 0 if top_label == "school_bus" else 1
                 if idx == 1:
                     candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif acorr > 0.0862:
+                idx = 0 if top_label == "school_bus" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+        elif pair == frozenset(["school_bus", "brown_bear"]):
+            acorr_sb = s.get("autocorr_h", 0.0)
+            if acorr_sb > 0.119:
+                idx = 0 if top_label == "school_bus" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+        elif pair == frozenset(["mushroom", "king_penguin"]):
+            bw_v = s.get("bw", 0.5)
+            if bw_v < 0.482:
+                idx = 0 if top_label == "king_penguin" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+        elif pair == frozenset(["mushroom", "sports_car"]):
+            horiz = s.get("horiz_dominance", 1.0)
+            if horiz > 1.344:
+                idx = 0 if top_label == "sports_car" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
         elif pair == frozenset(["sports_car", "teapot"]):
             bw_v = s.get("bw", 0.5)
             hd = s.get("horiz_dominance", 1.0)
@@ -594,11 +771,49 @@ def _local_verify(
                 idx = 0 if top_label == "sports_car" else 1
                 if idx == 1:
                     candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("gabor_45_04_var", 1.0) < 0.2979:
+                idx = 0 if top_label == "teapot" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
         elif pair == frozenset(["teapot", "school_bus"]):
             acorr = s.get("autocorr_h", 0.2)
             dh = s.get("dct_high", 0.18)
+            ec = s.get("edge_concentration", 1.0)
             if acorr < 0.25 and dh > 0.18:
                 idx = 0 if top_label == "teapot" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif ec > 1.328:
+                idx = 0 if top_label == "school_bus" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+        elif pair == frozenset(["brown_bear", "king_penguin"]):
+            hbg = s.get("hist_bear_minus_gr", 0.0)
+            if hbg > 0.2929:
+                idx = 0 if top_label == "brown_bear" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+        elif pair == frozenset(["golden_retriever", "mushroom"]):
+            hj = s.get("hist_jellyfish", 0.0)
+            if hj > 1.011:
+                idx = 0 if top_label == "golden_retriever" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+        elif pair == frozenset(["jellyfish", "king_penguin"]):
+            tu = s.get("top_uniformity", 0.5)
+            if tu < 0.5796:
+                idx = 0 if top_label == "jellyfish" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+        elif pair == frozenset(["mushroom", "orange"]):
+            cma_mo = s.get("cm_center_a", 0.52)
+            if cma_mo > 0.5243:
+                idx = 0 if top_label == "mushroom" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+        elif pair == frozenset(["jellyfish", "sports_car"]):
+            if s.get("hist_banana", 0.0) > 0.9366:
+                idx = 0 if top_label == "sports_car" else 1
                 if idx == 1:
                     candidates[0], candidates[1] = candidates[1], candidates[0]
 
@@ -827,7 +1042,8 @@ def _compute_pair_signals(pair, s, _sigmoid):
                 + _sigmoid(s.get("gabor_dominant_orient", 0), 0.30, 4)
                 + _sigmoid(s.get("cm_center_b", 1), 0.59, -40)
                 + _sigmoid(s.get("orient_entropy", 0), 2.88, 8)
-                + _sigmoid(s.get("gb_corr", 0), 0.85, 4),
+                + _sigmoid(s.get("gb_corr", 0), 0.85, 4)
+                + _sigmoid(s.get("r0_warm", 0), 0.45, 4),
                 "banana",
                 _sigmoid(s.get("yellow", 0), 0.30, 5) + _sigmoid(s.get("edge", 0), 0.20, 8)
                 + _sigmoid(s.get("top_uniformity", 1), 0.70, -5) + _sigmoid(s.get("hist_teapot_minus_banana", 0), 0.0, -3)
@@ -958,6 +1174,14 @@ def _compute_pair_signals(pair, s, _sigmoid):
                 "king_penguin",
                 _sigmoid(s.get("bw", 0), 0.55, 5) + _sigmoid(s.get("fft_hv_ratio", 0), 1.0, 3)
                 + _sigmoid(s.get("sat", 1), 0.40, -5) + _sigmoid(s.get("center_surround", 1), 1.10, -3))
+
+    if pair == frozenset(["mushroom", "sports_car"]):
+        return ("mushroom",
+                _sigmoid(s.get("grad_dir_entropy", 0), 0.95, 10) + _sigmoid(s.get("edge", 0), 0.28, 8)
+                + _sigmoid(s.get("warm", 0), 0.35, 5) + _sigmoid(s.get("fft_hv_ratio", 0), 0.85, 3),
+                "sports_car",
+                _sigmoid(s.get("autocorr_h", 0), 0.15, 6) + _sigmoid(s.get("horiz_dominance", 0), 1.4, 3)
+                + _sigmoid(s.get("warm", 1), 0.35, -5) + _sigmoid(s.get("fft_hv_ratio", 1), 0.85, -3))
 
     return None
 

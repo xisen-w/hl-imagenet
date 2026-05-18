@@ -747,3 +747,136 @@ The 67.8% accuracy represents a confirmed hard ceiling for the current architect
 - **Resolution limit**: The information needed to distinguish these classes (fur micro-texture, gill radial patterns, ceramic sheen) simply isn't present at 64×64 pixels
 
 The system correctly classifies 6/10 classes at 100% and achieves 60-72% on the hard classes. Further improvement requires either architectural changes (non-averaging scorer, learned features) or higher resolution data.
+
+---
+
+## Session 14 — 2026-05-16
+
+### Starting State
+- Baseline: 58.15% train top-1 (1163/2000)
+- Top confusions: teapot→banana (29), sports_car→school_bus (26), banana→orange (25), mushroom→brown_bear (22), brown_bear→GR (22)
+
+### Experiments Attempted
+
+1. **n_contours_norm in bear-GR discriminant**: Added contour feature (cross-class d'=+1.54) to 8-signal bear-GR disc. Result: -1 net (1162). Bear -7pp, mushroom -7pp. Contour feature pushed bears toward GR. REVERTED.
+
+2. **Teapot calibration +0.02**: Boosted teapot scores globally. Result: -23 net (57.0%). GR -2.5pp, bus -1.5pp. Teapot unchanged. Calibration too blunt. REVERTED.
+
+3. **Teapot hist_w 0.05→0.08**: Increased histogram weight for teapot. Result: 0 net (58.15%). No effect. REVERTED.
+
+4. **Banana-orange pair_base -0.05→-0.15**: Made banana-orange discriminant more aggressive. Result: -2 net. Banana→orange errors increased from 25→29. Over-swapping. REVERTED.
+
+5. **New banana-KP discriminant**: Built 5-signal disc (d'=2.34 cm_center_b). Added to all whitelists + PAIR_BASE. Result: 0 net with all whitelists, -1 net rank-1/2 only. Cascade through sports_car. REVERTED.
+
+6. **New mushroom-sports_car discriminant**: Built 4-signal disc (d'=-1.70 autocorr_h). Result: -3 net. Sports_car -3pp. REVERTED.
+
+7. **Banana negative calibration -0.01**: Tried reducing banana false positives. Result: -7 net. Banana -4pp, bear cascade -3pp. REVERTED.
+
+8. **GR confidence gate 0.37→0.39**: Tried rejecting low-confidence GR. Result: -2 net. GR -2pp. REVERTED.
+
+9. **KP confidence gate 0.40**: New gate for king_penguin. Result: -14 net. KP -14pp. Way too aggressive. REVERTED.
+
+10. **Bear-KP discriminant enhancement**: Added green, cm_a_std, bw, rb_corr to 6-signal disc. Result: -4 net. Bear -2pp, KP -1pp. REVERTED.
+
+11. **Bear signature sat guard**: Added _sigmoid(sat, 0.58, -2) guard. Result: -9 net. Bear -11pp. Guard too tight — many real bears are saturated. REVERTED.
+
+### Key Findings
+
+1. **The system is deeply in a local optimum at 58.15%**. Every single-point tweak hits zero-sum or regresses.
+
+2. **New discriminant pairs are dangerous** (Pattern 8): Adding a new pair adds it to repulsion and deep-rank reranking. The cascade through these systems eats any per-pair gain.
+
+3. **Contour features (n_contours_norm, contour_fill_ratio) have good d' but fail in deployment**: cross-class d' of 1.54 and 3.0 still produce net-negative results in discriminants, suggesting the features are correlated with existing signals at the decision boundary.
+
+4. **Teapot→banana (29 errors) are genuinely banana-like**: 28/29 are closer to banana prototype than teapot prototype. These are warm teapots (warm=0.815 vs teapot avg 0.251). Feature-based discrimination is at its limit here.
+
+5. **Calibration and gates are exhausted in both directions**: Neither positive calibration (teapot +0.02) nor negative (banana -0.01) helps. Gates can't be tightened (GR, KP) without losing TPs.
+
+### Next Hypotheses
+
+The pattern from optimization_trajectory.md is clear: progress requires a **new type of intervention**. All existing axes are exhausted:
+- Discriminant features: saturated at 6-11 signals per pair
+- Calibration: all directions regress
+- Gates: all directions regress
+- New discriminant pairs: cascade absorbs gains
+- Verify on new pairs: cascade absorbs gains
+- Margin/multiplier: all directions regress
+
+**Possible breakthrough axes**:
+- Spatial features (WHERE in the image features activate, not just IF)
+- Conditional scoring (different feature weights depending on image properties)
+- Multi-resolution features (coarse + fine grain analysis)
+
+---
+
+## Session 15 — 2026-05-16 19:05+
+
+### Starting State
+- Baseline: 58.20% (1164/2000) — bear-mushroom repulsion 0.014 from Session 14
+- Weakest: teapot 42%, GR 49%, mushroom 51%
+- Top confusions: teapot→banana 28, banana→orange 25, sports→bus 24, mush→bear 22, bear→GR 22
+
+### Experiments
+
+**Exp 1**: Teapot-banana repulsion 0.010→0.014: **58.30% (+2)** ✓ KEEP
+- Bus +1 (151→152). Teapot→banana unchanged at 28 but other classes benefit.
+
+**Exp 2**: Sports_car-school_bus repulsion 0.012→0.016: **58.15% (-3)** ✗ REVERT
+- Sports dropped 123→121, sports→bus confusion INCREASED 24→26. Repulsion pushed wrong direction.
+
+**Exp 3**: Brown_bear-GR repulsion 0.012→0.016: **57.65% (-13)** ✗ REVERT
+- Catastrophic cascade. Bus 152→145, sports 123→119, sports→bus 24→29.
+
+**Exp 4**: Banana-orange repulsion 0.012→0.016: **58.0% (-6)** ✗ REVERT
+- Sports dropped 123→121, bear→mushroom up to 24, bear→GR up to 24.
+
+**Exp 5**: Mushroom-banana repulsion 0.010→0.012: **58.1% (-4)** ✗ REVERT
+- Sports dropped 123→121 again. Sports seems hypersensitive to repulsion changes.
+
+**Exp 6**: Teapot-banana PAIR_BASE 0.30→0.25: **58.2% (-2)** ✗ REVERT
+- Teapot→banana still 28. The errors aren't at rank-2 within swap margin.
+
+**Exp 7**: Hist blend 0.88→0.89: **57.65% (-13)** ✗ REVERT
+- Orange collapsed 126→112, orange→banana jumped to 34. Histogram crucial for orange.
+
+**Exp 8**: Hist blend 0.88→0.87: **57.85% (-9)** ✗ REVERT
+- Both directions of hist blend regress. 0.88 is precisely calibrated.
+
+**Exp 9**: Teapot-GR repulsion 0.010→0.014: **58.1% (-4)** ✗ REVERT
+- Sports dropped 123→121, banana→orange up to 26.
+
+**Exp 10**: Teapot-KP repulsion 0.012→0.016: **58.0% (-6)** ✗ REVERT
+- Teapot LOST a point (84→83). Sports 123→120.
+
+**Exp 11**: Brown_bear-mushroom added to rank-3 whitelist: **58.35% (+1)** ✓ KEEP
+- Bear +2, mushroom +1, bus +1, sports -2. Mushroom→bear 22→21. Net +2 samples.
+
+### Key Findings
+
+1. **Repulsion tuning has a ~20% success rate**: Only pairs where the discriminant is already directionally correct benefit. Failed pairs: sports-bus, bear-GR, banana-orange, mush-banana, teapot-GR, teapot-KP.
+
+2. **Sports_car is hypersensitive to repulsion changes**: Nearly every repulsion change caused sports_car to drop 2-3pp, regardless of which pair was modified. Sports_car seems to be in a fragile scoring equilibrium.
+
+3. **Histogram blend weight is ultra-precise**: Even ±0.01 causes 9-13 point regression. 0.88 is perfectly calibrated for the current system.
+
+4. **Rank-3 whitelist expansion is relatively safe**: Adding bear-mushroom to rank-3 gave +1 net. The existing discriminant applies cleanly at rank-3.
+
+**Exp 12**: Bear-sports_car + KP-sports_car to rank-3 whitelist: **57.95% (-8)** ✗ REVERT
+- Sports +5 (121→126!) but teapot -1, bus -1, mushroom→bear up 21→23, orange→banana up to 22. Cascade from sports-car sensitive pairs.
+
+**Exp 13**: Bear-mushroom added to rank-4 whitelist: **58.30% (-1)** ✗ REVERT
+- Sports 123→121, bus 152→151, sports→bus up to 27. Marginal cascade.
+
+**Exp 14**: GR-mushroom repulsion 0.010→0.014: **58.15% (-4)** ✗ REVERT
+- Sports→bus 27, banana→orange 27. GR-mushroom is not as isolated as expected.
+
+### Current Best: 58.35% (1167/2000)
+Changes from original baseline (58.15%):
+- bear-mushroom repulsion 0.010→0.014
+- teapot-banana repulsion 0.010→0.014
+- bear-mushroom added to rank-3 whitelist
+
+### Session 15b Summary
+14 experiments total: 3 kept, 11 reverted.
+Net improvement: +4 samples (+0.20pp) from 58.15% to 58.35%.
+The system remains in a deep local optimum. Sports_car is the most cascade-sensitive class — almost any parameter change causes it to drop.

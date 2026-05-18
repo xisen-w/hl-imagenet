@@ -19,24 +19,26 @@ Historical accuracy progression and the diminishing returns pattern.
 | 11 | 56.7% | 56.95% | +0.25pp | 2 verify conditions, 3 confidence gates |
 | 12 | 56.95% | 57.35% | +0.40pp | GR-bear verify, bidirectional verify conditions |
 | 13 | 57.35% | 58.15% | +0.80pp | Channel correlations, repulsion pairs, margin/multiplier tuning |
-| 14 | 58.15% | 58.15% | 0pp | All experiments failed: contour features, calibration, gates, new discriminants, disc enhancements |
+| 14 | 58.15% | 58.15% | 0pp | All 12+ experiments failed: contour features (+1.54 d' but -1 net), calibration (-11 to -2), new gates (-2 to -14), new discriminant pairs (-3 cascade), disc enhancements (-4), signature guards (-9 to -11) |
+| 15a | 58.15% | 58.4% | +0.25pp | r0_warm in teapot-banana disc (+4 net, d'=4.80). 13 experiments: 12 failed including unused features in discs, verify conditions (cascade via banana), gate/base tuning, lr_symmetry new feature, signal pruning. Discovered Pattern 10 (verify cascade), Pattern 11 (verify risk on correct preds), signal audit methodology |
+| 15b | 58.20% | 58.35% | +0.15pp | 3 targeted changes: bear-mush repulsion +0.004, teapot-banana repulsion +0.004, bear-mush rank-3 whitelist. 11+ experiments failed: repulsion tuning on other pairs (-3 to -13), hist blend ±0.01 (-9 to -13), PAIR_BASE tuning (-2), rank-3 whitelist for sports-car pairs (-8) |
 
 *Session 3 switched to train-only optimization; numbers are train accuracy from here.
 
-## Generalization Audit (end of Session 14)
+## Generalization Audit (end of Session 15)
 
-First comprehensive train/val/test comparison:
+Comprehensive train/val/test comparison (updated Session 16 monitor):
 
 | Split | Top-1 | Top-3 | N |
 |-------|:---:|:---:|:---:|
-| Train | 57.9% | 76.9% | 2000 |
+| Train | 58.4% | 77.0% | 2000 |
 | Val | 52.9% | 75.6% | 2000 |
 | Test | 51.1% | 74.4% | 1000 |
 
-**Overall train-val gap: 5.0pp top-1, 1.3pp top-3.**
-**Overall train-test gap: 6.8pp top-1, 2.5pp top-3.**
+**Overall train-val gap: 5.4pp top-1, 1.4pp top-3.**
+**Overall train-test gap: 7.3pp top-1, 2.6pp top-3.**
 
-The top-3 gap is small, meaning base scoring generalizes well — the overfitting lives in the ranking post-processing (reranking, local verify, confidence gates).
+The top-3 gap is small, meaning base scoring generalizes well — the overfitting lives in the ranking post-processing (reranking, local verify, confidence gates). The gap widened 0.4pp since Session 14 due to r0_warm feature (train-only gain).
 
 ### Per-Class Generalization
 
@@ -118,7 +120,7 @@ Historical pattern: progress stalls → new technique type discovered → burst 
 | 51.3% | ~15 iterations | LAB color moments (new feature type) |
 | 53.5% | ~30 iterations | Confidence gates + local verify (new intervention type) |
 | 57.3% | ~20 iterations | Margin/multiplier tuning (new optimization axis) |
-| 58.15% | ~15 iterations (Session 14) | Still searching — contour features, new discs, all exhausted |
+| 58.15% | ~40 iterations (Sessions 14-15) | Only r0_warm (+0.25pp) succeeded. Contour features, new discs, signature guards, calibration, gate tuning, lr_symmetry all exhausted. Val stuck at 52.9% |
 
 **Pattern**: Each breakthrough comes from a genuinely new TYPE of intervention, not from more of the same. The next breakthrough requires finding a new optimization axis that hasn't been explored.
 

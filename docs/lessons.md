@@ -288,6 +288,48 @@ This keeps the relative ordering (images that match bus better than average stil
 
 ---
 
+## 16. Local verify conditions are the highest-ROI intervention at late-stage optimization
+
+**Finding**: Once discriminants, blending, and gating are tuned, the most productive axis is pair-specific conjunctive verify conditions that fire post-reranking.
+
+**Evidence**:
+- Sessions 9-12: +3.75pp almost entirely from verify conditions
+- Best conditions: KP-sports (+6), sports-teapot (+7), bus-mushroom (+5), GR-bear (+5)
+- Each fires on 2-10 images. AND-gating ensures precision.
+
+**Why they work when everything else is zero-sum**: Verify fires only when margin < 0.15 AND the specific pair matches AND both feature thresholds are met. This extreme specificity means they don't affect the broader score distribution.
+
+**Mining protocol**: Find rank-1 wrong, rank-2 correct cases. Compute cross-class d' on error images from both sides. Build AND condition from features with cross-class d' > 1.0. Test fix/risk ratio before deploying.
+
+---
+
+## 17. Within-class d' is NOT cross-class d' — and only cross-class d' predicts discriminant success
+
+**Finding**: A feature with d'=1.3 separating correct vs error images WITHIN one class may have d'=0.24 when you compare error images from BOTH sides of a confusion pair. Only the cross-class d' predicts whether deploying the feature in a discriminant will help.
+
+**Evidence**:
+- center_bright_ratio: within-class d'=1.30/1.36 for bear/mush, cross-class d'=0.55 → deployed and failed
+- hue_entropy: within-class d'=1.39 for bear-mush, cross-class d'=0.24 → deployed and failed (-2 to -4pp)
+- cm_center_b: cross-class d'=1.62 for teapot-banana → deployed and succeeded
+
+**Lesson**: Always compute d' on error images from BOTH sides of the pair before deploying a feature. If cross-class d' < 0.5, don't bother.
+
+---
+
+## 18. Cascade amplification makes early-stage changes 5-10x riskier than estimated
+
+**Finding**: Changes at pipeline stage 1 (signatures) cascade through 6 downstream stages. The actual regression is typically 5-10x the direct effect estimate.
+
+**Evidence**:
+- binary_complexity in teapot signature: estimated +3, actual -28 (9x amplification)
+- Teapot calibration +0.01: estimated +3, actual -11 (4x amplification)
+- Blend weight 0.88→0.90: estimated neutral, actual -17
+- Verify conditions: estimated +N, actual ≈N (1x, no cascade)
+
+**Rule**: Risk = estimated_effect × amplification_factor(stage). Stage 1: 5-10x. Stage 3: 2-3x. Stage 6-7: 1-1.5x.
+
+---
+
 ## Summary: The Heuristic Learning Progression
 
 ```
@@ -297,7 +339,11 @@ Phase 2:  Compound features + flat scoring (35-45%)
 Phase 3:  Pairwise reranking (45-48%)
 Phase 4:  Histogram blending + gap-aware gating (48-50%)
 Phase 5:  Expanded discriminants + centering (48.75% train, 50.1% val)
-???:      Next architectural breakthrough needed for 55%+
+Phase 6:  Orthogonal features (DCT, Gabor, LAB, Hu) → 53.5% train
+Phase 7:  Conditional logic (gates, verify, margin tuning) → 58.15% train
+???:      Next breakthrough needed for 62%+
 ```
 
 Each phase transition required a fundamentally new idea, not just more of the same type of tuning.
+
+See also: `docs/understanding/` for deeper analysis of each topic.

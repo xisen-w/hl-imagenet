@@ -2,14 +2,14 @@
 
 What overfits, what generalizes, and where the gap lives in the pipeline.
 
-## Current Numbers (Session 14)
+## Current Numbers (Session 16 monitor)
 
 | Metric | Train | Val | Test | Gap (T→V) |
 |--------|:---:|:---:|:---:|:---:|
-| Top-1 | 57.9% | 52.9% | 51.1% | 5.0pp |
-| Top-3 | 76.9% | 75.6% | 74.4% | 1.3pp |
+| Top-1 | 58.4% | 52.9% | 51.1% | 5.4pp |
+| Top-3 | 77.0% | 75.6% | 74.4% | 1.4pp |
 
-**Key insight**: Top-3 generalizes well (1.3pp gap). The base scoring + histogram blending is sound. The 5.0pp top-1 gap means ~3.7pp is lost in the ranking post-processing — reranking, local verify, and confidence gates.
+**Key insight**: Top-3 generalizes well (1.4pp gap). The base scoring + histogram blending is sound. The 5.4pp top-1 gap means ~4.0pp is lost in the ranking post-processing — reranking, local verify, and confidence gates. Session 15's r0_warm feature added +0.5pp to train but 0pp to val, widening the gap.
 
 ## Where Overfitting Lives (by pipeline stage)
 

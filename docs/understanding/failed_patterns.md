@@ -51,6 +51,40 @@ Recurring failure modes. If your proposed change matches one of these patterns, 
 **Why it fails**: Adding a new discriminant pair is not just a new pair — it's a new participant in the repulsion system AND the deep-rank (3/4/5) reranking. The interaction with existing pairs creates unpredictable cascades. The system was optimized without this pair; adding it changes the equilibrium.
 **Mitigation**: If adding a new pair, add ONLY to rank-1/2 reranking (no whitelists, no repulsion) and use pair_base=0.10+ to prevent casual firing.
 
+## Pattern 9: "Let's add a signature guard to suppress false positives"
+**What you try**: Adding a guard (e.g., `_sigmoid(sat, 0.58, -2)`) to a class signature to penalize images that look like a confuser class.
+**What happens**: -9 to -11pp. The guard suppresses real instances of the target class that happen to have the guarded feature.
+**Sessions hit**: 14 (bear signature sat<0.58 guard: -9 net, bear lost 11pp), 14 (bear sat<0.68 guard: still bad)
+**Why it fails**: Class prototypes have wide variance. Bears can be highly saturated (colorful backgrounds, wet fur). The guard suppresses these real bears far more than it suppresses mushroom false positives, because there are more real bears than FPs in the affected score range.
+
+## Pattern 10: "Verify with zero risk should be safe"
+**What you try**: Add a verify condition with 0/N risk cases (perfect separation on risk images).
+**What happens**: -5 net despite zero direct risk. The swapped images change relative score rankings, cascading to adjacent pairs.
+**Sessions hit**: 15 (r0_warm verify sports-bus: 0/16 risk, -5 net from banana losing -4pp), 15 (conjunctive r0_warm AND dct_h: net zero, banana still -4pp)
+**Why it fails**: Verify operates at stage 7, but its effects propagate FORWARD through adjacent pairs. Sports-bus swaps move bus scores, which changes banana-bus and banana-orange dynamics. The cascade path: sports-bus swap → bus score redistribution → banana-bus margin changes → banana-orange margin changes → banana loses.
+**Key insight**: "Zero risk on the direct pair" ≠ "zero risk on the system." Must simulate the full downstream impact, especially for pairs adjacent to high-error pairs (banana-bus, banana-orange).
+
+## Pattern 11: "Verify risk = bidirectional error images only"
+**What you try**: Compute verify risk by counting how many reverse-error images (B→A) pass the condition. Find 0 risk, deploy.
+**What happens**: -6 net because 48 CORRECT predictions also pass the condition.
+**Sessions hit**: 15 (hue_red + color_purity for banana-orange: 0/21 reverse errors pass, but 48/126 correct oranges with banana at rank-2 also pass → 14 correct oranges wrongly swapped)
+**Why it fails**: Verify tests ALL images where the pair appears at rank-1/rank-2, not just error images. Correct predictions of the "winner" class that happen to have the "loser" at rank-2 ALSO get tested. For pairs where the winner class's features overlap with the condition (e.g., oranges are inherently red), the condition hits dozens of correct predictions.
+**Correct risk analysis**: Must test the condition on: (1) forward errors (fix), (2) reverse errors (risk), AND (3) correct winner-class predictions that have the loser at rank-2. Category (3) is typically 5-20x larger than category (2) and dominates the risk.
+
+## Pattern 12: "Increase repulsion strength for high-confusion pairs"
+**What you try**: Scale up repulsion from 0.012 to 0.016 (or higher) on pairs with 20+ confusions.
+**What happens**: -3 to -13pp regression on 4 of 6 pairs tried. Only bear-mushroom (+1) and teapot-banana (+2) succeeded.
+**Sessions hit**: 15b (sports-bus -3, bear-GR -13, banana-orange -6, mush-banana -4, teapot-GR -4, teapot-KP -6)
+**Why it fails**: Repulsion operates on ALL images where both classes score > 0.6 proximity, not just the confused images. Increasing repulsion shifts scores for correct predictions too. Sports_car is especially sensitive — it drops 2-3pp on almost any repulsion change because it shares features (warm, hue_orange, grad_mean) with many classes.
+**What works instead**: Very small (+0.004) increases on isolated pairs where the discriminant direction is already correct.
+
+## Pattern 13: "Add more pairs to rank-3/4/5 whitelists"
+**What you try**: Add high-confusion pairs missing from rank-3+ whitelists when reachable count is 6+.
+**What happens**: -8pp when adding bear-sports_car and KP-sports_car to rank-3 whitelist, despite 6 reachable each.
+**Sessions hit**: 15b (rank-3 bear-sports+KP-sports: -8pp despite 12 reachable total)
+**Why it fails**: The discriminant may be accurate for rank-2 comparisons but unreliable at rank-3, where the true class scored even lower. Also, rank-3 swaps can cascade — promoting a rank-3 candidate displaces rank-1 AND rank-2, creating knock-on errors.
+**Exception**: Bear-mushroom rank-3 worked (+1) because it's an isolated pair whose discriminant is robust.
+
 ## Meta-Pattern: The 70% Revert Rate
 
 Across 330+ iterations, approximately 70% of changes are reverted. This is not because of poor hypotheses — it's structural:

@@ -57,3 +57,9 @@ Sink classes are caused by broad feature overlap: bus partially matches on grad_
 4. If cross-class d' > 1.0: promising. Deploy with conservative sigmoid.
 
 **Critical distinction**: Within-class d' (correct vs error images of the SAME class) does NOT predict success. A feature can have within-class d'=1.3 but cross-class d'=0.24. Only cross-class d' matters for discriminants.
+
+## The Sports_car Cascade Sensitivity (Session 15)
+
+Sports_car is the most cascade-sensitive class in the system. In Session 15b, 10 out of 14 experiments caused sports_car to lose 2-4pp, regardless of which pair was modified. The regression occurs because sports_car shares features (warm, hue_orange, grad_mean, edge) with many classes. Any repulsion, whitelist, or threshold change that shifts these shared features propagates to sports_car scoring.
+
+This means most experiments have a hidden -2 to -4 drag from sports_car regression, which must be overcome by gains elsewhere. The 3 changes that succeeded (bear-mush repulsion, teapot-banana repulsion, bear-mush rank-3) were all on "isolated" pairs where neither class shares heavy feature overlap with sports_car.
