@@ -4,6 +4,17 @@
 
 Build a heuristic-learning loop that rewards transferable heuristics instead of train-set correction code.
 
+## Non-Negotiable Rules
+
+1. Stop optimizing train accuracy.
+2. Use train for proposing rules, a dev split for accepting or rejecting them, and keep val/test untouched.
+3. Make base + rerank the real symbolic baseline, around 51-52% val.
+4. Treat the 100% train system as an overfitting artifact, not the system to improve.
+5. Reject per-image verify rules. No fix-1 thresholds.
+6. Accept rules only with support around 10-20 examples, held-out dev precision, and no class collapse.
+7. Improve representation before thresholds: object/region-centered features, foreground masks, contours, local patch pooling, "pattern exists somewhere" detectors, and part relations.
+8. Maintain [../understanding/](../understanding/) as the reflection memory for every accepted and rejected result.
+
 ## Direction 1: Generalization-Aware Patch Acceptance
 
 Replace the current rule:
@@ -82,3 +93,11 @@ The next Claude run should not try to improve the 100% train system. It should b
 3. add rule-support instrumentation for verify conditions;
 4. produce a report ranking existing verify rules by support and dev transfer;
 5. propose only representation-level or regularization patches.
+
+## Reflection Maintenance
+
+Each run should update Phase 2 knowledge in this order:
+
+1. Update the relevant file in [../understanding/](../understanding/) with the concrete result, including failed patches.
+2. Update this file only if the result changes the research program.
+3. Update [heuristic_learning_analysis.md](heuristic_learning_analysis.md), [x_thread_drafts.md](x_thread_drafts.md), or [blog_outline.md](blog_outline.md) only when the public story changes.

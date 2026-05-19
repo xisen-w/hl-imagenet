@@ -237,10 +237,9 @@ hl-image-net/
 │   └── session_reasoning.md  # Detailed reasoning log
 └── docs/
     ├── phase1/            # Exploratory setup, report, blog, plots
-    ├── phase2/            # Main hand-built symbolic pipeline docs
+    ├── phase2/            # Main hand-built symbolic pipeline docs, understanding, reflections
     ├── anycode/           # Side experiment: unconstrained compiled classifiers
-    ├── phase3/            # Forward plan for local perception
-    └── synthesis/         # Shareable analysis, X threads, blog outline
+    └── phase3/            # Forward plan for local perception
 ```
 
 ## Quick Start

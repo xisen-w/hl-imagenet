@@ -10,6 +10,7 @@ Phase 2 is the main hand-built symbolic pipeline on 10 real Tiny ImageNet classe
 - [lessons.md](lessons.md) — Lessons from the hand-built symbolic pipeline.
 - [theory.md](theory.md) — Theoretical framing for next-generation heuristic learning.
 - [understanding/](understanding/) — Distilled Session 1-26 knowledge about cascade dynamics, overfitting, hard confusions, and patch safety.
+- [reflections/](reflections/) — Phase 2 analysis, X drafts, blog outline, and next-step research strategy.
 - [plots/](plots/) — Phase 2 trajectory plot.
 - [logs/composition_architecture.md](logs/composition_architecture.md) — Composition analysis of the symbolic feature/scoring stack.
 
@@ -18,3 +19,9 @@ Phase 2 is the main hand-built symbolic pipeline on 10 real Tiny ImageNet classe
 The 70.0% train / 49.4% val result belongs here. It is the hand-built symbolic pipeline before the later anycode forest work. No decision trees are responsible for that 70% train result.
 
 The later 100% train / 41.35% val endpoint is also Phase 2, but it should be treated as an overfitting artifact: verify waves memorized training corrections and harmed validation.
+
+## Reflection Strategy
+
+Keep [understanding/](understanding/) as the durable working memory for Phase 2. It should record hard-won facts, failed patterns, patch safety, generalization gaps, and feature inventory updates after every serious run.
+
+Keep [reflections/](reflections/) as the Phase 2 public/research layer. It should turn the understanding files into X drafts, blog structure, and the next research program. It should not be a separate global synthesis track.

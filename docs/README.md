@@ -5,10 +5,9 @@ The docs are organized by experiment lineage so the hand-built symbolic pipeline
 ## Map
 
 - [phase1/](phase1/) — Exploratory 4-real + 6-synthetic setup. Useful for the first proof that the heuristic-learning loop can grow a symbolic visual system, but not an honest 10-class benchmark.
-- [phase2/](phase2/) — Main hand-built symbolic pipeline on 10 real Tiny ImageNet classes. This is the core heuristic-learning story: signatures, histogram blending, pairwise reranking, verify rules, cascade dynamics, and overfitting.
+- [phase2/](phase2/) — Main hand-built symbolic pipeline on 10 real Tiny ImageNet classes. This is the core heuristic-learning story: signatures, histogram blending, pairwise reranking, verify rules, cascade dynamics, overfitting, and the Phase 2 reflection/writing strategy.
 - [anycode/](anycode/) — Side experiment that removes architecture constraints and compiles classifiers to code, including KNN memorization and the 64.4% validation random forest.
 - [phase3/](phase3/) — Forward plan for higher-resolution local perception.
-- [synthesis/](synthesis/) — Shareable analysis, X thread drafts, blog outline, and future research directions.
 
 ## Key Numbers
 

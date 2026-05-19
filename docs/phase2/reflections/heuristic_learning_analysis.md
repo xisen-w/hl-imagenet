@@ -33,6 +33,18 @@ The evidence points to three layers:
 
 The best documented hand-built validation configuration is approximately **base + pairwise reranking: 51.9% val**. The full verify-wave system is worse on validation because it optimizes train corrections too specifically.
 
+## What To Do Next
+
+Stop optimizing train accuracy. Use train for proposing rules, a dev split for accepting or rejecting them, and keep val/test untouched. The HL loop needs a generalization reward, not a train reward.
+
+Make base + rerank the real baseline. Treat the 100% train system as an overfitting artifact. The useful symbolic system is the one around 51-52% val.
+
+Move from per-image verify rules to reusable heuristics. Accept rules only if they fire on enough examples, with support around 10-20, precision on held-out dev, and no class collapse. No more fix-1 thresholds.
+
+Improve representation, not thresholds. The current features are too global: mean color, edge density, texture stats. The next useful HL direction is object/region-centered features: foreground masks, contour descriptors, local patch pooling, "pattern exists somewhere" detectors, and part relations.
+
+Maintain [../understanding/](../understanding/) as the reflection memory. Every accepted or rejected direction should update the relevant understanding file before it becomes a public claim.
+
 ## Why The System Became Fragile
 
 The pipeline is sequential:
