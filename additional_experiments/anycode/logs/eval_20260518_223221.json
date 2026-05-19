@@ -1,0 +1,288 @@
+{
+  "top1_accuracy": 0.908,
+  "correct": 1816,
+  "total": 2000,
+  "elapsed_s": 7.0,
+  "ms_per_image": 3.5,
+  "per_class": {
+    "golden_retriever": {
+      "accuracy": 0.94,
+      "correct": 188,
+      "total": 200
+    },
+    "mushroom": {
+      "accuracy": 0.91,
+      "correct": 182,
+      "total": 200
+    },
+    "teapot": {
+      "accuracy": 0.875,
+      "correct": 175,
+      "total": 200
+    },
+    "school_bus": {
+      "accuracy": 0.92,
+      "correct": 184,
+      "total": 200
+    },
+    "banana": {
+      "accuracy": 0.85,
+      "correct": 170,
+      "total": 200
+    },
+    "orange": {
+      "accuracy": 0.92,
+      "correct": 184,
+      "total": 200
+    },
+    "brown_bear": {
+      "accuracy": 0.925,
+      "correct": 185,
+      "total": 200
+    },
+    "king_penguin": {
+      "accuracy": 0.915,
+      "correct": 183,
+      "total": 200
+    },
+    "jellyfish": {
+      "accuracy": 0.895,
+      "correct": 179,
+      "total": 200
+    },
+    "sports_car": {
+      "accuracy": 0.93,
+      "correct": 186,
+      "total": 200
+    }
+  },
+  "top_confusions": [
+    {
+      "true": "banana",
+      "pred": "orange",
+      "count": 9
+    },
+    {
+      "true": "banana",
+      "pred": "golden_retriever",
+      "count": 6
+    },
+    {
+      "true": "king_penguin",
+      "pred": "golden_retriever",
+      "count": 5
+    },
+    {
+      "true": "jellyfish",
+      "pred": "king_penguin",
+      "count": 5
+    },
+    {
+      "true": "golden_retriever",
+      "pred": "mushroom",
+      "count": 4
+    },
+    {
+      "true": "golden_retriever",
+      "pred": "brown_bear",
+      "count": 4
+    },
+    {
+      "true": "mushroom",
+      "pred": "banana",
+      "count": 4
+    },
+    {
+      "true": "teapot",
+      "pred": "banana",
+      "count": 4
+    },
+    {
+      "true": "school_bus",
+      "pred": "mushroom",
+      "count": 4
+    },
+    {
+      "true": "banana",
+      "pred": "school_bus",
+      "count": 4
+    },
+    {
+      "true": "orange",
+      "pred": "mushroom",
+      "count": 4
+    },
+    {
+      "true": "king_penguin",
+      "pred": "jellyfish",
+      "count": 4
+    },
+    {
+      "true": "jellyfish",
+      "pred": "teapot",
+      "count": 4
+    },
+    {
+      "true": "jellyfish",
+      "pred": "brown_bear",
+      "count": 4
+    },
+    {
+      "true": "sports_car",
+      "pred": "brown_bear",
+      "count": 4
+    }
+  ],
+  "sample_errors": [
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_0.JPEG",
+      "true": "golden_retriever",
+      "pred": "orange"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_104.JPEG",
+      "true": "golden_retriever",
+      "pred": "banana"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_106.JPEG",
+      "true": "golden_retriever",
+      "pred": "mushroom"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_128.JPEG",
+      "true": "golden_retriever",
+      "pred": "sports_car"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_138.JPEG",
+      "true": "golden_retriever",
+      "pred": "brown_bear"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_17.JPEG",
+      "true": "golden_retriever",
+      "pred": "brown_bear"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_205.JPEG",
+      "true": "golden_retriever",
+      "pred": "brown_bear"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_231.JPEG",
+      "true": "golden_retriever",
+      "pred": "mushroom"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_242.JPEG",
+      "true": "golden_retriever",
+      "pred": "mushroom"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_264.JPEG",
+      "true": "golden_retriever",
+      "pred": "brown_bear"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_267.JPEG",
+      "true": "golden_retriever",
+      "pred": "orange"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_272.JPEG",
+      "true": "golden_retriever",
+      "pred": "mushroom"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_109.JPEG",
+      "true": "mushroom",
+      "pred": "golden_retriever"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_124.JPEG",
+      "true": "mushroom",
+      "pred": "banana"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_127.JPEG",
+      "true": "mushroom",
+      "pred": "sports_car"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_131.JPEG",
+      "true": "mushroom",
+      "pred": "jellyfish"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_138.JPEG",
+      "true": "mushroom",
+      "pred": "orange"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_140.JPEG",
+      "true": "mushroom",
+      "pred": "golden_retriever"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_144.JPEG",
+      "true": "mushroom",
+      "pred": "banana"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_170.JPEG",
+      "true": "mushroom",
+      "pred": "teapot"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_171.JPEG",
+      "true": "mushroom",
+      "pred": "brown_bear"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_202.JPEG",
+      "true": "mushroom",
+      "pred": "king_penguin"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_208.JPEG",
+      "true": "mushroom",
+      "pred": "banana"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_213.JPEG",
+      "true": "mushroom",
+      "pred": "brown_bear"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_221.JPEG",
+      "true": "mushroom",
+      "pred": "orange"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_227.JPEG",
+      "true": "mushroom",
+      "pred": "golden_retriever"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_251.JPEG",
+      "true": "mushroom",
+      "pred": "orange"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_257.JPEG",
+      "true": "mushroom",
+      "pred": "sports_car"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_269.JPEG",
+      "true": "mushroom",
+      "pred": "school_bus"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_276.JPEG",
+      "true": "mushroom",
+      "pred": "banana"
+    }
+  ]
+}

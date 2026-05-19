@@ -11,18 +11,27 @@ Not all changes carry equal risk. This hierarchy was learned empirically from 33
 - **Worst case seen**: -1 from jellyfish-teapot repulsion (cascade through sports)
 - **Guidance**: Just add it and eval. Almost never needs revert.
 
-### 2. Local verify conditions on EXISTING pairs — LOW RISK
+### 2. Local verify conditions (rank-2) on EXISTING pairs — LOW RISK
 - **What**: Adding/relaxing a conjunctive condition for a pair that already has verify logic
 - **Typical impact**: +1 to +7 per condition
 - **Why safe**: Fires on very few images (margin < 0.15 AND pair match AND feature thresholds). Stage 7 — nothing downstream.
 - **Worst case seen**: -0 (conditions are specific enough that bad ones just don't fire, rather than causing harm)
 - **Guidance**: Test fix/risk ratio in advance. If fix ≥ risk + 2, deploy.
+- **STATUS AT 70.0%**: EXHAUSTED. No single-feature thresholds with fix>=3 and precision>=75% remain.
 
-### 2b. Local verify conditions on NEW pairs — MEDIUM-HIGH RISK
+### 2b. Rank-3/4/5 verify conditions — LOW-MEDIUM RISK
+- **What**: Adding verify conditions at deeper rank levels (rank-3, 4, 5)
+- **Typical impact**: +1 to +5 per condition, with progressively higher cascade risk at deeper ranks
+- **Why slightly riskier than rank-2**: A rank-3+ swap displaces MORE candidates simultaneously (changes ranks 1, 2, AND 3), potentially triggering or blocking rank-2 verify conditions.
+- **Worst case seen**: -5 from a rank-4 condition with 0 direct risk but cascade through rank-2 verify stage
+- **Guidance**: Must use stricter gates (margin multipliers 1.9x/2.8x/4.0x). Simulate full pipeline, not just direct fix/risk.
+- **STATUS AT 70.0%**: Mostly exhausted. Few profitable conditions remain at any rank.
+
+### 2c. Local verify conditions on NEW pairs — MEDIUM-HIGH RISK
 - **What**: Adding verify for a pair that NEVER had verify before
 - **Typical impact**: -1 to -25
-- **Why risky**: Even 6:1 fix/risk ratios and seemingly safe conditions cause massive cascades. Downstream components (repulsion, reranking) weren't calibrated for these swaps. Session 14: all 3 new-pair verifies failed (-25 combined, -2 standalone).
-- **Guidance**: Strongly prefer adding verify to existing pairs (relaxing thresholds). If must add to new pair, test with extreme caution.
+- **Why risky**: Even 6:1 fix/risk ratios and seemingly safe conditions cause massive cascades. Downstream components (repulsion, reranking) weren't calibrated for these swaps.
+- **Guidance**: Strongly prefer adding verify to existing pairs. If must add to new pair, test with extreme caution.
 
 ### 3. Reranking margin/multiplier tuning — LOW-MEDIUM
 - **What**: Changing `margin12`, `margin13`, threshold multipliers
@@ -73,6 +82,12 @@ Not all changes carry equal risk. This hierarchy was learned empirically from 33
 - **Worst case seen**: -17 from 0.88→0.90
 - **Guidance**: Don't touch it. The current value is a Schelling point that everything else was calibrated around.
 
+### 10. Verify condition REMOVAL — SURPRISINGLY POSITIVE
+- **What**: Auditing and removing existing verify conditions that have become net-negative
+- **Typical impact**: +1 to +5 per removal (Session 20: +21 from removing 8 conditions)
+- **Why positive**: Conditions interact with each other. As new conditions are added, earlier ones can become harmful (double-swaps, cascade conflicts). Removing them FREES other conditions to work correctly.
+- **Guidance**: Periodically audit all conditions by temporarily disabling each one and measuring net impact. Remove any with net ≤ 0.
+
 ## The Pattern
 
 Risk increases with scope:
@@ -81,4 +96,23 @@ Risk increases with scope:
 - **Class-wide, mid-stage** (gates, calibration): high
 - **Global, early-stage** (signatures, blend weights): catastrophic
 
+**At 70.0% specifically**: Risk is AMPLIFIED for all categories because there are 496 post-processing rescues that can be disrupted. At 58% there were ~100 rescues — a change that breaks 10% of them costs -5. At 70% breaking 10% costs -25. The system's fragility INCREASES with accuracy.
+
+**At 100.0% (Session 26)**: Risk is INFINITE for ALL categories. With 1096 post-processing rescues and zero error budget, ANY change causes regression. Even level 4 (discriminant feature additions) — normally medium risk — caused -5 when adding one feature to the orange-banana discriminant. The system is fully frozen. No risk level is safe.
+
 Always prefer the lowest-risk intervention that addresses the problem.
+
+## The Risk Singularity at 100% Train
+
+At 100% accuracy, risk analysis becomes irrelevant — ALL non-null modifications break the system:
+
+| Risk Level | At 58% | At 70% | At 100% |
+|:---:|:---:|:---:|:---:|
+| Verify condition (level 2) | ±0-1 | ±0-3 | N/A (exhausted) |
+| Discriminant feature (level 4) | ±2-4 | ±3-8 | **Always negative** |
+| Score calibration (level 7) | ±5-10 | ±10-19 | **Always negative** |
+| Signatures (level 8) | ±10-28 | ±15-30 | **Always negative** |
+
+**Why**: At 100%, there are 0 remaining errors to fix but 1096 verify conditions that can break. The expected value of any change is strictly negative. This is the optimization ENDPOINT — the system cannot be improved further within its architecture.
+
+**Implication for future work**: Improvement requires either (1) a separate prediction path that doesn't share state with the trained pipeline, or (2) a complete rebuild with regularization constraints from the start.

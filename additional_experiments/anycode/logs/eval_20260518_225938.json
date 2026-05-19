@@ -1,0 +1,288 @@
+{
+  "top1_accuracy": 0.902,
+  "correct": 1804,
+  "total": 2000,
+  "elapsed_s": 5.6,
+  "ms_per_image": 2.8,
+  "per_class": {
+    "golden_retriever": {
+      "accuracy": 0.945,
+      "correct": 189,
+      "total": 200
+    },
+    "mushroom": {
+      "accuracy": 0.9,
+      "correct": 180,
+      "total": 200
+    },
+    "teapot": {
+      "accuracy": 0.85,
+      "correct": 170,
+      "total": 200
+    },
+    "school_bus": {
+      "accuracy": 0.935,
+      "correct": 187,
+      "total": 200
+    },
+    "banana": {
+      "accuracy": 0.85,
+      "correct": 170,
+      "total": 200
+    },
+    "orange": {
+      "accuracy": 0.89,
+      "correct": 178,
+      "total": 200
+    },
+    "brown_bear": {
+      "accuracy": 0.915,
+      "correct": 183,
+      "total": 200
+    },
+    "king_penguin": {
+      "accuracy": 0.895,
+      "correct": 179,
+      "total": 200
+    },
+    "jellyfish": {
+      "accuracy": 0.915,
+      "correct": 183,
+      "total": 200
+    },
+    "sports_car": {
+      "accuracy": 0.925,
+      "correct": 185,
+      "total": 200
+    }
+  },
+  "top_confusions": [
+    {
+      "true": "teapot",
+      "pred": "banana",
+      "count": 8
+    },
+    {
+      "true": "banana",
+      "pred": "orange",
+      "count": 6
+    },
+    {
+      "true": "golden_retriever",
+      "pred": "mushroom",
+      "count": 5
+    },
+    {
+      "true": "mushroom",
+      "pred": "golden_retriever",
+      "count": 5
+    },
+    {
+      "true": "banana",
+      "pred": "golden_retriever",
+      "count": 5
+    },
+    {
+      "true": "orange",
+      "pred": "teapot",
+      "count": 5
+    },
+    {
+      "true": "brown_bear",
+      "pred": "king_penguin",
+      "count": 5
+    },
+    {
+      "true": "king_penguin",
+      "pred": "mushroom",
+      "count": 5
+    },
+    {
+      "true": "sports_car",
+      "pred": "school_bus",
+      "count": 5
+    },
+    {
+      "true": "teapot",
+      "pred": "golden_retriever",
+      "count": 4
+    },
+    {
+      "true": "teapot",
+      "pred": "school_bus",
+      "count": 4
+    },
+    {
+      "true": "teapot",
+      "pred": "mushroom",
+      "count": 4
+    },
+    {
+      "true": "school_bus",
+      "pred": "teapot",
+      "count": 4
+    },
+    {
+      "true": "banana",
+      "pred": "teapot",
+      "count": 4
+    },
+    {
+      "true": "banana",
+      "pred": "king_penguin",
+      "count": 4
+    }
+  ],
+  "sample_errors": [
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_0.JPEG",
+      "true": "golden_retriever",
+      "pred": "orange"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_102.JPEG",
+      "true": "golden_retriever",
+      "pred": "mushroom"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_104.JPEG",
+      "true": "golden_retriever",
+      "pred": "mushroom"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_138.JPEG",
+      "true": "golden_retriever",
+      "pred": "brown_bear"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_170.JPEG",
+      "true": "golden_retriever",
+      "pred": "king_penguin"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_210.JPEG",
+      "true": "golden_retriever",
+      "pred": "teapot"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_217.JPEG",
+      "true": "golden_retriever",
+      "pred": "mushroom"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_231.JPEG",
+      "true": "golden_retriever",
+      "pred": "mushroom"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_24.JPEG",
+      "true": "golden_retriever",
+      "pred": "king_penguin"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_267.JPEG",
+      "true": "golden_retriever",
+      "pred": "orange"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/golden_retriever/n02099601_272.JPEG",
+      "true": "golden_retriever",
+      "pred": "mushroom"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_109.JPEG",
+      "true": "mushroom",
+      "pred": "golden_retriever"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_125.JPEG",
+      "true": "mushroom",
+      "pred": "banana"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_130.JPEG",
+      "true": "mushroom",
+      "pred": "king_penguin"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_138.JPEG",
+      "true": "mushroom",
+      "pred": "orange"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_140.JPEG",
+      "true": "mushroom",
+      "pred": "golden_retriever"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_154.JPEG",
+      "true": "mushroom",
+      "pred": "golden_retriever"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_170.JPEG",
+      "true": "mushroom",
+      "pred": "teapot"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_192.JPEG",
+      "true": "mushroom",
+      "pred": "teapot"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_2.JPEG",
+      "true": "mushroom",
+      "pred": "orange"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_202.JPEG",
+      "true": "mushroom",
+      "pred": "king_penguin"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_208.JPEG",
+      "true": "mushroom",
+      "pred": "banana"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_211.JPEG",
+      "true": "mushroom",
+      "pred": "teapot"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_227.JPEG",
+      "true": "mushroom",
+      "pred": "golden_retriever"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_233.JPEG",
+      "true": "mushroom",
+      "pred": "brown_bear"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_255.JPEG",
+      "true": "mushroom",
+      "pred": "golden_retriever"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_257.JPEG",
+      "true": "mushroom",
+      "pred": "sports_car"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_263.JPEG",
+      "true": "mushroom",
+      "pred": "jellyfish"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_268.JPEG",
+      "true": "mushroom",
+      "pred": "king_penguin"
+    },
+    {
+      "path": "/Users/wangxiang/Desktop/my_workspace/hl-image-net/data/phase2/train/mushroom/n07734744_269.JPEG",
+      "true": "mushroom",
+      "pred": "school_bus"
+    }
+  ]
+}

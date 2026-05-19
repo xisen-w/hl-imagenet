@@ -1,0 +1,48 @@
+# Eval Run: 2026-05-18_19-54-17
+
+**Tag:** session24_baseline
+**Samples:** 2000
+**Top-1 Accuracy:** 0.874
+**Top-3 Accuracy:** 0.881
+**Mean Latency:** 31 ms
+
+## Per-Class Accuracy
+
+| Class | Accuracy | Correct/Total |
+|-------|----------|---------------|
+| banana | 0.890 | 178/200 |
+| brown_bear | 0.960 | 192/200 |
+| golden_retriever | 0.850 | 170/200 |
+| jellyfish | 0.835 | 167/200 |
+| king_penguin | 0.815 | 163/200 |
+| mushroom | 0.805 | 161/200 |
+| orange | 0.835 | 167/200 |
+| school_bus | 0.985 | 197/200 |
+| sports_car | 0.915 | 183/200 |
+| teapot | 0.845 | 169/200 |
+
+## Top Confusions
+
+- orange → king_penguin: 9
+- king_penguin → mushroom: 9
+- golden_retriever → king_penguin: 8
+- mushroom → banana: 8
+- mushroom → teapot: 8
+- orange → banana: 8
+- king_penguin → banana: 8
+- king_penguin → golden_retriever: 8
+- mushroom → brown_bear: 7
+- teapot → golden_retriever: 7
+
+## Feature Reuse
+
+- phase2_golden_retriever_signature: used by 10 classes
+- golden_fur_in_nature: used by 10 classes
+- quadruped_like: used by 10 classes
+- phase2_jellyfish_signature: used by 10 classes
+- phase2_mushroom_signature: used by 10 classes
+- phase2_teapot_signature: used by 10 classes
+- phase2_school_bus_signature: used by 10 classes
+- phase2_banana_signature: used by 10 classes
+- yellow_dominant: used by 10 classes
+- phase2_orange_signature: used by 10 classes

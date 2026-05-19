@@ -527,6 +527,80 @@ def _stats(graph: SceneGraph) -> dict[str, float]:
     else:
         result["contour_fill_ratio"] = 0.0
 
+    # Spatial grid features (4x4 grid)
+    cell_h, cell_w = h // 4, w // 4
+    edge_grid = np.zeros((4, 4))
+    warm_grid = np.zeros((4, 4))
+    for gi in range(4):
+        for gj in range(4):
+            r0, r1 = gi * cell_h, (gi + 1) * cell_h
+            c0, c1 = gj * cell_w, (gj + 1) * cell_w
+            edge_grid[gi, gj] = edges[r0:r1, c0:c1].mean() / 255.0
+            warm_grid[gi, gj] = warm[r0:r1, c0:c1].mean()
+    result["spatial_mid_warm"] = float(warm_grid[1:3, :].mean())
+    result["spatial_left_warm"] = float(warm_grid[:, :2].mean())
+    result["spatial_edge_border"] = float((edge_grid.sum() - edge_grid[1:3, 1:3].sum()) / 12.0)
+    result["spatial_top_edge"] = float(edge_grid[0, :].mean())
+    result["spatial_bot_intensity"] = float(gray[3*cell_h:, :].mean() / 255.0)
+    center_edge = float(edge_grid[1:3, 1:3].mean())
+    result["spatial_edge_concentration"] = center_edge - result["spatial_edge_border"]
+    result["spatial_lr_asym"] = float(abs(warm_grid[:, :2].mean() - warm_grid[:, 2:].mean()))
+
+    # --- Wavelet-like multi-scale energy (Laplacian pyramid, 3 levels) ---
+    pyr = cv2.resize(gray, (64, 64)).astype(np.float32)
+    pyr_energies = []
+    for _lev in range(3):
+        down = cv2.pyrDown(pyr)
+        up = cv2.pyrUp(down, dstsize=(pyr.shape[1], pyr.shape[0]))
+        detail = pyr - up
+        pyr_energies.append(float((detail ** 2).mean()))
+        pyr = down
+    pyr_total = sum(pyr_energies) + 1e-9
+    result["wavelet_fine"] = pyr_energies[0] / pyr_total
+    result["wavelet_mid"] = pyr_energies[1] / pyr_total
+    result["wavelet_coarse"] = pyr_energies[2] / pyr_total
+    result["wavelet_total"] = pyr_total / 10000.0
+
+    # --- GLCM distance=2 (captures coarser texture than distance=1) ---
+    g1_d2 = gray[:, :-2].astype(np.float32)
+    g2_d2 = gray[:, 2:].astype(np.float32)
+    result["glcm_contrast_d2"] = float(((g1_d2 - g2_d2) ** 2).mean()) / (255 * 255)
+    g1_v2 = gray[:-2, :].astype(np.float32)
+    g2_v2 = gray[2:, :].astype(np.float32)
+    result["glcm_contrast_v2"] = float(((g1_v2 - g2_v2) ** 2).mean()) / (255 * 255)
+    result["glcm_aniso_d2"] = result["glcm_contrast_d2"] - result["glcm_contrast_v2"]
+
+    # --- Color coherence: ratio of large-region vs small-region colored pixels ---
+    hsv_small = cv2.resize(hsv, (32, 32))
+    sat_small = hsv_small[:, :, 1]
+    warm_small = (((hsv_small[:,:,0] >= 5) & (hsv_small[:,:,0] <= 45)) | (hsv_small[:,:,0] <= 5)) & (sat_small > 50) & (hsv_small[:,:,2] > 50)
+    if warm_small.sum() > 5:
+        n_lab_cc, lab_cc = cv2.connectedComponents(warm_small.astype(np.uint8) * 255)
+        cc_sizes = [(lab_cc == i).sum() for i in range(1, n_lab_cc)]
+        large_cc = sum(s for s in cc_sizes if s > 10)
+        result["warm_coherence"] = large_cc / max(warm_small.sum(), 1)
+    else:
+        result["warm_coherence"] = 0.0
+
+    # --- Bilateral smoothness: how much detail is lost by bilateral filter ---
+    bilateral = cv2.bilateralFilter(gray, 9, 75, 75)
+    bilat_diff = np.abs(gray.astype(np.float32) - bilateral.astype(np.float32))
+    result["bilat_detail"] = float(bilat_diff.mean()) / 255.0
+    result["bilat_detail_center"] = float(bilat_diff[h//4:3*h//4, w//4:3*w//4].mean()) / 255.0
+
+    # --- Corner density (Harris corners, good for structured objects) ---
+    harris = cv2.cornerHarris(gray, 2, 3, 0.04)
+    corner_thresh = harris.max() * 0.01
+    result["corner_density"] = float((harris > corner_thresh).sum()) / (h * w)
+
+    # --- Dominant color concentration (how much of image is one hue) ---
+    if sat_mask.sum() > 100:
+        result["dominant_hue_ratio"] = float(hue_hist.max())
+        result["top2_hue_ratio"] = float(np.sort(hue_hist)[-2:].sum())
+    else:
+        result["dominant_hue_ratio"] = 0.0
+        result["top2_hue_ratio"] = 0.0
+
     _stats_cache_graph = graph
     _stats_cache_result = result
     return result

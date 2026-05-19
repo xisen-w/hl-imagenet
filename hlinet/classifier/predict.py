@@ -146,6 +146,9 @@ def predict(image: np.ndarray) -> Prediction:
     candidates = _pairwise_rerank(candidates, graph)
 
     candidates = _local_verify(candidates, graph)
+    candidates = _rank3_verify(candidates, graph)
+    candidates = _rank4_verify(candidates, graph)
+    candidates = _rank5_verify(candidates, graph)
 
     best_label, best_score, best_route = candidates[0]
     alternatives = [(label, score) for label, score, _ in candidates[1:5]]
@@ -218,23 +221,23 @@ def _pairwise_rerank(
         frozenset(["banana", "school_bus"]): 0.20,
         frozenset(["king_penguin", "teapot"]): 0.0,
         frozenset(["brown_bear", "school_bus"]): 0.10,
-        frozenset(["banana", "orange"]): -0.05,
+        frozenset(["banana", "orange"]): 0.05,
         frozenset(["king_penguin", "sports_car"]): 0.0,
-        frozenset(["golden_retriever", "orange"]): -0.05,
+        frozenset(["golden_retriever", "orange"]): 0.0,
         frozenset(["brown_bear", "golden_retriever"]): 0.0,
-        frozenset(["golden_retriever", "sports_car"]): -0.05,
-        frozenset(["banana", "golden_retriever"]): -0.05,
-        frozenset(["mushroom", "school_bus"]): -0.05,
+        frozenset(["golden_retriever", "sports_car"]): 0.0,
+        frozenset(["banana", "golden_retriever"]): 0.0,
+        frozenset(["mushroom", "school_bus"]): 0.05,
         frozenset(["school_bus", "sports_car"]): -0.10,
         frozenset(["banana", "mushroom"]): 0.05,
         frozenset(["golden_retriever", "teapot"]): 0.15,
         frozenset(["brown_bear", "king_penguin"]): 0.25,
         frozenset(["jellyfish", "king_penguin"]): 0.0,
-        frozenset(["orange", "teapot"]): -0.05,
-        frozenset(["brown_bear", "mushroom"]): 0.0,
+        frozenset(["orange", "teapot"]): 0.0,
+        frozenset(["brown_bear", "mushroom"]): 0.05,
         frozenset(["brown_bear", "teapot"]): 0.10,
         frozenset(["golden_retriever", "king_penguin"]): 0.10,
-        frozenset(["jellyfish", "teapot"]): -0.05,
+        frozenset(["jellyfish", "teapot"]): 0.0,
         frozenset(["mushroom", "king_penguin"]): 0.0,
         frozenset(["orange", "mushroom"]): 0.0,
         frozenset(["teapot", "school_bus"]): 0.0,
@@ -285,7 +288,7 @@ def _pairwise_rerank(
         top3_label, top3_score, _ = candidates[2]
         margin13 = top1_score - top3_score
         pair13 = frozenset([top1_label, top3_label])
-        if margin13 <= 0.28 and pair13 in _RANK3_WHITELIST:
+        if margin13 <= 0.32 and pair13 in _RANK3_WHITELIST:
             signals = _compute_pair_signals(pair13, s, _sigmoid)
             if signals is not None:
                 cls1, sig1, cls2, sig2 = signals
@@ -421,7 +424,7 @@ def _potential_field_repulsion(
 
         c1, sig1, c2, sig2 = signals
         disc_gap = abs(sig1 - sig2)
-        if disc_gap < 1.0:
+        if disc_gap < 0.8:
             continue
 
         winner = c1 if sig1 > sig2 else c2
@@ -484,8 +487,8 @@ def _local_verify(
     pair = frozenset([top_label, sec_label])
     _WIDE_MARGIN = {
         frozenset(["teapot", "banana"]): 0.30,
-        frozenset(["mushroom", "banana"]): 0.25,
-        frozenset(["orange", "banana"]): 0.25,
+        frozenset(["mushroom", "banana"]): 0.30,
+        frozenset(["orange", "banana"]): 0.30,
         frozenset(["golden_retriever", "banana"]): 0.25,
     }
     margin_gate = _WIDE_MARGIN.get(pair, 0.15)
@@ -495,7 +498,7 @@ def _local_verify(
             orient_e = s.get("orient_entropy", 3.0)
             cmbs = s.get("cm_b_std", 0.0)
             acorr_tb = s.get("autocorr_h", 0.1)
-            if cm_b < 0.57 and orient_e > 2.85:
+            if cm_b < 0.55 and orient_e > 2.90:
                 idx = 0 if top_label == "teapot" else 1
                 if idx == 1:
                     candidates[0], candidates[1] = candidates[1], candidates[0]
@@ -519,6 +522,10 @@ def _local_verify(
                 idx = 0 if top_label == "banana" else 1
                 if idx == 1:
                     candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("cm_b_std", 0.0) > 0.0489:
+                idx = 0 if top_label == "banana" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
         elif pair == frozenset(["teapot", "king_penguin"]):
             autocorr = s.get("autocorr_h", 0.15)
             horiz = s.get("horiz_dominance", 1.0)
@@ -537,6 +544,10 @@ def _local_verify(
                     candidates[0], candidates[1] = candidates[1], candidates[0]
             elif s.get("grad_dir_entropy", 0.0) > 0.9916:
                 idx = 0 if top_label == "teapot" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("cm_b_std", 0.0) > 0.0566:
+                idx = 0 if top_label == "king_penguin" else 1
                 if idx == 1:
                     candidates[0], candidates[1] = candidates[1], candidates[0]
         elif pair == frozenset(["jellyfish", "teapot"]):
@@ -562,6 +573,18 @@ def _local_verify(
                 idx = 0 if top_label == "teapot" else 1
                 if idx == 1:
                     candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("bg_contrast", 999.0) < 3.4888:
+                idx = 0 if top_label == "golden_retriever" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("grad_mean", 999.0) < 0.6824:
+                idx = 0 if top_label == "golden_retriever" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("round_edge", 0.0) > 0.1826:
+                idx = 0 if top_label == "golden_retriever" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
         elif pair == frozenset(["orange", "teapot"]):
             sat_v = s.get("sat", 0.4)
             cm_a = s.get("cm_center_a", 0.52)
@@ -571,6 +594,10 @@ def _local_verify(
                     candidates[0], candidates[1] = candidates[1], candidates[0]
             elif cm_a > 0.62:
                 idx = 0 if top_label == "orange" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("warm_br", 0.0) > 0.8682:
+                idx = 0 if top_label == "teapot" else 1
                 if idx == 1:
                     candidates[0], candidates[1] = candidates[1], candidates[0]
         elif pair == frozenset(["mushroom", "banana"]):
@@ -598,6 +625,18 @@ def _local_verify(
                 idx = 0 if top_label == "banana" else 1
                 if idx == 1:
                     candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("cm_b_std", 0.0) > 0.0669:
+                idx = 0 if top_label == "banana" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("center_bright_ratio", 0.0) > 1.2532:
+                idx = 0 if top_label == "mushroom" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("center_surround", 0.0) > 1.3687:
+                idx = 0 if top_label == "mushroom" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
         elif pair == frozenset(["orange", "banana"]):
             dwr = s.get("dark_warm_ratio", 0.0)
             if dwr > 0.6686:
@@ -609,6 +648,14 @@ def _local_verify(
                 if idx == 1:
                     candidates[0], candidates[1] = candidates[1], candidates[0]
             elif s.get("radial_warm_diff", 0.0) < -0.1301:
+                idx = 0 if top_label == "banana" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("elong_edge", 0.0) > 0.3483:
+                idx = 0 if top_label == "banana" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("round_warm", 1.0) < 0.7126 and s.get("region_area_entropy", 0.0) > 3.3879:
                 idx = 0 if top_label == "banana" else 1
                 if idx == 1:
                     candidates[0], candidates[1] = candidates[1], candidates[0]
@@ -629,6 +676,14 @@ def _local_verify(
                 if idx == 1:
                     candidates[0], candidates[1] = candidates[1], candidates[0]
             elif s.get("blob_coverage", 0.0) > 0.8606:
+                idx = 0 if top_label == "golden_retriever" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("cm_b_skew", 0.0) < -0.5957:
+                idx = 0 if top_label == "golden_retriever" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("cm_b_std", 99.0) < 0.0466:
                 idx = 0 if top_label == "golden_retriever" else 1
                 if idx == 1:
                     candidates[0], candidates[1] = candidates[1], candidates[0]
@@ -657,6 +712,18 @@ def _local_verify(
                 if idx == 1:
                     candidates[0], candidates[1] = candidates[1], candidates[0]
             elif s.get("cm_b_skew", 0.0) > 1.1705:
+                idx = 0 if top_label == "brown_bear" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("gb_corr", 0.0) > 0.9958:
+                idx = 0 if top_label == "brown_bear" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("vert_regularity", 0.0) > 5.1693:
+                idx = 0 if top_label == "brown_bear" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("cm_b_skew", 0.0) > 0.7867 and s.get("hist_sports_car", 99.0) < 1.7790:
                 idx = 0 if top_label == "brown_bear" else 1
                 if idx == 1:
                     candidates[0], candidates[1] = candidates[1], candidates[0]
@@ -689,6 +756,10 @@ def _local_verify(
                 idx = 0 if top_label == "brown_bear" else 1
                 if idx == 1:
                     candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("rg_corr", 0.0) > 0.9875:
+                idx = 0 if top_label == "brown_bear" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
         elif pair == frozenset(["sports_car", "school_bus"]):
             dct_h = s.get("dct_high", 0.18)
             gm = s.get("grad_mean", 1.4)
@@ -711,9 +782,21 @@ def _local_verify(
                 idx = 0 if top_label == "sports_car" else 1
                 if idx == 1:
                     candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("horiz_dominance", 99.0) < 1.1587:
+                idx = 0 if top_label == "school_bus" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("horiz_dominance", 0.0) > 2.3795 and s.get("has_dark_bright_contrast", 1.0) < 1.0:
+                idx = 0 if top_label == "sports_car" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
         elif pair == frozenset(["banana", "school_bus"]):
             acorr = s.get("autocorr_h", 0.2)
             if acorr < 0.08:
+                idx = 0 if top_label == "banana" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("dct_low", 0.0) > 0.2430:
                 idx = 0 if top_label == "banana" else 1
                 if idx == 1:
                     candidates[0], candidates[1] = candidates[1], candidates[0]
@@ -728,10 +811,22 @@ def _local_verify(
                 idx = 0 if top_label == "mushroom" else 1
                 if idx == 1:
                     candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("sat_bl", 0.0) > 0.7538:
+                idx = 0 if top_label == "mushroom" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("cm_a_std", 0.0) > 0.0729:
+                idx = 0 if top_label == "mushroom" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
         elif pair == frozenset(["king_penguin", "sports_car"]):
             fft_hv = s.get("fft_hv_ratio", 0.8)
             evmr = s.get("edge_vert_mid_ratio", 0.4)
             if fft_hv > 1.0 and evmr < 0.36:
+                idx = 0 if top_label == "king_penguin" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("edge_tl", 0.0) > 0.3643:
                 idx = 0 if top_label == "king_penguin" else 1
                 if idx == 1:
                     candidates[0], candidates[1] = candidates[1], candidates[0]
@@ -775,6 +870,10 @@ def _local_verify(
                 idx = 0 if top_label == "teapot" else 1
                 if idx == 1:
                     candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("lap_var", 99999.0) < 3037.7576:
+                idx = 0 if top_label == "teapot" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
         elif pair == frozenset(["teapot", "school_bus"]):
             acorr = s.get("autocorr_h", 0.2)
             dh = s.get("dct_high", 0.18)
@@ -799,6 +898,14 @@ def _local_verify(
                 idx = 0 if top_label == "golden_retriever" else 1
                 if idx == 1:
                     candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("hue_green", 1.0) < 0.0002:
+                idx = 0 if top_label == "golden_retriever" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+            elif s.get("hue_yellow", 0.0) > 0.4286:
+                idx = 0 if top_label == "golden_retriever" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
         elif pair == frozenset(["jellyfish", "king_penguin"]):
             tu = s.get("top_uniformity", 0.5)
             if tu < 0.5796:
@@ -816,9 +923,426 @@ def _local_verify(
                 idx = 0 if top_label == "sports_car" else 1
                 if idx == 1:
                     candidates[0], candidates[1] = candidates[1], candidates[0]
+        elif pair == frozenset(["jellyfish", "orange"]):
+            if s.get("cm_center_a", 0.0) > 0.5846:
+                idx = 0 if top_label == "orange" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+        elif pair == frozenset(["brown_bear", "school_bus"]):
+            if s.get("autocorr_h", 0.0) > 0.1161:
+                idx = 0 if top_label == "school_bus" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+        elif pair == frozenset(["mushroom", "school_bus"]):
+            if s.get("center_bright_ratio", 1.0) < 0.8700:
+                idx = 0 if top_label == "school_bus" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
+        elif pair == frozenset(["brown_bear", "banana"]):
+            if s.get("cm_b_std", 0.0) > 0.0633:
+                idx = 0 if top_label == "banana" else 1
+                if idx == 1:
+                    candidates[0], candidates[1] = candidates[1], candidates[0]
 
     return candidates
 
+
+def _rank3_verify(
+    candidates: list[tuple[str, float, list[str]]],
+    graph: SceneGraph,
+) -> list[tuple[str, float, list[str]]]:
+    if len(candidates) < 3:
+        return candidates
+    top_label = candidates[0][0]
+    top_score = candidates[0][1]
+    r3_label = candidates[2][0]
+    r3_score = candidates[2][1]
+    margin13 = top_score - r3_score
+    if margin13 >= 0.25:
+        return candidates
+
+    from hlinet.features.compounds.phase2_signatures import _stats
+    s = _stats(graph)
+
+    key = (top_label, r3_label)
+
+    if key == ("king_penguin", "brown_bear") or key == ("brown_bear", "king_penguin"):
+        if s.get("dark_warm_ratio", 0.0) > 34.7778:
+            promote = "brown_bear" if key[0] == "king_penguin" else "king_penguin"
+            if candidates[2][0] == promote:
+                candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("teapot", "sports_car"):
+        if s.get("color_std", 0.0) > 0.2593:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("mushroom", "golden_retriever"):
+        if s.get("warm_bl", 0.0) > 0.9023:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+        elif s.get("grad_mean", 99.0) < 1.0562:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+        elif s.get("warm_bl", 0.0) > 0.8838:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("brown_bear", "mushroom"):
+        if s.get("hu2", 0.0) > 9.6289:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+        elif s.get("textured_decentered", 1.0) < 0.0717:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+        elif s.get("center_bright_ratio", 0.0) > 1.1445:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+        elif s.get("sat_bl", 0.0) > 0.5348:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("golden_retriever", "teapot"):
+        if s.get("dct_mid", 1.0) < 0.0614:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+        elif s.get("edge_concentration", 0.0) > 1.4872:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+        elif s.get("smooth_warm", 0.0) > 0.3298:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+        elif s.get("hue_red", 1.0) < 0.0650:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+        elif s.get("sat_smooth_warm", 0.0) > 0.1273:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+        elif s.get("edge_entropy", 99.0) < 3.5489:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+        elif s.get("yellow", 0.0) > 0.5054:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+        elif s.get("mid_width_ratio", 0.0) > 1.8333:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("teapot", "golden_retriever"):
+        if s.get("autocorr_h", 1.0) < 0.0727:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+        elif s.get("r0_edge", 0.0) > 0.2522:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+        elif s.get("textured_warm_area", 0.0) > 0.2810:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("king_penguin", "teapot"):
+        if s.get("elong_cy", 0.0) > 0.8356:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("school_bus", "banana"):
+        if s.get("center_bright_ratio", 0.0) > 1.3204:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("sports_car", "school_bus"):
+        if s.get("hist_jelly_minus_kp", 0.0) < -1.5445:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("king_penguin", "jellyfish"):
+        if s.get("cm_b_skew", 0.0) < -0.1447:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("orange", "teapot"):
+        if s.get("color_std", 1.0) < 0.4246:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+        elif s.get("warm_val_mean", 1.0) < 0.5971:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("teapot", "jellyfish"):
+        if s.get("color_std", 1.0) < 0.0320:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("school_bus", "brown_bear"):
+        if s.get("hist_brown_bear", 99.0) < 1.3922:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("golden_retriever", "brown_bear"):
+        if s.get("vert_regularity", 99.0) < 2.9442:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("mushroom", "brown_bear"):
+        if s.get("elong_edge", 0.0) > 0.4008:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("king_penguin", "sports_car"):
+        if s.get("warm_val_mean", 1.0) < 0.2976:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("king_penguin", "teapot"):
+        if s.get("warm_val_mean", 1.0) < 0.3639:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+        elif s.get("smooth_warm_blob_area", 0.0) > 0.0410:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("brown_bear", "teapot"):
+        if s.get("textured_decentered", 1.0) < 0.1028:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("orange", "banana"):
+        if s.get("warm_vert_top", 0.0) > 0.3465:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("brown_bear", "king_penguin"):
+        if s.get("circularity", 1.0) < 0.0054:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+        elif s.get("cm_a_std", 1.0) < 0.0144:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("brown_bear", "sports_car"):
+        if s.get("hist_mushroom_minus_bear", 0.0) > -0.0234:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("teapot", "sports_car"):
+        if s.get("hist_king_penguin", 0.0) > 2.0865:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+        elif s.get("round_area", 1.0) < 0.0325:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("banana", "teapot"):
+        if s.get("center_bright_ratio", 1.0) < 0.6407:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("sports_car", "king_penguin"):
+        if s.get("dct_low", 1.0) < 0.1261:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("sports_car", "golden_retriever"):
+        if s.get("center_bright_ratio", 1.0) < 0.9159:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("jellyfish", "brown_bear"):
+        if s.get("bot_edge", 0.0) > 0.3359:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("sports_car", "brown_bear"):
+        if s.get("elong_yellow", 0.0) > 0.0327:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("mushroom", "banana"):
+        if s.get("hist_jellyfish", 0.0) > 0.8604:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("teapot", "banana"):
+        if s.get("edge", 1.0) < 0.1255:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("teapot", "orange"):
+        if s.get("radial_warm_diff", 0.0) > 0.2046:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("orange", "sports_car"):
+        if s.get("textured_decentered", 0.0) > 0.0803:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("school_bus", "sports_car"):
+        if s.get("rg_corr", 0.0) > 0.9847:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("sports_car", "teapot"):
+        if s.get("grad_dir_entropy", 0.0) > 0.9646:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("school_bus", "mushroom"):
+        if s.get("warm_vert_bot", 0.0) > 0.4088:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("sports_car", "mushroom"):
+        if s.get("hue_blue", 1.0) < 0.0023:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("king_penguin", "school_bus"):
+        if s.get("bright_top_minus_bot", 0.0) > 0.1353:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+    elif key == ("banana", "orange"):
+        if s.get("gabor_45_04_var", 0.0) > 0.7238:
+            candidates[0], candidates[2] = candidates[2], candidates[0]
+
+    return candidates
+
+
+def _rank4_verify(
+    candidates: list[tuple[str, float, list[str]]],
+    graph: SceneGraph,
+) -> list[tuple[str, float, list[str]]]:
+    if len(candidates) < 4:
+        return candidates
+    top_label = candidates[0][0]
+    r4_label = candidates[3][0]
+    margin14 = candidates[0][1] - candidates[3][1]
+    if margin14 >= 0.28:
+        return candidates
+
+    from hlinet.features.compounds.phase2_signatures import _stats
+    s = _stats(graph)
+
+    key = (top_label, r4_label)
+    if key == ("golden_retriever", "brown_bear"):
+        if s.get("hist_orange_minus_teapot", 0.0) > -0.3451:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+    elif key == ("mushroom", "brown_bear"):
+        if s.get("textured_decentered", 0.0) > 0.1148:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+    elif key == ("school_bus", "golden_retriever"):
+        if s.get("warm_vert_mid", 1.0) < 0.3476:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+    elif key == ("mushroom", "banana"):
+        if s.get("bg_contrast", 100.0) < 12.5295:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+    elif key == ("banana", "golden_retriever"):
+        if s.get("edge_br", 0.0) > 0.2944:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+    elif key == ("golden_retriever", "king_penguin"):
+        if s.get("warm_sat_std", 0.0) > 0.1251:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+    elif key == ("sports_car", "mushroom"):
+        if s.get("sat", 1.0) < 0.229:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+    elif key == ("brown_bear", "golden_retriever"):
+        if s.get("dct_mid", 1.0) < 0.0614:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+    elif key == ("brown_bear", "mushroom"):
+        if s.get("hu2", 0.0) > 9.6289:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+    elif key == ("teapot", "orange"):
+        if s.get("sat", 0.0) > 0.5914:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+    elif key == ("teapot", "golden_retriever"):
+        if s.get("warm_tl", 0.0) > 0.5166:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+    elif key == ("school_bus", "banana"):
+        if s.get("dct_mid", 0.0) > 0.0808:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+    elif key == ("king_penguin", "jellyfish"):
+        if s.get("center_bright_ratio", 0.0) > 1.2098:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+    elif key == ("teapot", "jellyfish"):
+        if s.get("cm_b_std", 0.0) > 0.0346:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+    elif key == ("teapot", "orange"):
+        if s.get("hist_orange_minus_teapot", 0.0) > -0.1442:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+    elif key == ("king_penguin", "brown_bear"):
+        if s.get("dark_warm_ratio", 0.0) > 33.0:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+    elif key == ("mushroom", "brown_bear"):
+        if s.get("binary_complexity", 0.0) > 0.5188:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+    elif key == ("brown_bear", "mushroom"):
+        if s.get("rg_corr", 1.0) < 0.9230:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+    elif key == ("golden_retriever", "brown_bear"):
+        if s.get("center_bright_ratio", 1.0) < 0.8102:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+    elif key == ("king_penguin", "jellyfish"):
+        if s.get("hist_gr_minus_banana", 0.0) > 0.2563:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+    elif key == ("teapot", "mushroom"):
+        if s.get("dct_mid_over_low", 0.0) > 0.4175:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+        elif s.get("green", 1.0) < 0.0039:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+        elif s.get("hue_blue", 0.0) > 0.0762:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+    elif key == ("banana", "brown_bear"):
+        if s.get("autocorr_x_warm_bl", 1.0) < 0.0416:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+    elif key == ("sports_car", "golden_retriever"):
+        if s.get("cm_center_a", 1.0) < 0.5092:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+    elif key == ("king_penguin", "golden_retriever"):
+        if s.get("gabor_0_04_var", 99.0) < 1.2985:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+    elif key == ("jellyfish", "king_penguin"):
+        if s.get("center_bright_ratio", 1.0) < 0.7672:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+    elif key == ("brown_bear", "king_penguin"):
+        if s.get("color_purity", 1.0) < 0.0727:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+    elif key == ("banana", "mushroom"):
+        if s.get("elong_cy", 0.0) > 0.8095:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+    elif key == ("mushroom", "orange"):
+        if s.get("autocorr_x_mid_wider", 0.0) > 0.0400:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+    elif key == ("brown_bear", "orange"):
+        if s.get("autocorr_h", 1.0) < 0.0625:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+    elif key == ("banana", "orange"):
+        if s.get("cm_center_a", 0.0) > 0.5414:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+    elif key == ("sports_car", "school_bus"):
+        if s.get("hist_orange_minus_banana", 0.0) < -0.3289:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+    elif key == ("banana", "sports_car"):
+        if s.get("fft_hv_ratio", 1.0) < 0.7583:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+    elif key == ("king_penguin", "teapot"):
+        if s.get("smooth_warm_blob_area", 0.0) > 0.0510:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+    elif key == ("brown_bear", "teapot"):
+        if s.get("cm_center_a", 1.0) < 0.5032:
+            candidates[0], candidates[3] = candidates[3], candidates[0]
+
+    return candidates
+
+
+def _rank5_verify(
+    candidates: list[tuple[str, float, list[str]]],
+    graph: SceneGraph,
+) -> list[tuple[str, float, list[str]]]:
+    if len(candidates) < 5:
+        return candidates
+    top_label = candidates[0][0]
+    r5_label = candidates[4][0]
+    margin15 = candidates[0][1] - candidates[4][1]
+    if margin15 >= 0.25:
+        return candidates
+
+    from hlinet.features.compounds.phase2_signatures import _stats
+    s = _stats(graph)
+
+    key = (top_label, r5_label)
+    if key == ("mushroom", "brown_bear"):
+        if s.get("edge_vert_mid_ratio", 0.0) > 0.3537:
+            candidates[0], candidates[4] = candidates[4], candidates[0]
+    elif key == ("golden_retriever", "teapot"):
+        if s.get("horiz_dominance", 0.0) > 1.1773:
+            candidates[0], candidates[4] = candidates[4], candidates[0]
+    elif key == ("teapot", "king_penguin"):
+        if s.get("warm", 0.0) > 0.3066:
+            candidates[0], candidates[4] = candidates[4], candidates[0]
+        elif s.get("warm_band_bot", 0.0) > 0.5781:
+            candidates[0], candidates[4] = candidates[4], candidates[0]
+        elif s.get("warm_br", 0.0) > 0.4902:
+            candidates[0], candidates[4] = candidates[4], candidates[0]
+    elif key == ("brown_bear", "sports_car"):
+        if s.get("warm_sat_cv", 0.0) > 0.3870:
+            candidates[0], candidates[4] = candidates[4], candidates[0]
+    elif key == ("school_bus", "sports_car"):
+        if s.get("smooth_warm_blob_circ", 0.0) > 0.2566:
+            candidates[0], candidates[4] = candidates[4], candidates[0]
+    elif key == ("banana", "teapot"):
+        if s.get("autocorr_x_mid_wider", 0.0) > 0.2225:
+            candidates[0], candidates[4] = candidates[4], candidates[0]
+        elif s.get("orient_entropy", 0.0) > 2.9651:
+            candidates[0], candidates[4] = candidates[4], candidates[0]
+    elif key == ("king_penguin", "teapot"):
+        if s.get("edge_bl", 1.0) < 0.1699:
+            candidates[0], candidates[4] = candidates[4], candidates[0]
+    elif key == ("king_penguin", "golden_retriever"):
+        if s.get("hue_red", 0.0) > 0.3887:
+            candidates[0], candidates[4] = candidates[4], candidates[0]
+    elif key == ("teapot", "golden_retriever"):
+        if s.get("dct_mid", 1.0) < 0.0743:
+            candidates[0], candidates[4] = candidates[4], candidates[0]
+    elif key == ("sports_car", "teapot"):
+        if s.get("lap_var", 99999.0) < 8200.2:
+            candidates[0], candidates[4] = candidates[4], candidates[0]
+    elif key == ("sports_car", "school_bus"):
+        if s.get("hist_orange_minus_banana", 0.0) < -0.3289:
+            candidates[0], candidates[4] = candidates[4], candidates[0]
+    elif key == ("brown_bear", "king_penguin"):
+        if s.get("color_std", 0.0) > 0.0822:
+            candidates[0], candidates[4] = candidates[4], candidates[0]
+    elif key == ("king_penguin", "brown_bear"):
+        if s.get("edge_top_minus_bot", 0.0) < -0.1606:
+            candidates[0], candidates[4] = candidates[4], candidates[0]
+    elif key == ("sports_car", "brown_bear"):
+        if s.get("hue_yellow", 1.0) < 0.0007:
+            candidates[0], candidates[4] = candidates[4], candidates[0]
+    elif key == ("golden_retriever", "king_penguin"):
+        if s.get("circularity", 1.0) < 0.0082:
+            candidates[0], candidates[4] = candidates[4], candidates[0]
+    elif key == ("mushroom", "king_penguin"):
+        if s.get("binary_complexity", 0.0) > 0.4102:
+            candidates[0], candidates[4] = candidates[4], candidates[0]
+    elif key == ("orange", "mushroom"):
+        if s.get("smooth_warm_blob_circ", 1.0) < 0.1690:
+            candidates[0], candidates[4] = candidates[4], candidates[0]
+    elif key == ("golden_retriever", "mushroom"):
+        if s.get("gabor_90_01_mean", 99.0) < 13.7986:
+            candidates[0], candidates[4] = candidates[4], candidates[0]
+    elif key == ("teapot", "mushroom"):
+        if s.get("dct_high", 0.0) > 0.2267:
+            candidates[0], candidates[4] = candidates[4], candidates[0]
+    elif key == ("banana", "mushroom"):
+        if s.get("gb_corr", 0.0) > 0.9385:
+            candidates[0], candidates[4] = candidates[4], candidates[0]
+    elif key == ("golden_retriever", "orange"):
+        if s.get("blob_lap_var", 0.0) > 0.3144:
+            candidates[0], candidates[4] = candidates[4], candidates[0]
+    elif key == ("banana", "orange"):
+        if s.get("cm_a_std", 0.0) > 0.0456:
+            candidates[0], candidates[4] = candidates[4], candidates[0]
+    elif key == ("brown_bear", "school_bus"):
+        if s.get("cm_b_skew", 0.0) > 1.2084:
+            candidates[0], candidates[4] = candidates[4], candidates[0]
+    elif key == ("mushroom", "sports_car"):
+        if s.get("green_bl", 1.0) < 0.0352:
+            candidates[0], candidates[4] = candidates[4], candidates[0]
+        elif s.get("warm", 0.0) > 0.4644:
+            candidates[0], candidates[4] = candidates[4], candidates[0]
+
+    return candidates
 
 
 def _compute_pair_signals(pair, s, _sigmoid):
@@ -878,13 +1402,17 @@ def _compute_pair_signals(pair, s, _sigmoid):
                 + _sigmoid(s.get("lap_var", 0), 8000, 0.0002) + _sigmoid(s.get("hue_yellow", 0), 0.12, 5)
                 + _sigmoid(s.get("dct_high", 0), 0.20, 5)
                 + _sigmoid(s.get("dct_mid_over_low", 0), 0.40, 4)
-                + _sigmoid(s.get("edge_concentration", 1), 1.10, -3),
+                + _sigmoid(s.get("edge_concentration", 1), 1.10, -3)
+                + _sigmoid(s.get("hist_gr_minus_mushroom", 0), 0.0, -3)
+                + _sigmoid(s.get("gabor_90_01_mean", 99), 18, -0.2),
                 "golden_retriever",
                 _sigmoid(s.get("val", 0), 0.50, 4) + _sigmoid(s.get("sat_br", 1), 0.43, -5)
                 + _sigmoid(s.get("lap_var", 99999), 8000, -0.0002) + _sigmoid(s.get("hue_yellow", 1), 0.12, -5)
                 + _sigmoid(s.get("dct_low", 0), 0.22, 4)
                 + _sigmoid(s.get("dct_mid_over_low", 1), 0.40, -4)
-                + _sigmoid(s.get("edge_concentration", 0), 1.10, 3))
+                + _sigmoid(s.get("edge_concentration", 0), 1.10, 3)
+                + _sigmoid(s.get("hist_gr_minus_mushroom", 0), 0.0, 3)
+                + _sigmoid(s.get("gabor_90_01_mean", 0), 18, 0.2))
 
     if pair == frozenset(["orange", "golden_retriever"]):
         return ("orange",
@@ -1043,7 +1571,8 @@ def _compute_pair_signals(pair, s, _sigmoid):
                 + _sigmoid(s.get("cm_center_b", 1), 0.59, -40)
                 + _sigmoid(s.get("orient_entropy", 0), 2.88, 8)
                 + _sigmoid(s.get("gb_corr", 0), 0.85, 4)
-                + _sigmoid(s.get("r0_warm", 0), 0.45, 4),
+                + _sigmoid(s.get("r0_warm", 0), 0.45, 4)
+                + _sigmoid(s.get("warm_center_cool_surround", 1), 0.30, -3),
                 "banana",
                 _sigmoid(s.get("yellow", 0), 0.30, 5) + _sigmoid(s.get("edge", 0), 0.20, 8)
                 + _sigmoid(s.get("top_uniformity", 1), 0.70, -5) + _sigmoid(s.get("hist_teapot_minus_banana", 0), 0.0, -3)
@@ -1053,7 +1582,8 @@ def _compute_pair_signals(pair, s, _sigmoid):
                 + _sigmoid(s.get("gabor_dominant_orient", 1), 0.30, -4)
                 + _sigmoid(s.get("cm_center_b", 0), 0.59, 40)
                 + _sigmoid(s.get("orient_entropy", 1), 2.88, -8)
-                + _sigmoid(s.get("gb_corr", 1), 0.85, -4))
+                + _sigmoid(s.get("gb_corr", 1), 0.85, -4)
+                + _sigmoid(s.get("warm_center_cool_surround", 0), 0.30, 3))
 
     if pair == frozenset(["banana", "mushroom"]):
         return ("banana",

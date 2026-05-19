@@ -48,45 +48,55 @@ These spatial features were nearly useless for GNB (F-ratios <0.1) but highly di
 
 ## Results
 
-| | KNN memorizer | Phase 2 (200+ hand-eng. iters) | GNB anycode | **Forest anycode** |
-|---|---|---|---|---|
-| **Train** | 100% (memorized) | 48.75% | 49.4% | **91.1%** |
-| **Val** | 41.2% | 50.1% | ~40% | **58.8%** |
+| | KNN memorizer | Phase 2 (200+ hand-eng. iters) | GNB anycode | Forest v1 | **Forest v2** |
+|---|---|---|---|---|---|
+| **Train** | 100% (memorized) | 48.75% | 49.4% | 91.1% | **90.2%** |
+| **Val** | 41.2% | 50.1% | ~40% | 58.8% | **64.4%** |
 
-### Per-class val accuracy
+### Per-class val accuracy (Forest v2)
 
 | Class | Val |
 |-------|-----|
-| school_bus | 74.5% |
-| jellyfish | 74.0% |
-| sports_car | 67.0% |
-| orange | 65.0% |
-| king_penguin | 62.0% |
-| golden_retriever | 53.5% |
-| mushroom | 51.0% |
-| banana | 49.5% |
-| brown_bear | 48.0% |
-| teapot | 43.5% |
+| school_bus | 79.0% |
+| jellyfish | 76.0% |
+| sports_car | 74.5% |
+| orange | 71.0% |
+| king_penguin | 68.0% |
+| golden_retriever | 57.0% |
+| brown_bear | 56.5% |
+| mushroom | 56.0% |
+| banana | 54.0% |
+| teapot | 52.0% |
 
 ## What this tells us
 
 1. **Unconstrained optimization memorizes first.** 100% train / 41.2% val. The trivial solution — and exactly why held-out evaluation exists.
 
-2. **Feature interactions matter more than feature quality.** GNB and the forest use overlapping features, but the forest captures conjunctions ("warm AND textured AND dark bottom") that GNB treats independently. That's the 49.4% → 91.1% train jump, and 8+ points on val.
+2. **Feature interactions matter more than feature quality.** GNB and the forest use overlapping features, but the forest captures conjunctions ("warm AND textured AND dark bottom") that GNB treats independently. That's the 49.4% → 91.1% train jump, and 13+ points on val.
 
-3. **Hand-engineering hits a ceiling.** Phase 2's 50.1% val took 200+ iterations of manual feature design. The compiled forest reached 58.8% val automatically. The agent's manual confusion resolution rules were discovering the same conjunctive logic that trees find by construction — but doing it one pair at a time, and getting worse as the rule count grew.
+3. **Hand-engineering hits a ceiling the automated approach doesn't.** Phase 2's 50.1% val took 200+ iterations of manual feature design. The compiled forest reached 64.4% val automatically. The agent's manual confusion resolution rules were discovering the same conjunctive logic that trees find by construction — but doing it one pair at a time, and getting worse as the rule count grew.
 
 4. **Spatial layout is powerful but only in conjunction.** Quadrant and third-split features had low individual F-ratios but became highly discriminative inside tree branches. A mushroom's bright cap means nothing in isolation — it matters when combined with "green in bottom third AND earthy hue AND moderate texture." Trees express this naturally.
 
-5. **41.2% is the feature-quality floor.** KNN over raw features. Everything above that is how you COMBINE features. GNB (independent): 49.4%. Hand-tuned rules: 50.1% val. Trees (conjunctive): 58.8% val. The combination logic is worth 17+ points.
+5. **41.2% is the feature-quality floor.** KNN over raw features. Everything above that is how you COMBINE features. GNB (independent): 49.4%. Hand-tuned rules: 50.1% val. Trees (conjunctive): 64.4% val. The combination logic is worth 23+ points.
+
+6. **More orthogonal features help, but not indefinitely.** Adding LAB/DCT/Gabor/FFT/Hu features to the forest (+1.7pp val) was productive. But adding MORE spatial/shape features actually hurt — the ensemble's subsampling means each tree sees fewer relevant features as the total grows. The optimal is a compact set of diverse, orthogonal features.
 
 ## The HL insight
 
 The test: **delete the training data. Does the classifier still work?**
 - KNN: No. Needs stored templates.
 - GNB: Yes. 46 hardcoded means/stds + hand-written rules.
-- Forest: Yes. 8,859 if/else branches encoding visual knowledge.
+- Forest: Yes. 34,011 decision nodes encoding visual knowledge.
 
 All three are "learned from data." But only the last two satisfy the HL constraint of producing *code* rather than *stored parameters*. And the forest is strictly better because it captures feature interactions that flat scoring cannot.
 
-The compiled forest is the logical endpoint of heuristic learning: the HL loop (eval → analyze → edit code → test) is fully automated. `build_forest.py` IS the learning algorithm. `predict.py` IS the learned program. The 8,859 decision branches are conceptually identical to hand-written rules like "if saturation > 120 and hue in [5,20] and edge density > 0.15, then orange" — but discovered automatically rather than through 200+ manual iterations.
+The compiled forest is the logical endpoint of heuristic learning: the HL loop (eval → analyze → edit code → test) is fully automated. `build_forest.py` IS the learning algorithm. `predict.py` IS the learned program. The 34,011 decision nodes are conceptually identical to hand-written rules like "if saturation > 120 and hue in [5,20] and edge density > 0.15, then orange" — but discovered automatically rather than through 200+ manual iterations.
+
+## The generalization lesson
+
+The Phase 2 hand-engineered system achieves 100% train but only 41.35% val (58.65pp gap). The forest achieves 90.2% train and 64.4% val (25.8pp gap). This 33pp gap difference tells us:
+
+- **Trees regularize naturally.** Each split partitions the data into large groups. The 16-sample minimum leaf size means no branch memorizes fewer than 16 images — versus the Phase 2 verify conditions which fire on 1-10 images each.
+- **Ensembles smooth errors.** 101 trees voting means a single overfit branch gets outvoted. The Phase 2 system has no ensemble — each condition fires independently with full authority.
+- **The cost of perfection.** Pushing from 90.2% → 100% train would require the same kind of per-image memorization that destroyed Phase 2's generalization. The 9.8% train error is the PRICE of 64.4% val accuracy.

@@ -1,6 +1,6 @@
 # The Teapot Problem
 
-Teapot is the system's hardest class (40% accuracy, barely 4x random baseline). It illustrates the fundamental limit of classifying shape-defined objects with color/texture features.
+Teapot is the system's hardest class (58.5% accuracy at Session 20, up from 40% at Session 13). It illustrates the fundamental limit of classifying shape-defined objects with color/texture features — but also shows how far conditional logic can push a fundamentally weak base scorer.
 
 ## Why Teapot Is Shape-Defined
 
@@ -16,21 +16,21 @@ Teapots are identified by spatial configuration: handle on one side, spout on th
 
 **The feature vectors are essentially identical.** No classifier operating in this feature space can separate them.
 
-## The Three Teapot Failure Modes
+## The Three Teapot Failure Modes (updated at 70.0%)
 
-### 1. Cold metallic teapots → king_penguin (42 errors)
-Profile: warm=0.06, sat=0.14, bw=0.72. These are silver/dark teapots with low saturation.
-28/42 have teapot at rank ≤ 3 → partially recoverable by reranking.
-Current discriminant uses: hue_red, warm, sat_bl, hist_teapot_minus_kp, mid_wider, color_purity.
-Verify conditions catch some (autocorr_h > 0.16 AND horiz > 1.1).
+### 1. Cold metallic teapots → king_penguin (significantly reduced from 42)
+Profile: warm=0.06, sat=0.14, bw=0.72. Silver/dark teapots with low saturation.
+**Progress**: Exhaustive verify scan + rank-3/4/5 invention recovered many. Best remaining features: cm_b_skew (d'=1.09), fft_hv_ratio (d'=1.01) — but deploying in signature caused -20 cascade.
+**Status**: Individual condition mining exhausted for this pair.
 
-### 2. Warm/copper teapots → banana (27 errors)
-Profile: yellow=0.50, warm=0.72, smooth_warm=0.65. Copper/brass teapots with banana-like coloring.
-Only 1/27 has teapot as #2. Most have teapot at #3-#5 or unranked.
-**This means pairwise reranking cannot fix most of these.** Teapot's base score is too low to even be in contention.
+### 2. Warm/copper teapots → banana (20 remaining, down from 27)
+Profile: yellow=0.50, warm=0.72, smooth_warm=0.65. Copper/brass teapots.
+**Progress**: Rank-3/4/5 verify made previously unreachable errors addressable. cm_center_b + orient_entropy conditions.
+**Remaining**: 20 errors have teapot at rank 6+ — completely unreachable by any verify approach.
 
-### 3. Mixed teapots → multiple classes (24 → GR, 12 → mushroom, etc.)
+### 3. Mixed teapots → multiple classes (15 → GR, reduced from 24)
 These scatter across all classes because teapot's base score is weak everywhere.
+**Progress**: Some recovered via rank-3/4/5 verify targeting teapot-GR, teapot-bear conditions.
 
 ## What We've Tried
 
@@ -62,17 +62,28 @@ The only shape-adjacent features that work are:
 
 These provide d = 0.8-1.2, which is enough for marginal reranking gains but not enough to reliably identify teapots as rank 1.
 
-## What Would Fix Teapot
+## What HAS Worked for Teapot (40% → 58.5%)
+
+The +18.5pp gain came ENTIRELY from post-processing, not base scoring:
+- **Base scoring**: Still only 14.5% (29/200). The signatures are too weak.
+- **Reranking**: Teapot-KP, teapot-banana, teapot-GR discriminants recover ~30 images.
+- **Verify conditions (4 rank levels)**: ~50 images recovered across all verify stages.
+- **Rank-3/4/5 invention**: Made previously unreachable errors (teapot at rank 3-5) addressable for the first time.
+- **Confidence gate at 0.35**: Catches some FPs where teapot is falsely ranked #1 with low score.
+
+This proves that conditional logic can push accuracy FAR beyond what base scoring achieves — but at the cost of overfitting (teapot train/val gap is relatively low at +1.5pp only because teapot is bad on BOTH splits).
+
+## What Would Fix Teapot Further
 
 1. **Higher resolution** (128x128 or 256x256): Handle and spout become visible as distinct structures
-2. **Explicit shape detectors**: Hough transform for circles/lines, contour analysis for handle-like protrusions
-3. **Template matching**: Spatial correlation with a teapot silhouette template
-4. **Exemplar memory**: Store diverse teapot examples and match by spatial similarity
+2. **Spatial features (4x4 grids)**: Teapot has distinctive spatial layout (wider in middle, protrusions on sides). Currently all features are image-global scalars.
+3. **Explicit shape detectors**: Hough transform for circles/lines, contour analysis
+4. **Template matching**: Spatial correlation with a teapot silhouette template
 
-None of these are feasible within the current scalar-feature pipeline. Teapot's ceiling in this architecture is approximately 40-45%.
+The fundamental bottleneck is the 14.5% base score. If base scoring could reach 30% for teapot (like bear/GR), then existing verify machinery would push teapot to 70%+. But signature changes cascade catastrophically (-20 to -33 regression).
 
 ## Teapot as a Canary
 
-Teapot performance is a proxy for the system's shape-recognition capability. If accuracy improves significantly (say, to 55%+), it would indicate a fundamental advance in the representation. If it stays at 40%, the system remains color/texture-limited.
+Teapot performance is a proxy for the system's shape-recognition capability. The improvement from 40% to 58.5% came from CONDITIONAL LOGIC, not better representation. Base scoring at 14.5% means the system still cannot reliably IDENTIFY teapots — it can only CORRECT misidentifications after the fact.
 
-Current: 40% (83/200 correct on train)
+Current: 58.5% (117/200 correct on train), base scoring only: 14.5% (29/200)

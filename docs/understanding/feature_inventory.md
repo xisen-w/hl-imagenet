@@ -138,3 +138,57 @@ These were added to _stats() but failed when deployed. Kept for potential future
 | Contour-based | **Unexplored** | High |
 | Wavelet | **Unexplored** | High |
 | Bilateral/asymmetry | **Unexplored** | Medium |
+
+## The Feature Quality Ceiling (Session 27-28)
+
+Evidence from the anycode forest experiment reveals that 90 hand-crafted features reach a **hard ceiling of ~64% val** regardless of the combination method:
+
+| Combination method | Val accuracy |
+|---|---|
+| KNN (memorized) | 41.2% |
+| GNB (independent) | ~40% |
+| Phase 2 sigmoid pipeline (base+reranking only) | 51.9% |
+| Compiled forest (101 trees, bagged) | **64.4%** |
+| Compiled forest (101 trees, boosted) | 62.9% |
+| Compiled forest with TTA | 64.1% |
+| Compiled forest with augmented training | 63.5% |
+| CNN on raw pixels (for reference) | 71.8% |
+
+**The 64.4% ceiling is feature-quality limited, not architecture-limited.**
+
+### Why features cap out at ~64%
+
+The 90 features are overwhelmingly GLOBAL statistics: `mean(s)`, `mean(h in warm pixels)`, `var(laplacian)`. These collapse a 64×64×3 = 12,288-dimensional input to 90 scalars. The information loss is massive:
+
+1. **Spatial erasure**: `mean(saturation)` is the same whether saturation is concentrated in the center (fruit) or at the edges (vehicle). The tree can't distinguish "yellow top + dark bottom" (bus) from "yellow everywhere" (banana) without explicit spatial features.
+
+2. **Object vs background mixing**: `mean(green_pixels)` mixes foreground and background. A bear in front of green grass and a mushroom with a green background produce similar values.
+
+3. **Composition blindness**: The features can't express "round bright object in center against dark background" (orange) vs "elongated bright object in center" (banana). No combination of global scalars encodes spatial RELATIONSHIPS between regions.
+
+### The 7.4pp gap to CNNs
+
+The CNN achieves 71.8% val on the same task. The extra 7.4pp comes from:
+- **Learned spatial filters** that capture local structure
+- **Hierarchical composition** (edges → textures → parts → objects)
+- **Position-sensitive features** that know WHERE patterns occur
+
+To close this gap with hand-crafted features would require features that encode:
+1. Object shape (contour descriptors, skeleton-based features)
+2. Spatial relationships (relative positions of colored regions)
+3. Part-based composition (structured patches, not global statistics)
+
+These are the features that the Phase 2 system's "spatial grid" partially attempts — but the 2×2 or thirds grid is far too coarse to capture the discriminative structure that a CNN's 3×3 kernels across multiple layers capture.
+
+### Attempted spatial feature sets (Session 29, all worse)
+
+| Feature set | n_features | Val alone | Combined with 90 | Problem |
+|---|---|---|---|---|
+| HOG-like (4×4 orientation histograms) | 90 | 40.7% | 64.0% | Too noisy at 64×64 |
+| Dense spatial grid (4×4 × 5 stats) | 90 | 54.9% | — | Overfits (37.4pp gap) |
+| Patch relationships (4×4 + diffs) | 102 | 50.5% | 63.1% | Severe overfit (41.9pp gap) |
+| Radial rings + shape | 10 (replacement) | — | 63.9% | Not better than replaced features |
+
+**Why all spatial features fail at 64×64**: Objects are not consistently positioned in the frame. A 4×4 grid (16px cells) is fine enough to be position-sensitive but too coarse to capture actual object structure. The sweet spot (2×2 grid) works precisely because it's coarse enough to be position-invariant while still encoding gross layout (top-heavy vs bottom-heavy).
+
+**The paradox**: To capture spatial information that helps, you need fine spatial resolution. But fine spatial resolution at 64×64 overfits to object placement. CNNs solve this via learned translation-invariant filters — hand-crafted grids cannot.

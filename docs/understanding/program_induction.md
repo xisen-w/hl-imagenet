@@ -103,6 +103,41 @@ Each iteration is an experiment:
 
 **The update step is the most important.** Without it, the agent repeats the same mistake with different features. The session reasoning log and these understanding documents ARE the agent's learned knowledge — they prevent re-treading failed paths.
 
+## The Frozen System: When Induction Reaches Completeness
+
+At 100% train accuracy with ~900 verify conditions, the system enters a novel state: **every possible single-feature threshold that could fire on the pipeline output has been claimed**. This is the program induction equivalent of a "fully trained" model — but with a crucial difference:
+
+**In neural networks**, 100% train means the loss landscape has a flat region (zero loss) where gradient descent settles. Small perturbations to weights stay in this flat region.
+
+**In program induction**, 100% train means a FRAGILE equilibrium. Each condition is a hard threshold that either fires or doesn't. There is no "flat region" — any modification to any threshold changes the exact set of images it fires on. Because downstream conditions were calibrated to the EXACT ranking output of all upstream conditions, changing one condition creates a cascade of broken assumptions.
+
+### Why the system cannot be improved without regression
+
+1. **Threshold saturation**: Every feature value that separates an error image from its risk pool has been deployed. New conditions for val errors would fire on some train correct image (because verify already claimed that threshold region).
+
+2. **Condition interference**: The 900+ conditions interact through shared rankings. Image A's rank-7 swap changes what Image B sees at rank-3. This was discovered as "wave saturation" — but it's actually a fundamental property of ANY system where corrections share a global state (the ranking).
+
+3. **No slack in the system**: With 100% accuracy, there are zero "free" images to absorb collateral damage from changes. In a 90% system, a change that fixes 3 and breaks 2 is net positive. In a 100% system, ANY breakage is regression.
+
+### The overfitting-completeness tradeoff
+
+This creates an impossible choice:
+- **Keep 100% train**: Accept 41.35% val (58.65pp gap). The system has memorized all 2000 images.
+- **Improve val**: Must sacrifice train accuracy by removing verify waves. Best achievable: 51.9% val with base+reranking only (but train drops to ~52% too).
+- **No middle ground exists**: You cannot have both high train AND high val because the verify conditions that push train above ~52% are the same conditions that hurt val.
+
+### Implication for program induction theory
+
+The "frozen system" problem suggests that greedy program induction (add conditions one at a time, never break existing ones) necessarily converges to a memorized system when pushed to 100%. The conditions accumulate until they form a lookup table — each image has its own correction path.
+
+This is the program synthesis equivalent of the bias-variance tradeoff: a program that perfectly fits all training data must be complex enough to memorize, and that complexity cannot generalize.
+
+**Possible escapes** (not yet attempted):
+1. **Joint optimization**: Rewrite all conditions simultaneously using val as a constraint
+2. **Regularization**: Only deploy conditions that fire on ≥N images (where N is large enough to ensure generalization)
+3. **Feature improvement**: Improve base scoring so fewer conditions are needed (higher-quality features that capture class-level patterns rather than per-image outliers)
+4. **Ensemble of simpler systems**: Multiple prediction paths, each less overfit, combined via voting
+
 ## Autonomous Heuristic Scientist (Aspirational)
 
 The ideal architecture for continued improvement:
@@ -136,3 +171,36 @@ loop:
 ```
 
 The key insight: the agent's action space is patches to source code. Its reward is eval accuracy. Its state is the current codebase + accumulated understanding. This IS reinforcement learning — just with the agent implemented as an LLM instead of a neural policy network.
+
+## Optimization Ceilings: Three Types (Session 27)
+
+The project has encountered three distinct types of ceiling, each requiring different escapes:
+
+### Type 1: Architecture ceiling (escapable by structural extension)
+- **Example**: 70.0% — adding verify conditions WITHIN the pipeline hit cascade limits
+- **Escape**: Place conditions AFTER the pipeline (zero cascade)
+- **Signal**: Changes work in isolation but regress due to downstream interactions
+
+### Type 2: Feature ceiling (escapable by new feature types)
+- **Example**: 58.8% val (forest v1) — 71 HSV/spatial features max out at this accuracy
+- **Escape**: Add orthogonal feature types (LAB, DCT, Gabor, FFT → 64.4% val)
+- **Signal**: All parameter combinations plateau at the same accuracy
+
+### Type 3: Completeness ceiling (requires architectural reset)
+- **Example**: 100% train (Phase 2 pipeline) — cannot be improved because every possible correction has been deployed
+- **Example**: 64.4% val (forest v2) — cannot be improved by hyperparameter search, feature addition, or voting changes
+- **Signal**: Changes in ALL directions lead downhill. No local escape exists.
+
+The distinction matters because each type requires a DIFFERENT kind of intervention. Trying a Type 1 fix (structural extension) on a Type 3 ceiling wastes effort. Trying a Type 3 escape (full reset) on a Type 1 ceiling abandons progress unnecessarily.
+
+**How to diagnose**: If accuracy drops for ALL perturbations (parameters, features, architecture) → Type 3 (feature-quality limited). If accuracy drops for parameter changes but not structural ones → Type 1 (architecture limited). If accuracy drops for same-type features but not orthogonal ones → Type 2 (feature diversity limited).
+
+### Session 29 Confirmation of Type 3 (Completeness Ceiling)
+
+The anycode forest at 64.4% was attacked from 25+ angles over 3 sessions. Every approach—new features, ensemble methods, regularization tuning, stacking, specialization—yielded ≤64.6%. This is the definitive signature of a Type 3 ceiling:
+
+The ceiling is not in the COMBINATION METHOD but in the INFORMATION CONTENT of the features. No amount of architectural creativity can extract signal that the features don't contain. To break this ceiling requires either:
+1. **New measurement tools** (local spatial features that survive position variance — an unsolved problem at 64×64)
+2. **Learned features** (CNN/representation learning — a fundamentally different paradigm)
+
+This is analogous to trying to determine 3D shape from a silhouette: no amount of clever reasoning about the silhouette can recover depth information that was discarded during projection.

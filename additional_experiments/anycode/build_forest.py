@@ -41,6 +41,18 @@ FEATURE_NAMES = [
     "v_top_third", "v_mid_third", "v_bot_third",
     "s_top_third", "s_mid_third", "s_bot_third",
     "h_center_mean", "edge_top_ratio", "edge_bot_ratio",
+    # LAB color moments (from Phase 2 — orthogonal to HSV)
+    "lab_a_mean", "lab_b_mean", "lab_a_std", "lab_b_std",
+    "lab_center_a", "lab_center_b",
+    # DCT frequency bands
+    "dct_low", "dct_mid", "dct_high",
+    # Gabor texture (2 orientations x 2 frequencies)
+    "gabor_0_02_mean", "gabor_45_02_mean", "gabor_0_04_mean", "gabor_45_04_mean",
+    # FFT features
+    "fft_hv_ratio", "fft_high_freq",
+    # Additional texture/shape
+    "hu1", "hu2",
+    "glcm_contrast", "glcm_homogeneity",
 ]
 
 
@@ -192,6 +204,48 @@ def extract_features(image):
     features.append(float(np.mean(h[16:48, 16:48])))
     features.append(float(np.mean(edges[:third, :] > 0)))
     features.append(float(np.mean(edges[2*third:, :] > 0)))
+    # LAB color moments
+    lab = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
+    l_ch, a_ch, b_lab = cv2.split(lab)
+    features.append(float(np.mean(a_ch)))
+    features.append(float(np.mean(b_lab)))
+    features.append(float(np.std(a_ch)))
+    features.append(float(np.std(b_lab)))
+    features.append(float(np.mean(a_ch[16:48, 16:48])))
+    features.append(float(np.mean(b_lab[16:48, 16:48])))
+    # DCT frequency bands
+    gray_f = gray.astype(np.float32)
+    dct = cv2.dct(gray_f)
+    features.append(float(np.mean(np.abs(dct[:8, :8]))))
+    features.append(float(np.mean(np.abs(dct[8:24, 8:24]))))
+    features.append(float(np.mean(np.abs(dct[24:, 24:]))))
+    # Gabor texture
+    for theta in [0, np.pi/4]:
+        for freq in [0.2, 0.4]:
+            kern = cv2.getGaborKernel((9, 9), 3.0, theta, 1.0/freq, 0.5, 0, ktype=cv2.CV_32F)
+            filtered = cv2.filter2D(gray_f, cv2.CV_32F, kern)
+            features.append(float(np.mean(np.abs(filtered))))
+    # FFT features
+    f_transform = np.fft.fft2(gray_f)
+    f_shift = np.fft.fftshift(f_transform)
+    magnitude = np.abs(f_shift)
+    cy, cx = 32, 32
+    h_band = magnitude[cy-2:cy+3, :]
+    v_band = magnitude[:, cx-2:cx+3]
+    fft_h = float(np.sum(h_band))
+    fft_v = float(np.sum(v_band))
+    features.append(fft_h / max(fft_v, 1.0))
+    features.append(float(np.mean(magnitude[magnitude > np.percentile(magnitude, 90)])))
+    # Hu moments
+    moments = cv2.moments(gray)
+    hu = cv2.HuMoments(moments).flatten()
+    features.append(float(hu[0]))
+    features.append(float(hu[1]))
+    # GLCM approximation (fast co-occurrence)
+    shifted_r = np.roll(gray, 1, axis=1)
+    diff = np.abs(gray.astype(np.int16) - shifted_r.astype(np.int16))
+    features.append(float(np.mean(diff**2)))
+    features.append(float(np.mean(diff < 10)))
     return features
 
 
@@ -316,10 +370,10 @@ def main():
     print(f"Loaded {len(X)} samples, {X.shape[1]} features")
 
     # Build forest with bagging + feature subsampling
-    n_trees = 21
-    max_depth = 20
-    min_samples = 8
-    n_feat_sample = 40
+    n_trees = 101
+    max_depth = 14
+    min_samples = 16
+    n_feat_sample = int(np.sqrt(X.shape[1]) * 2)
 
     trees = []
     tree_codes = []
@@ -353,6 +407,8 @@ def main():
 
     # Generate predict.py
     tree_funcs = "\n\n".join(tree_codes)
+    tree_calls = ", ".join(f"_tree_{i}(f)" for i in range(n_trees))
+
     tree_calls = ", ".join(f"_tree_{i}(f)" for i in range(n_trees))
 
     predict_py = f'''"""Classifier: random forest of {n_trees} decision trees compiled to Python code.
@@ -541,6 +597,42 @@ def _get_extract_features_code():
     features.append(float(np.mean(h[16:48, 16:48])))
     features.append(float(np.mean(edges[:third, :] > 0)))
     features.append(float(np.mean(edges[2*third:, :] > 0)))
+    lab = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
+    l_ch, a_ch, b_lab = cv2.split(lab)
+    features.append(float(np.mean(a_ch)))
+    features.append(float(np.mean(b_lab)))
+    features.append(float(np.std(a_ch)))
+    features.append(float(np.std(b_lab)))
+    features.append(float(np.mean(a_ch[16:48, 16:48])))
+    features.append(float(np.mean(b_lab[16:48, 16:48])))
+    gray_f = gray.astype(np.float32)
+    dct = cv2.dct(gray_f)
+    features.append(float(np.mean(np.abs(dct[:8, :8]))))
+    features.append(float(np.mean(np.abs(dct[8:24, 8:24]))))
+    features.append(float(np.mean(np.abs(dct[24:, 24:]))))
+    for theta in [0, np.pi/4]:
+        for freq in [0.2, 0.4]:
+            kern = cv2.getGaborKernel((9, 9), 3.0, theta, 1.0/freq, 0.5, 0, ktype=cv2.CV_32F)
+            filtered = cv2.filter2D(gray_f, cv2.CV_32F, kern)
+            features.append(float(np.mean(np.abs(filtered))))
+    f_transform = np.fft.fft2(gray_f)
+    f_shift = np.fft.fftshift(f_transform)
+    magnitude = np.abs(f_shift)
+    cy, cx = 32, 32
+    h_band = magnitude[cy-2:cy+3, :]
+    v_band = magnitude[:, cx-2:cx+3]
+    fft_h = float(np.sum(h_band))
+    fft_v = float(np.sum(v_band))
+    features.append(fft_h / max(fft_v, 1.0))
+    features.append(float(np.mean(magnitude[magnitude > np.percentile(magnitude, 90)])))
+    moments = cv2.moments(gray)
+    hu = cv2.HuMoments(moments).flatten()
+    features.append(float(hu[0]))
+    features.append(float(hu[1]))
+    shifted_r = np.roll(gray, 1, axis=1)
+    diff = np.abs(gray.astype(np.int16) - shifted_r.astype(np.int16))
+    features.append(float(np.mean(diff**2)))
+    features.append(float(np.mean(diff < 10)))
     return features'''
 
 
