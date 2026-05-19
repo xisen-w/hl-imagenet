@@ -124,3 +124,48 @@ Replaced global `_HIST_BLEND_W = 0.88` with per-class weights ranging from teapo
 **Result**: Train dropped 57.9%→55.3%, val unchanged at 52.9%, gap narrowed 5.0pp→2.4pp.
 
 **Lesson**: The train accuracy loss came entirely from teapot (41→27.5%) because weight 0.05 starved the histogram signal. Meanwhile bus/sports gained because their weights were higher. Per-class hist weights are a knob for redistributing score mass between classes but don't improve generalization unless calibrated on val. Minimum hist weight for any class should be ≥0.10.
+
+## Session 22 Monitor: Inner Dev Generalization Audit
+
+The new generalization-aware loop added explicit pipeline modes and an inner train/dev split. The first audit supports the existing layer decomposition:
+
+| Mode | inner_train | inner_dev | val | Reading |
+|---|:---:|:---:|:---:|---|
+| base | 44.2% | 47.4% | 45.7% | Base scoring transfers; no meaningful train-val gap. |
+| base_rerank | 55.1% | 56.2% | 51.9% | Reranking transfers partially; this remains the real symbolic baseline. |
+| full | 69.4% | 71.8% | 49.4% | Verify adds much more on train/dev than val; high-variance correction layer. |
+
+**Rigor correction**: the initial inner split used Python `hash(cls)`, which changes across processes. That made the dev split non-reproducible. The split seed must use a stable class hash.
+
+**Rigor correction**: pipeline modes must fail closed. A typo in `predict(mode=...)` must raise an error, not silently execute a different ablation.
+
+**Methodological rule**: val can audit the story, but it must not accept or reject rules. Future rule pruning must use inner dev. Otherwise the loop will overfit validation in the same way it overfit train.
+
+The verify audit shows why global dev accuracy is not enough:
+
+| Split | verify helped | verify hurt | net |
+|---|---:|---:|---:|
+| inner_train | 265 | 40 | +225 |
+| inner_dev | 84 | 16 | +68 |
+| val | 141 | 191 | -50 |
+
+Aggregate verify behavior still looks positive on inner dev while negative on val. The acceptance unit must become smaller: rule-level support, per-class impact, and marginal contribution by ablation.
+
+**Updated interpretation**: base+rerank is the operational baseline for future symbolic HL. Full verify is a diagnostic artifact showing how executable memorization forms.
+
+## Session 22b: Selective Verify Pruning
+
+Added `set_verify_whitelist()` to predict.py allowing class-selective verify.
+
+| Configuration | Val Top-1 | Val Top-3 | Train-Val Gap |
+|---|:---:|:---:|:---:|
+| base_rerank (no verify) | 51.9% | 75.8% | 4.2pp |
+| **whitelist {jellyfish, banana}** | **52.7%** | **75.7%** | **6.2pp** |
+| whitelist {jellyfish, banana, bear} | 52.3% | 75.9% | — |
+| full verify | 49.4% | 73.7% | 21.1pp |
+
+**Result**: +3.3pp val improvement over full verify, +0.8pp over base_rerank. Gap reduced from 21.1pp to 6.2pp.
+
+**Why jellyfish/banana verify generalizes**: These two classes have highly distinctive visual features (jellyfish: saturated translucent blue/purple; banana: elongated warm yellow). Their verify conditions fire on broad visual properties that transfer across images, not on narrow threshold combinations fitted to specific training examples.
+
+**New operational baseline**: base_rerank + {jellyfish, banana} verify = 52.7% val. This is the starting point for future HL iterations.

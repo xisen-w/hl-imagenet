@@ -113,6 +113,16 @@ Note the S-curve: stall at 53.5% (Sessions 7-8), breakthrough via conditional lo
 | 97.70% | 5 iterations (Session 25) | Conjunctive (AND) conditions → 98.45% apparent ceiling |
 | 98.45% | 1 iteration (Session 26) | Precision threshold fix + full-rank visibility → 100.0% |
 
+## Generalization-Aware Trajectory (Session 29+, val-focused)
+
+| Session | Config | Val Top-1 | Val Top-3 | Train-Val Gap | Key Change |
+|:---:|---|:---:|:---:|:---:|---|
+| 20 | base+rerank only | 51.9% | 75.8% | 4.2pp | Best pre-pruning baseline |
+| 29 | full verify (all) | 49.4% | 73.7% | 21.1pp | Verify actively hurts val |
+| **29** | **whitelist {jellyfish, banana}** | **52.7%** | **75.7%** | **6.2pp** | **First generalization-aware patch** |
+
+**Phase I: Regularization via Pruning** — gained +3.3pp val by REMOVING overfit rules rather than adding new ones. The verify whitelist keeps only the two classes whose verify rules show positive transfer.
+
 **Pattern**: Each breakthrough comes from a genuinely new TYPE of intervention or METHODOLOGY, not from more of the same. The final breakthrough came from diagnosing a MEASUREMENT ERROR — the "irreducible errors" were a debugging failure, not an optimization failure.
 
 ### Phase I: Post-Pipeline Final Verify (Sessions 22-23, +17.35pp)

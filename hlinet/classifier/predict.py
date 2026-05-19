@@ -115,11 +115,27 @@ def _blend_hist_scores(
     ]
 
 
-def predict(image: np.ndarray) -> Prediction:
+PIPELINE_MODES = ("full", "base", "base_rerank")
+
+_VERIFY_WHITELIST: set[str] | None = None
+
+
+def set_verify_whitelist(classes: set[str] | None) -> None:
+    """Set which classes' verify rules are active. None = all active."""
+    global _VERIFY_WHITELIST
+    _VERIFY_WHITELIST = classes
+
+
+def predict(image: np.ndarray, *, mode: str = "full") -> Prediction:
     """Classify an image through the symbolic visual algebra pipeline.
 
     image: BGR numpy array (as loaded by cv2.imread)
+    mode: "full" (all stages), "base" (score+blend+calibrate+repulse only),
+          "base_rerank" (base + pairwise rerank, no verify)
     """
+    if mode not in PIPELINE_MODES:
+        raise ValueError(f"Unknown pipeline mode: {mode!r}. Expected one of {PIPELINE_MODES}")
+
     graph = _builder.build(image)
     cache: dict[str, FeatureValue] = {}
 
@@ -143,12 +159,14 @@ def predict(image: np.ndarray) -> Prediction:
 
     candidates.sort(key=lambda x: x[1], reverse=True)
 
-    candidates = _pairwise_rerank(candidates, graph)
+    if mode != "base":
+        candidates = _pairwise_rerank(candidates, graph)
 
-    candidates = _local_verify(candidates, graph)
-    candidates = _rank3_verify(candidates, graph)
-    candidates = _rank4_verify(candidates, graph)
-    candidates = _rank5_verify(candidates, graph)
+    if mode == "full":
+        candidates = _local_verify(candidates, graph)
+        candidates = _rank3_verify(candidates, graph)
+        candidates = _rank4_verify(candidates, graph)
+        candidates = _rank5_verify(candidates, graph)
 
     best_label, best_score, best_route = candidates[0]
     alternatives = [(label, score) for label, score, _ in candidates[1:5]]
@@ -475,10 +493,16 @@ def _local_verify(
         return candidates
     top_label, top_score, _ = candidates[0]
     sec_label, sec_score, _ = candidates[1]
+
+    if _VERIFY_WHITELIST is not None:
+        if top_label not in _VERIFY_WHITELIST and sec_label not in _VERIFY_WHITELIST:
+            return candidates
+
     gate = _CONFIDENCE_GATES.get(top_label)
     if gate is not None and top_score < gate:
-        candidates[0], candidates[1] = candidates[1], candidates[0]
-        return candidates
+        if _VERIFY_WHITELIST is None or top_label in _VERIFY_WHITELIST:
+            candidates[0], candidates[1] = candidates[1], candidates[0]
+            return candidates
 
     from hlinet.features.compounds.phase2_signatures import _stats
     s = _stats(graph)
@@ -957,6 +981,11 @@ def _rank3_verify(
     top_score = candidates[0][1]
     r3_label = candidates[2][0]
     r3_score = candidates[2][1]
+
+    if _VERIFY_WHITELIST is not None:
+        if top_label not in _VERIFY_WHITELIST and r3_label not in _VERIFY_WHITELIST:
+            return candidates
+
     margin13 = top_score - r3_score
     if margin13 >= 0.25:
         return candidates
@@ -1127,6 +1156,11 @@ def _rank4_verify(
         return candidates
     top_label = candidates[0][0]
     r4_label = candidates[3][0]
+
+    if _VERIFY_WHITELIST is not None:
+        if top_label not in _VERIFY_WHITELIST and r4_label not in _VERIFY_WHITELIST:
+            return candidates
+
     margin14 = candidates[0][1] - candidates[3][1]
     if margin14 >= 0.28:
         return candidates
@@ -1253,6 +1287,11 @@ def _rank5_verify(
         return candidates
     top_label = candidates[0][0]
     r5_label = candidates[4][0]
+
+    if _VERIFY_WHITELIST is not None:
+        if top_label not in _VERIFY_WHITELIST and r5_label not in _VERIFY_WHITELIST:
+            return candidates
+
     margin15 = candidates[0][1] - candidates[4][1]
     if margin15 >= 0.25:
         return candidates

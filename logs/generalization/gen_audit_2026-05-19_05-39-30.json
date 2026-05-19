@@ -1,0 +1,165 @@
+{
+  "tag": "gen_audit",
+  "timestamp": "2026-05-19_05-39-30",
+  "modes": {
+    "full": {
+      "inner_train": {
+        "top1": 0.694,
+        "top3": 0.8093333333333333,
+        "n_samples": 1500,
+        "per_class": {
+          "golden_retriever": 0.6466666666666666,
+          "mushroom": 0.6266666666666667,
+          "teapot": 0.5533333333333333,
+          "school_bus": 0.7933333333333333,
+          "banana": 0.7133333333333334,
+          "orange": 0.6933333333333334,
+          "brown_bear": 0.7133333333333334,
+          "king_penguin": 0.6866666666666666,
+          "jellyfish": 0.7866666666666666,
+          "sports_car": 0.7266666666666667
+        }
+      },
+      "inner_dev": {
+        "top1": 0.718,
+        "top3": 0.814,
+        "n_samples": 500,
+        "per_class": {
+          "golden_retriever": 0.58,
+          "mushroom": 0.58,
+          "teapot": 0.68,
+          "school_bus": 0.9,
+          "banana": 0.62,
+          "orange": 0.8,
+          "brown_bear": 0.78,
+          "king_penguin": 0.74,
+          "jellyfish": 0.74,
+          "sports_car": 0.76
+        }
+      },
+      "val": {
+        "top1": 0.494,
+        "top3": 0.737,
+        "n_samples": 2000,
+        "per_class": {
+          "golden_retriever": 0.365,
+          "mushroom": 0.41,
+          "teapot": 0.345,
+          "school_bus": 0.655,
+          "banana": 0.49,
+          "orange": 0.57,
+          "brown_bear": 0.425,
+          "king_penguin": 0.455,
+          "jellyfish": 0.705,
+          "sports_car": 0.52
+        }
+      }
+    },
+    "base": {
+      "inner_train": {
+        "top1": 0.442,
+        "top3": 0.7586666666666667,
+        "n_samples": 1500,
+        "per_class": {
+          "golden_retriever": 0.36,
+          "mushroom": 0.4066666666666667,
+          "teapot": 0.22666666666666666,
+          "school_bus": 0.64,
+          "banana": 0.62,
+          "orange": 0.31333333333333335,
+          "brown_bear": 0.30666666666666664,
+          "king_penguin": 0.4066666666666667,
+          "jellyfish": 0.7,
+          "sports_car": 0.44
+        }
+      },
+      "inner_dev": {
+        "top1": 0.474,
+        "top3": 0.784,
+        "n_samples": 500,
+        "per_class": {
+          "golden_retriever": 0.34,
+          "mushroom": 0.38,
+          "teapot": 0.22,
+          "school_bus": 0.72,
+          "banana": 0.64,
+          "orange": 0.34,
+          "brown_bear": 0.48,
+          "king_penguin": 0.54,
+          "jellyfish": 0.66,
+          "sports_car": 0.42
+        }
+      },
+      "val": {
+        "top1": 0.457,
+        "top3": 0.7545,
+        "n_samples": 2000,
+        "per_class": {
+          "golden_retriever": 0.345,
+          "mushroom": 0.375,
+          "teapot": 0.3,
+          "school_bus": 0.695,
+          "banana": 0.56,
+          "orange": 0.395,
+          "brown_bear": 0.255,
+          "king_penguin": 0.505,
+          "jellyfish": 0.69,
+          "sports_car": 0.45
+        }
+      }
+    },
+    "base_rerank": {
+      "inner_train": {
+        "top1": 0.5506666666666666,
+        "top3": 0.7666666666666667,
+        "n_samples": 1500,
+        "per_class": {
+          "golden_retriever": 0.44,
+          "mushroom": 0.5466666666666666,
+          "teapot": 0.3466666666666667,
+          "school_bus": 0.7,
+          "banana": 0.5733333333333334,
+          "orange": 0.5933333333333334,
+          "brown_bear": 0.5266666666666666,
+          "king_penguin": 0.49333333333333335,
+          "jellyfish": 0.7,
+          "sports_car": 0.5866666666666667
+        }
+      },
+      "inner_dev": {
+        "top1": 0.562,
+        "top3": 0.784,
+        "n_samples": 500,
+        "per_class": {
+          "golden_retriever": 0.4,
+          "mushroom": 0.54,
+          "teapot": 0.46,
+          "school_bus": 0.74,
+          "banana": 0.5,
+          "orange": 0.68,
+          "brown_bear": 0.54,
+          "king_penguin": 0.64,
+          "jellyfish": 0.68,
+          "sports_car": 0.44
+        }
+      },
+      "val": {
+        "top1": 0.519,
+        "top3": 0.7585,
+        "n_samples": 2000,
+        "per_class": {
+          "golden_retriever": 0.39,
+          "mushroom": 0.495,
+          "teapot": 0.4,
+          "school_bus": 0.705,
+          "banana": 0.445,
+          "orange": 0.605,
+          "brown_bear": 0.42,
+          "king_penguin": 0.515,
+          "jellyfish": 0.65,
+          "sports_car": 0.565
+        }
+      }
+    }
+  }
+}

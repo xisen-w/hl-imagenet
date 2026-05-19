@@ -16,3 +16,4 @@ Every serious Claude Code run should update the relevant understanding file firs
 - [blog_outline.md](blog_outline.md) — Blog structure for the larger story.
 - [research_directions.md](research_directions.md) — Concrete next work for a generalization-aware heuristic-learning loop.
 - [claude_cron_job.md](claude_cron_job.md) — Proposed recurring Claude Code job for the next research loop.
+- [session_monitor_2026-05-19.md](session_monitor_2026-05-19.md) — Monitoring notes on the first generalization-aware Claude Code run.
