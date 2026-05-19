@@ -1,6 +1,6 @@
 # The Teapot Problem
 
-Teapot is the system's hardest class (58.5% accuracy at Session 20, up from 40% at Session 13). It illustrates the fundamental limit of classifying shape-defined objects with color/texture features — but also shows how far conditional logic can push a fundamentally weak base scorer.
+Teapot is the system's hardest class (58.5% accuracy at Session 20, up from 40% at Session 13). It illustrates the observed limit of classifying shape-defined objects with mostly color/texture features — but also shows how far conditional logic can push a weak base scorer.
 
 ## Why Teapot Is Shape-Defined
 

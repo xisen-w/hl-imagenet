@@ -1,11 +1,11 @@
-# Understanding: Distilled Knowledge from HL-ImageNet
+# Phase 2 Understanding: Distilled Knowledge from HL-ImageNet
 
-This folder contains indexable, searchable knowledge extracted from 29 sessions (700+ iterations) of building a symbolic image classifier from scratch. Each file covers one topic at depth.
+This folder contains indexable, searchable knowledge about the hand-built Phase 2 symbolic pipeline. It covers the sigmoid-signature, histogram-blending, reranking, and verify-rule system. The anycode forest is documented separately under `../../anycode/`.
 
-**Current state**: 
-- Phase 2 main system: 100.0% train (2000/2000), 41.35% val, 58.65pp gap (frozen — cannot be modified)
-- Anycode forest v2: 90.2% train, **64.4% val**, 25.8pp gap (101 compiled decision trees, 90 features) — CONFIRMED CEILING
-- CNN baseline: 76% train, **71.8% val** — the upper bound for this task at 64×64
+**Key Phase 2 states**:
+- Session 20/21 hand-built pipeline: 70.0% train, 49.4% val. This is the main no-tree symbolic result.
+- Full verify-wave endpoint: 100.0% train (2000/2000), 41.35% val. This is an overfit train memorizer and should not be presented as a generalizing classifier.
+- Best documented generalizing hand-pipeline layer stack: base scoring + pairwise reranking at about 51.9% val.
 
 ## How to use
 - **Before making a change**: read the relevant file to see what's been tried, what worked, and why things fail
@@ -39,4 +39,4 @@ This folder contains indexable, searchable knowledge extracted from 29 sessions 
 - [program_induction.md](program_induction.md) — The deeper frame: the codebase is the model, eval is reward, patches are actions. The frozen system: when induction reaches completeness.
 - [patch_safety.md](patch_safety.md) — Cascade amplification, safe mutation zones, and the cost of wrong changes
 - [optimization_trajectory.md](optimization_trajectory.md) — Sessions 1-26 progression, phases A-L, train optimization COMPLETE at 100%
-- [representation_gap.md](representation_gap.md) — The 7.4pp gap between hand-crafted (64.4%) and learned (71.8%) features: what it represents and why it's fundamental
+- [../../anycode/representation_gap.md](../../anycode/representation_gap.md) — Cross-architecture comparison between hand-crafted forests and learned CNN features

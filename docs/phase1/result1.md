@@ -6,7 +6,7 @@ From 12.7% (random baseline) to 86.1% on the Phase 1 development set over 248 ev
 
 Methodology note: this is a development-set trajectory, not a held-out benchmark. The 230-image set mixed 4 real Tiny ImageNet classes (50 each) with 6 synthetic placeholder classes (5 each). On the 4 real classes alone, final dev accuracy was 84%; the later validation folder scored 54%, or 51.4% after exact duplicate removal.
 
-See `docs/plots/` for all visualizations.
+See `plots/` for all visualizations.
 
 ---
 
@@ -135,7 +135,7 @@ Based on 11 coding sessions, each involving Claude (Opus-class) as the HL agent:
 
 ## Plots Generated
 
-All in `docs/plots/`:
+All in `plots/`:
 
 1. **01_accuracy_trajectory.png** - Full 248-iteration path with annotated phase transitions and plateau zones
 2. **02_per_class_evolution.png** - 10-class bar chart at 9 milestones showing when each class was solved

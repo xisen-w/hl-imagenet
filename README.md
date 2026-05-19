@@ -109,19 +109,19 @@ swap iff disc_margin > base_threshold + score_gap * gap_scale
 
 ### Phase 2 Accuracy Trajectory
 
-![Phase 2 Accuracy Trajectory](docs/plots/phase2/01_accuracy_trajectory.png)
+![Phase 2 Accuracy Trajectory](docs/phase2/plots/01_accuracy_trajectory.png)
 
 ### Phase 2 Experiment Logs
 
 - [`logs/session_reasoning.md`](logs/session_reasoning.md) — Full reasoning log: what was tried, why, results per iteration
-- [`docs/lessons.md`](docs/lessons.md) — 15 hard-won lessons from 330+ iterations
+- [`docs/phase2/lessons.md`](docs/phase2/lessons.md) — 15 hard-won lessons from 330+ iterations
 - [`logs/phase2/`](logs/phase2/) — All eval run logs (JSON + markdown)
 
 ---
 
 ## Lessons Learned (Both Phases)
 
-330+ iterations produced 15 lessons, documented in full in **[`docs/lessons.md`](docs/lessons.md)**. Highlights:
+330+ iterations produced 15 lessons, documented in full in **[`docs/phase2/lessons.md`](docs/phase2/lessons.md)**. Highlights:
 
 1. **Additive scoring creates sink classes** — school bus and banana score high on everything. Guards don't fix this; it's structural.
 2. **Pairwise reranking is the most impactful technique** (+3.4pp) — but has a hard ceiling since ~55% of errors have the true class beyond rank 3.
@@ -195,13 +195,13 @@ The remaining 32 errors (14%) came from the dog/mushroom/teapot triangle: at 64x
 3. The system stores histogram prototypes and ~50 tuned thresholds. Not "zero learned parameters."
 4. What Phase 1 demonstrated: the HL loop works. Confusion-driven iteration, feature invention, and representation saturation are real phenomena.
 
-See the [full blog post](docs/blog.md) for trajectory analysis and ceiling discussion.
+See the [full blog post](docs/phase1/blog.md) for trajectory analysis and ceiling discussion.
 
 ### Phase 1 Plots
 
-![Phase 1 Accuracy Trajectory](docs/plots/phase1/01_accuracy_trajectory.png)
+![Phase 1 Accuracy Trajectory](docs/phase1/plots/01_accuracy_trajectory.png)
 
-![Phase 1 Hard Classes](docs/plots/phase1/06_hard_classes.png)
+![Phase 1 Hard Classes](docs/phase1/plots/06_hard_classes.png)
 
 </details>
 
@@ -236,9 +236,11 @@ hl-image-net/
 │   ├── phase1/            # All eval logs (JSON + markdown), 330+ iterations
 │   └── session_reasoning.md  # Detailed reasoning log
 └── docs/
-    ├── blog.md            # Full Phase 1 writeup
-    ├── lessons.md         # Lessons learned across both phases
-    └── plots/             # Visualizations
+    ├── phase1/            # Exploratory setup, report, blog, plots
+    ├── phase2/            # Main hand-built symbolic pipeline docs
+    ├── anycode/           # Side experiment: unconstrained compiled classifiers
+    ├── phase3/            # Forward plan for local perception
+    └── synthesis/         # Shareable analysis, X threads, blog outline
 ```
 
 ## Quick Start

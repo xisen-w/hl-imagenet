@@ -141,7 +141,7 @@ These were added to _stats() but failed when deployed. Kept for potential future
 
 ## The Feature Quality Ceiling (Session 27-28)
 
-Evidence from the anycode forest experiment reveals that 90 hand-crafted features reach a **hard ceiling of ~64% val** regardless of the combination method:
+Evidence from the anycode forest experiment suggests that the tested 90 hand-crafted feature family reaches a **practical ceiling of ~64% val** across the tried combination methods:
 
 | Combination method | Val accuracy |
 |---|---|
@@ -154,7 +154,7 @@ Evidence from the anycode forest experiment reveals that 90 hand-crafted feature
 | Compiled forest with augmented training | 63.5% |
 | CNN on raw pixels (for reference) | 71.8% |
 
-**The 64.4% ceiling is feature-quality limited, not architecture-limited.**
+**The 64.4% ceiling appears feature-quality limited within the tried architectures.**
 
 ### Why features cap out at ~64%
 

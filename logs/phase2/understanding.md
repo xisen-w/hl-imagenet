@@ -1,6 +1,6 @@
 # Phase 2 Improvement Sessions — Chronological Log
 
-> **Structured knowledge**: See `docs/understanding/` for distilled, topic-organized knowledge extracted from these sessions. This file is the raw chronological record.
+> **Structured knowledge**: See `docs/phase2/understanding/` for distilled, topic-organized knowledge extracted from these sessions. This file is the raw chronological record.
 
 # Phase 2 Improvement Session — 2026-05-13
 

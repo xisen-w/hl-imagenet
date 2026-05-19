@@ -22,9 +22,9 @@ What overfits, what generalizes, and where the gap lives in the pipeline.
 
 **Key insight**: Post-pipeline verify conditions actively HARM val by a total of 10.6pp. The pairwise reranking is the ONLY post-processing that generalizes well (+6.2pp). Every verify stage after reranking is memorization that hurts generalization.
 
-**The optimal system** for val would be: base + reranking = 51.9%. This is still below the anycode forest (64.4%) because the base scoring itself is weaker — sigmoid signatures capture less class structure than tree-based conjunctive splits.
+**The best documented validation configuration** is base + reranking = 51.9%. This is still below the anycode forest (64.4%) because the base scoring itself is weaker — sigmoid signatures capture less class structure than tree-based conjunctive splits.
 
-**Implication**: The entire verify machinery (Sessions 9-26, 900+ conditions, 54pp of train gain) is PURELY memorization with negative transfer to val. The reranking (+6.2pp val) is the only post-base processing worth keeping for generalization.
+**Implication**: The verify machinery (Sessions 9-26, 900+ conditions, 54pp of train gain) is dominated by memorized corrections with negative transfer to val. The reranking (+6.2pp val) is the only post-base processing clearly worth keeping for generalization.
 
 ### The "frozen system" problem (discovered Session 26)
 

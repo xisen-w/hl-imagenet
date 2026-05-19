@@ -95,7 +95,7 @@ The features ARE orthogonal and discriminative. The PIPELINE cannot absorb them 
 
 ## Anycode Forest Validation (Session 27)
 
-The anycode compiled forest experiment provides definitive evidence that orthogonal features generalize when combined via trees rather than the sigmoid pipeline:
+The anycode compiled forest experiment provides evidence that orthogonal features generalize better when combined via trees than when injected into the saturated sigmoid pipeline:
 
 | Feature set | Forest val accuracy |
 |---|---|
@@ -132,4 +132,4 @@ HOG passes test 1 weakly (40.7%) but FAILS test 2 (93% train → only 40.7% val 
 - Multi-scale features (wavelet pyramids that pool across positions)
 - Learned representations (autoencoders, SimCLR — but these cross into "learned features" territory)
 
-These are the features that close the 7.4pp gap to CNNs. They all share one property: they capture local structure (what patterns exist) while discarding global position (where in the image), which is exactly what CNNs do via translation-equivariant convolutions + global average pooling.
+These are the feature directions most likely to attack the 7.4pp gap to CNNs. They all share one property: they capture local structure (what patterns exist) while discarding global position (where in the image), which is exactly what CNNs do via translation-equivariant convolutions + global average pooling.

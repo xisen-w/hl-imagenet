@@ -48,10 +48,10 @@ These spatial features were nearly useless for GNB (F-ratios <0.1) but highly di
 
 ## Results
 
-| | KNN memorizer | Phase 2 (200+ hand-eng. iters) | GNB anycode | Forest v1 | **Forest v2** |
-|---|---|---|---|---|---|
-| **Train** | 100% (memorized) | 48.75% | 49.4% | 91.1% | **90.2%** |
-| **Val** | 41.2% | 50.1% | ~40% | 58.8% | **64.4%** |
+| | KNN memorizer | Phase 2 base+rerank | Phase 2 full verify | GNB anycode | Forest v1 | **Forest v2** |
+|---|---|---|---|---|---|---|
+| **Train** | 100% (memorized) | ~52% | 100% | 49.4% | 91.1% | **90.2%** |
+| **Val** | 41.2% | 51.9% | 41.35% | ~40% | 58.8% | **64.4%** |
 
 ### Per-class val accuracy (Forest v2)
 
@@ -74,13 +74,13 @@ These spatial features were nearly useless for GNB (F-ratios <0.1) but highly di
 
 2. **Feature interactions matter more than feature quality.** GNB and the forest use overlapping features, but the forest captures conjunctions ("warm AND textured AND dark bottom") that GNB treats independently. That's the 49.4% → 91.1% train jump, and 13+ points on val.
 
-3. **Hand-engineering hits a ceiling the automated approach doesn't.** Phase 2's 50.1% val took 200+ iterations of manual feature design. The compiled forest reached 64.4% val automatically. The agent's manual confusion resolution rules were discovering the same conjunctive logic that trees find by construction — but doing it one pair at a time, and getting worse as the rule count grew.
+3. **Hand-engineering hits a ceiling the automated approach doesn't.** Phase 2's best documented generalizing hand-built stack, base scoring plus pairwise reranking, reached 51.9% val after 200+ iterations. The full verify endpoint reached 100% train but collapsed to 41.35% val. The compiled forest reached 64.4% val automatically. The agent's manual confusion resolution rules were discovering the same conjunctive logic that trees find by construction — but doing it one pair at a time, and getting worse as the rule count grew.
 
 4. **Spatial layout is powerful but only in conjunction.** Quadrant and third-split features had low individual F-ratios but became highly discriminative inside tree branches. A mushroom's bright cap means nothing in isolation — it matters when combined with "green in bottom third AND earthy hue AND moderate texture." Trees express this naturally.
 
-5. **41.2% is the feature-quality floor.** KNN over raw features. Everything above that is how you COMBINE features. GNB (independent): 49.4%. Hand-tuned rules: 50.1% val. Trees (conjunctive): 64.4% val. The combination logic is worth 23+ points.
+5. **41.2% is the raw-feature floor.** KNN over raw features gets 41.2% val. Everything above that is how you combine features. GNB reaches 49.4% train but weak val. Phase 2 base+rerank gets 51.9% val. Trees get 64.4% val. The combination logic is worth 23+ points.
 
-6. **More orthogonal features help, but not indefinitely.** Adding LAB/DCT/Gabor/FFT/Hu features to the forest (+1.7pp val) was productive. But adding MORE spatial/shape features actually hurt — the ensemble's subsampling means each tree sees fewer relevant features as the total grows. The optimal is a compact set of diverse, orthogonal features.
+6. **More orthogonal features help, but not indefinitely.** Adding LAB/DCT/Gabor/FFT/Hu features to the forest (+1.7pp val) was productive. But adding MORE spatial/shape features actually hurt — the ensemble's subsampling means each tree sees fewer relevant features as the total grows. The best observed setup is a compact set of diverse, orthogonal features.
 
 ## The HL insight
 
@@ -89,9 +89,9 @@ The test: **delete the training data. Does the classifier still work?**
 - GNB: Yes. 46 hardcoded means/stds + hand-written rules.
 - Forest: Yes. 34,011 decision nodes encoding visual knowledge.
 
-All three are "learned from data." But only the last two satisfy the HL constraint of producing *code* rather than *stored parameters*. And the forest is strictly better because it captures feature interactions that flat scoring cannot.
+All three are learned from data. But only the last two produce an executable classifier rather than a nearest-neighbor template database. The forest is strictly better because it captures feature interactions that flat scoring cannot.
 
-The compiled forest is the logical endpoint of heuristic learning: the HL loop (eval → analyze → edit code → test) is fully automated. `build_forest.py` IS the learning algorithm. `predict.py` IS the learned program. The 34,011 decision nodes are conceptually identical to hand-written rules like "if saturation > 120 and hue in [5,20] and edge density > 0.15, then orange" — but discovered automatically rather than through 200+ manual iterations.
+The compiled forest is one logical endpoint of the anycode branch: the HL loop (eval → analyze → edit code → test) is fully automated. `build_forest.py` is the learning algorithm. `predict.py` is the learned program. The 34,011 decision nodes are conceptually identical to hand-written rules like "if saturation > 120 and hue in [5,20] and edge density > 0.15, then orange" — but discovered automatically rather than through 200+ manual iterations.
 
 ## The generalization lesson
 

@@ -170,7 +170,7 @@ loop:
     update_understanding(best, result)
 ```
 
-The key insight: the agent's action space is patches to source code. Its reward is eval accuracy. Its state is the current codebase + accumulated understanding. This IS reinforcement learning — just with the agent implemented as an LLM instead of a neural policy network.
+The key insight: the agent's action space is patches to source code. Its reward is eval accuracy. Its state is the current codebase + accumulated understanding. It can be viewed as reinforcement learning over program edits, with the agent implemented as an LLM instead of a neural policy network.
 
 ## Optimization Ceilings: Three Types (Session 27)
 
@@ -187,8 +187,8 @@ The project has encountered three distinct types of ceiling, each requiring diff
 - **Signal**: All parameter combinations plateau at the same accuracy
 
 ### Type 3: Completeness ceiling (requires architectural reset)
-- **Example**: 100% train (Phase 2 pipeline) — cannot be improved because every possible correction has been deployed
-- **Example**: 64.4% val (forest v2) — cannot be improved by hyperparameter search, feature addition, or voting changes
+- **Example**: 100% train (Phase 2 pipeline) — cannot improve train accuracy further because every training image is already corrected
+- **Example**: 64.4% val (forest v2) — was not improved by the tried hyperparameter, feature, and voting changes
 - **Signal**: Changes in ALL directions lead downhill. No local escape exists.
 
 The distinction matters because each type requires a DIFFERENT kind of intervention. Trying a Type 1 fix (structural extension) on a Type 3 ceiling wastes effort. Trying a Type 3 escape (full reset) on a Type 1 ceiling abandons progress unnecessarily.
@@ -197,10 +197,10 @@ The distinction matters because each type requires a DIFFERENT kind of intervent
 
 ### Session 29 Confirmation of Type 3 (Completeness Ceiling)
 
-The anycode forest at 64.4% was attacked from 25+ angles over 3 sessions. Every approach—new features, ensemble methods, regularization tuning, stacking, specialization—yielded ≤64.6%. This is the definitive signature of a Type 3 ceiling:
+The anycode forest at 64.4% was attacked from 25+ angles over 3 sessions. Every approach—new features, ensemble methods, regularization tuning, stacking, specialization—yielded ≤64.6%. This is strong evidence for a Type 3 ceiling in the tested search space:
 
-The ceiling is not in the COMBINATION METHOD but in the INFORMATION CONTENT of the features. No amount of architectural creativity can extract signal that the features don't contain. To break this ceiling requires either:
+The ceiling appears not to be in the combination method but in the information content of the features. No tried architectural variant extracted signal that the features did not contain. To break this ceiling likely requires either:
 1. **New measurement tools** (local spatial features that survive position variance — an unsolved problem at 64×64)
 2. **Learned features** (CNN/representation learning — a fundamentally different paradigm)
 
-This is analogous to trying to determine 3D shape from a silhouette: no amount of clever reasoning about the silhouette can recover depth information that was discarded during projection.
+This is analogous to trying to determine 3D shape from a silhouette: once a projection discards information, clever reasoning has limited room unless a new measurement recovers the missing signal.

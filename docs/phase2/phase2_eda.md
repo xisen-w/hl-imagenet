@@ -109,4 +109,4 @@ The 4 Phase 1 classes retain some accuracy (60–75%) since their rules still pa
 
 ## Visual Samples
 
-See `docs/phase2_eda_grid.png` for 5 random samples per class.
+See `phase2_eda_grid.png` for 5 random samples per class.

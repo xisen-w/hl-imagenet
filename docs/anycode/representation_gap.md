@@ -12,7 +12,7 @@
 
 ## What the Gap Represents
 
-The 7.4pp gap between the best hand-crafted system (64.4%) and the CNN (71.8%) represents information that EXISTS in the pixels but CANNOT be captured by any design of global or semi-global statistics.
+The 7.4pp gap between the best tested hand-crafted system (64.4%) and the CNN (71.8%) represents information that exists in the pixels but was not captured by the tested global and semi-global statistics.
 
 ### What the CNN captures that we cannot
 
@@ -62,7 +62,7 @@ A 64×64×3 image has 12,288 values. Our 90 features compress this to 90 scalars
 - **Tree conjunctions** recover some lost structure (if warm AND textured AND center_bright → banana)
 - **CNNs** learn the optimal compression: 12,288 → ~512 feature map → 10 classes, preserving exactly the discriminative structure at each layer
 
-The forest's 64.4% represents the maximum information recoverable from 90 pre-chosen measurement types. The CNN's 71.8% represents the maximum recoverable from LEARNED measurements of the same data.
+The forest's 64.4% is the best observed result from 90 pre-chosen measurement types. The CNN's 71.8% shows the value of learned measurements on the same data.
 
 ## Design Principles Learned
 
@@ -76,18 +76,18 @@ The forest's 64.4% represents the maximum information recoverable from 90 pre-ch
 
 5. **Orthogonality beats more-of-same**: LAB/DCT/Gabor/FFT added +5.6pp to HSV-only. More HSV features would add ~0.
 
-6. **The combination method doesn't matter at the ceiling**: Forest, GNB, sigmoid pipeline, stacking, specialist, pairwise — all converge to ~64% with the same features. The information content of the features determines the ceiling, not the decision boundary.
+6. **Combination improvements saturated in the tested feature family**: Forest, boosted variants, TTA, augmentation, stacking, specialist, and pairwise variants all stayed near the same ceiling once the 90-feature family was fixed. The information content of the features dominated further decision-boundary tweaks.
 
 ## Implications for Heuristic Learning
 
-The project demonstrates that:
+The project suggests that:
 1. **Hand-crafted features can reach ~87% of CNN performance** on this task (64.4/71.8)
-2. **The last ~13% requires learned representations** — no amount of engineering can close it
+2. **The last ~13% likely requires learned or much stronger local representations** — more global-feature engineering did not close it
 3. **The Phase 2 pipeline at 100% train is a memorization artifact** — val drops to 41.35%
 4. **Trees generalize better than symbolic pipelines** because they regularize naturally
 5. **The optimal feature set is surprisingly compact** — 90 well-chosen features beat 180 diluted ones
 
-The fundamental limit of HL on visual tasks: hand-crafted features can encode WHAT to measure but not HOW to measure it locally. The "how to measure locally" is precisely what learned convolutions provide.
+The observed limit of this HL setup: hand-crafted features encode what to measure better than how to measure it locally. The "how to measure locally" is precisely what learned convolutions provide.
 
 ## The Oracle Ensemble: Evidence of Complementary Errors
 

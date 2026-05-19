@@ -346,4 +346,4 @@ Phase 7:  Conditional logic (gates, verify, margin tuning) → 58.15% train
 
 Each phase transition required a fundamentally new idea, not just more of the same type of tuning.
 
-See also: `docs/understanding/` for deeper analysis of each topic.
+See also: `understanding/` for deeper analysis of each topic.

@@ -217,7 +217,7 @@ The compiled random forest provides a different point in the accuracy-generaliza
 
 **Why the forest generalizes better**: Trees regularize naturally (min_samples=16 prevents per-image memorization), ensembles smooth individual errors, and conjunctive splits capture feature interactions without cascade risk.
 
-**The forest's ceiling** (discovered Session 27, exhaustively confirmed Session 29): 64.4% val cannot be improved by:
+**The forest's observed ceiling** (discovered Session 27, stress-tested in Session 29): 64.4% val was not improved by:
 - Adding features (dilution via feature subsampling)
 - More trees (saturated at 101; 301 trees = 64.5%)
 - Different depths/min_samples (14/16 is precisely optimal)
@@ -233,6 +233,6 @@ The compiled random forest provides a different point in the accuracy-generaliza
 - Mixed-regularization ensembles (64.0% — no diversity gain)
 - Feature replacement (worst 10 → spatial: 63.9%)
 
-**Total ceiling-breaking attempts across Sessions 27-29**: 25+ experiments, all confirming 64.4% ± 0.2%.
+**Total ceiling-breaking attempts across Sessions 27-29**: 25+ experiments, all staying around 64.4% ± 0.2%.
 
-This suggests the ceiling is determined by FEATURE QUALITY, not architecture. The 90 hand-crafted features carry ~64% of the discriminative information in these 10 classes at 64x64. A CNN reaching 71.8% val suggests 7-8pp more signal exists in the pixels that hand-crafted features fail to capture.
+This suggests the ceiling is mostly determined by feature quality within the tried architectures. The 90 hand-crafted features carry enough discriminative information for ~64% val on these 10 classes at 64x64. A CNN reaching 71.8% val suggests 7-8pp more signal exists in the pixels that these hand-crafted features fail to capture.
