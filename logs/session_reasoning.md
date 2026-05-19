@@ -1804,8 +1804,92 @@ Built generalization research infrastructure and achieved first improvement:
 6. **Val improved: 49.4% → 52.7% (+3.3pp)**
 7. **Gap reduced: 21.1pp → 6.2pp**
 
-Next session should:
-1. Set `{jellyfish, banana}` as the default verify configuration
-2. Explore why banana/jellyfish verify rules generalize (what's different about them)
-3. Try to make other classes' verify rules generalizable (higher support thresholds, broader conditions)
-4. Begin Direction 3: representation-level features that don't require per-image thresholds
+### Rule-Level Credit Assignment (per-pair ablation on inner_dev)
+
+Method: For each of 38 unique pairs, disable all verify rules involving that pair's classes, then re-predict the 159 verify-affected inner_dev images.
+
+Results: **32/38 pairs pass acceptance on inner_dev** (support>=3, net>0).
+
+Top performers on inner_dev:
+| Pair | Support | Net | Stages |
+|------|---------|-----|--------|
+| school_bus_sports_car | 18 | +13 | lv/r3/r4/r5 |
+| mushroom_sports_car | 12 | +7 | lv/r3/r4/r5 |
+| sports_car_teapot | 13 | +7 | lv/r3/r5 |
+| brown_bear_mushroom | 13 | +6 | lv/r3/r4/r5 |
+| golden_retriever_mushroom | 11 | +6 | lv/r3/r5 |
+| king_penguin_sports_car | 14 | +6 | lv/r3 |
+| banana_orange | 12 | +5 | lv/r3/r4/r5 |
+| golden_retriever_teapot | 12 | +5 | lv/r3/r4/r5 |
+| brown_bear_king_penguin | 6 | +5 | lv/r3/r4/r5 |
+
+Failing (net=0 or low support):
+- banana_mushroom: net=0, support=8
+- brown_bear_jellyfish: support=0
+- jellyfish_teapot: support=2
+- brown_bear_school_bus: support=2
+- jellyfish_orange: support=1
+- brown_bear_orange: support=2
+
+### Critical Finding: Compositionality Problem
+
+32/38 pairs look good individually on inner_dev, yet their aggregate is net-negative on val (-50). This means:
+
+1. **Individual ablation is necessary but not sufficient** — rules interact via cascade
+2. **Inner_dev overstates transfer** — rules tuned on the same distribution look locally good
+3. The acceptance rule needs: individual quality AND ensemble quality (greedy forward selection)
+
+### Revised Acceptance Protocol
+
+Instead of binary accept/reject per rule:
+1. Start from base_rerank (no verify)
+2. Greedy forward selection: add pairs one at a time, in order of inner_dev net
+3. Accept each pair IF val doesn't regress (or use inner_dev if we want to stay val-blind)
+4. Stop when adding the next pair hurts more than it helps
+
+This is essentially **forward stepwise feature selection** applied to verify rules.
+
+### Pair-Level Forward Selection Results
+
+Implemented `set_verify_pair_whitelist()` for true pair-level control. Greedy forward selection on inner_dev (acceptance criterion: dev doesn't regress by >0.4%):
+
+| # Pairs added | inner_dev | val (report) |
+|---------------|-----------|--------------|
+| 0 | 56.2% | **51.9%** |
+| 3 | 59.8% | 51.3% |
+| 6 | 62.8% | 51.4% |
+| 9 | 65.4% | 50.9% |
+| 12 | 66.4% | 51.0% |
+| 15 | 67.6% | 50.9% |
+| 19 | 68.6% | 50.6% |
+| 26 (all tested) | 70.6% | 50.0% |
+
+**Val MONOTONICALLY DECREASES as pairs are added.** Even the single best pair on inner_dev (school_bus_sports_car, net=+13) hurts val.
+
+Exception: banana+jellyfish pairs (11 pairs) = 52.8% val (+0.9pp). These were NOT the top-ranked pairs on inner_dev.
+
+### The Core Insight
+
+The ablation ranking (which pairs score highest on inner_dev) does NOT predict which pairs transfer to val. The reason:
+
+1. **inner_dev is not a distribution shift** — it's sampled from the same 200 images as inner_train
+2. Rules tuned on those 200 images will ALWAYS look good on any held-out subset of those 200 images
+3. Transfer depends on whether the VISUAL CONCEPT behind the rule generalizes, not whether the THRESHOLD fires on the right inner-dev images
+
+Banana and jellyfish rules transfer because:
+- Banana: elongated warm yellow shape (highly distinctive, robust to image variation)
+- Jellyfish: translucent blue/purple saturated (unique color profile among classes)
+
+The other classes lack such distinctive invariant features, so their verify rules depend on threshold specifics that don't transfer.
+
+### Conclusion for Acceptance Rule
+
+Inner_dev cannot accept/reject rules. It's necessary for rejecting OBVIOUSLY bad rules (support=0, net<0) but it cannot distinguish rules that transfer from rules that only SEEM to transfer.
+
+**The real acceptance criterion must be feature-type based:**
+- Rules based on robust visual invariants (color distinctiveness, shape elongation) → likely transfer
+- Rules based on threshold combinations (cm_b_skew > 0.7867 AND hist_sports_car < 1.779) → likely memorization
+- Rules with high support (>20 images) → more likely to capture genuine patterns
+- Rules with 4+ significant digits in thresholds → almost certainly overfit
+
+This shifts the focus from measurement to RULE DESIGN. The path forward is not "find rules that pass a dev test" but "design rules that encode transferable visual concepts."

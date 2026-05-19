@@ -86,13 +86,20 @@ This is not gradient descent, but it is a structured update signal over code.
 
 ## Near-Term Work
 
-The next Claude run should not try to improve the 100% train system. It should build tooling for generalization-aware HL:
+### Completed (Session 29)
 
-1. create a small inner train/dev split from `data/phase2/train`;
-2. add evaluation modes for base-only, base+rerank, and verify-enabled pipelines;
-3. add rule-support instrumentation for verify conditions;
-4. produce a report ranking existing verify rules by support and dev transfer;
-5. propose only representation-level or regularization patches.
+1. ~~create a small inner train/dev split from `data/phase2/train`~~ → `hlinet/eval/splits.py` (150/50 per class, seed 2026, crc32-stable)
+2. ~~add evaluation modes for base-only, base+rerank, and verify-enabled pipelines~~ → `predict(mode="base"|"base_rerank"|"full")` + `set_verify_whitelist()`
+3. ~~add rule-support instrumentation for verify conditions~~ → `hlinet/eval/verify_audit.py` (per-image credit assignment)
+4. ~~produce a report ranking existing verify rules by support and dev transfer~~ → `hlinet/eval/rule_credit.py` (per-pair ablation-based credit)
+5. First accepted patch: whitelist `{jellyfish, banana}` verify → val 49.4% → 52.7%
+
+### Next
+
+1. Complete rule-level credit report (running)
+2. Freeze acceptance rule formally (see `docs/synthesis/acceptance_rule.md`)
+3. Begin Direction 3: representation-level features against `base_rerank` baseline
+4. Prototype foreground/background separation, contour features, local patch pooling
 
 ## Reflection Maintenance
 

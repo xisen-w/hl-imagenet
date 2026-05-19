@@ -118,12 +118,32 @@ def _blend_hist_scores(
 PIPELINE_MODES = ("full", "base", "base_rerank")
 
 _VERIFY_WHITELIST: set[str] | None = None
+_VERIFY_PAIR_WHITELIST: set[frozenset] | None = None
 
 
 def set_verify_whitelist(classes: set[str] | None) -> None:
     """Set which classes' verify rules are active. None = all active."""
     global _VERIFY_WHITELIST
     _VERIFY_WHITELIST = classes
+
+
+def set_verify_pair_whitelist(pairs: set[frozenset] | None) -> None:
+    """Set which specific pairs' verify rules are active. None = all active.
+
+    Takes precedence over class whitelist when set.
+    Example: set_verify_pair_whitelist({frozenset(['banana', 'orange']), ...})
+    """
+    global _VERIFY_PAIR_WHITELIST
+    _VERIFY_PAIR_WHITELIST = pairs
+
+
+def _pair_allowed(cls_a: str, cls_b: str) -> bool:
+    """Check if a verify pair is allowed by current whitelist settings."""
+    if _VERIFY_PAIR_WHITELIST is not None:
+        return frozenset([cls_a, cls_b]) in _VERIFY_PAIR_WHITELIST
+    if _VERIFY_WHITELIST is not None:
+        return cls_a in _VERIFY_WHITELIST or cls_b in _VERIFY_WHITELIST
+    return True
 
 
 def predict(image: np.ndarray, *, mode: str = "full") -> Prediction:
@@ -494,15 +514,13 @@ def _local_verify(
     top_label, top_score, _ = candidates[0]
     sec_label, sec_score, _ = candidates[1]
 
-    if _VERIFY_WHITELIST is not None:
-        if top_label not in _VERIFY_WHITELIST and sec_label not in _VERIFY_WHITELIST:
-            return candidates
+    if not _pair_allowed(top_label, sec_label):
+        return candidates
 
     gate = _CONFIDENCE_GATES.get(top_label)
     if gate is not None and top_score < gate:
-        if _VERIFY_WHITELIST is None or top_label in _VERIFY_WHITELIST:
-            candidates[0], candidates[1] = candidates[1], candidates[0]
-            return candidates
+        candidates[0], candidates[1] = candidates[1], candidates[0]
+        return candidates
 
     from hlinet.features.compounds.phase2_signatures import _stats
     s = _stats(graph)
@@ -982,9 +1000,8 @@ def _rank3_verify(
     r3_label = candidates[2][0]
     r3_score = candidates[2][1]
 
-    if _VERIFY_WHITELIST is not None:
-        if top_label not in _VERIFY_WHITELIST and r3_label not in _VERIFY_WHITELIST:
-            return candidates
+    if not _pair_allowed(top_label, r3_label):
+        return candidates
 
     margin13 = top_score - r3_score
     if margin13 >= 0.25:
@@ -1157,9 +1174,8 @@ def _rank4_verify(
     top_label = candidates[0][0]
     r4_label = candidates[3][0]
 
-    if _VERIFY_WHITELIST is not None:
-        if top_label not in _VERIFY_WHITELIST and r4_label not in _VERIFY_WHITELIST:
-            return candidates
+    if not _pair_allowed(top_label, r4_label):
+        return candidates
 
     margin14 = candidates[0][1] - candidates[3][1]
     if margin14 >= 0.28:
@@ -1288,9 +1304,8 @@ def _rank5_verify(
     top_label = candidates[0][0]
     r5_label = candidates[4][0]
 
-    if _VERIFY_WHITELIST is not None:
-        if top_label not in _VERIFY_WHITELIST and r5_label not in _VERIFY_WHITELIST:
-            return candidates
+    if not _pair_allowed(top_label, r5_label):
+        return candidates
 
     margin15 = candidates[0][1] - candidates[4][1]
     if margin15 >= 0.25:
